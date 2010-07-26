@@ -1,0 +1,26 @@
+function computeExtraAlgosLinux( sequences )
+%COMPUTEEXTRAALGOSLINUX Summary of this function goes here
+%   Detailed explanation goes here
+
+    main_dir = '../../Data/middlebury';
+    CalcFlows.addPaths();
+    
+    flowsave_filenames = { 'classicnl.mat', 'largedispof.mat' };
+    flowsave_varnames = { 'uv_cn', 'uv_ld' };
+    
+    cell_flows = { ClassicNLOF, ...
+                   LargeDisplacementOF };
+    
+    for scene_id = sequences
+        scene_dir = fullfile(main_dir, num2str(scene_id));
+        
+        % load images
+        im1 = imread(fullfile(scene_dir, ComputeTrainTestData.IM1_PNG));
+        im2 = imread(fullfile(scene_dir, ComputeTrainTestData.IM2_PNG));
+        
+        for flow_idx = 1:length(cell_flows)
+        uv_flows(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2);
+    end
+
+end
+

@@ -1,0 +1,67 @@
+function computeFlows( obj )
+% calls all the flow computation algorithms, and performs all the
+% post-processing to populate the properties of this object
+
+    mat_filepath = fullfile(obj.scene_dir, obj.getMatFilename());
+
+    % if the object is already stored, simply load it
+    if obj.checkStoredObjAvailable()
+        fprintf('--> Loading object from %s\n', mat_filepath);
+        load(mat_filepath);
+        eval(['obj.deepCopy(' CalcFlows.SAVE_OBJ_NAME ');']);
+        return;
+    end
+
+    obj.uv_flows = [];
+    obj.algo_ids = cell(1, obj.no_algos);
+
+    % COMPUTE ALL THE OPTICAL FLOWs and store their IDs
+    for algo_idx = 1:obj.no_algos
+        if strcmp(obj.cell_flow_algos{algo_idx}, 'Classic NL')
+            warning('CalcFlows:computeFlows', 'loading directly from file');
+            
+        obj.uv_flows(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2);
+        obj.algo_ids{algo_idx} = obj.cell_flow_algos{algo_idx}.OF_SHORT_TYPE;
+    end
+
+    % check if GT computation needed and available
+    if obj.checkGTAvailable()
+        % read GT flow file
+        obj.uv_gt = readFlowFile(fullfile(obj.scene_dir, CalcFlows.GT_FLOW_FILE));
+
+        % compute the angle errors and EPE for all the algorithms
+        obj.uv_ang_err = zeros(size(obj.uv_flows,1), size(obj.uv_flows,2), obj.no_algos);
+        obj.uv_epe = obj.uv_ang_err;
+        for algo_idx = 1:obj.no_algos
+            [ obj.uv_ang_err(:,:,algo_idx) obj.uv_epe(:,:,algo_idx) ] = flowAngErrMe(obj.uv_gt(:,:,1), obj.uv_gt(:,:,2), ...
+                                                                                obj.uv_flows(:,:,1,algo_idx), obj.uv_flows(:,:,2,algo_idx));
+        end
+
+        % find the best algorithm according to Angular error
+        [ obj.result_ang obj.class_ang ] = min(obj.uv_ang_err,[],3);
+
+        % find the best algorithm according to EPE
+        [ obj.result_epe obj.class_epe ] = min(obj.uv_epe,[],3);
+
+        % find the distance between first and second best score
+        [vals ind] = sort(obj.uv_epe, 3);
+        obj.epe_dist_btwfirstsec = vals(:,:,2) - vals(:,:,1);
+
+        % GT mask
+        obj.gt_mask = obj.loadGTMask( 0 );
+
+        % Average EPE relative to the mask
+        pts = nnz(obj.gt_mask);
+        for algo_idx = 1:obj.no_algos
+            temp_uv_epe = obj.uv_epe(:,:,algo_idx);
+            obj.algo_avg_epe(algo_idx) = sum(sum(temp_uv_epe(obj.gt_mask)))/pts;
+        end
+        obj.opt_avg_epe = sum(sum(obj.result_epe(obj.gt_mask)))/pts;
+    end
+
+    % save the object to the mat file
+    fprintf('--> Saving object to %s\n', mat_filepath);
+    eval([CalcFlows.SAVE_OBJ_NAME ' = obj;']);
+    save(mat_filepath, CalcFlows.SAVE_OBJ_NAME);
+end
+

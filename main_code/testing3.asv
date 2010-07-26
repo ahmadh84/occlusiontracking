@@ -1,0 +1,6 @@
+function testing3
+%TESTING3 Summary of this function goes here
+%   Detailed explanation goes here
+
+main_dir = 'H:/oisin+middlebury_cropped';
+out_dir = 'H:/middlebury/occlus_comparison_tests';
