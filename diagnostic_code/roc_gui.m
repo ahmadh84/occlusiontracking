@@ -65,11 +65,12 @@ set(handles.threshold_text, 'CreateFcn', @(hObject,eventdata) thresholdTextCallb
 set(handles.boundary_chkbox, 'Callback', @(hObject,eventdata) boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, guidata(hObject)) );
 
 
-user_data.ctp = [0 1 0];
-user_data.cfn = [1 0 0];
+user_data.ctp = [0 1.0 0];
+user_data.cfn = [1.0 0 0];
 user_data.cfp = [0 0 0.8];
 
 user_data.im1 = rgb2gray(varargin{1});
+user_data.im1(end-10,end-10) = 1.0;
 user_data.posterior = varargin{2};
 user_data.gt = varargin{3};
 user_data.ngt = ~varargin{3};
@@ -80,7 +81,10 @@ set(handles.text2, 'BackgroundColor', user_data.ctp);
 set(handles.text3, 'BackgroundColor', user_data.cfn);
 set(handles.text4, 'BackgroundColor', user_data.cfp);
 
-imshow(user_data.im1);
+user_data.colorspace_scaling = 252;
+
+imshow(uint8(user_data.im1*user_data.colorspace_scaling));
+colormap([linspace(0,1,user_data.colorspace_scaling)'*[1 1 1]; user_data.ctp; user_data.cfn; user_data.cfp]);
 
 handles.user_data = user_data;
 
