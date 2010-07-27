@@ -22,7 +22,15 @@ function varargout = roc_gui(varargin)
 
 % Edit the above text to modify the response to help roc_gui
 
-% Last Modified by GUIDE v2.5 24-Jul-2010 21:44:01
+% Last Modified by GUIDE v2.5 27-Jul-2010 14:21:00
+
+% if GUI already running, then exit
+set(0,'showhiddenhandles','on');
+p = findobj('tag','roc_gui','parent',0);
+set(0,'showhiddenhandles','off');
+if ishandle(p)
+    delete(p);
+end
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -63,39 +71,16 @@ set(handles.threshold_text, 'Callback', @(hObject,eventdata) thresholdTextCallba
 set(handles.threshold_text, 'CreateFcn', @(hObject,eventdata) thresholdTextCallbacks('threshold_text_CreateFcn', hObject, eventdata, guidata(hObject)) );
 
 set(handles.boundary_chkbox, 'Callback', @(hObject,eventdata) boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, guidata(hObject)) );
+set(handles.boundary_chkbox, 'Value', 0);
 
-
-user_data.ctp = [0 1.0 0];
-user_data.cfn = [1.0 0 0];
-user_data.cfp = [0 0 0.8];
-
-user_data.im1 = rgb2gray(varargin{1});
-user_data.im1(end-10,end-10) = 1.0;
-user_data.posterior = varargin{2};
-user_data.gt = varargin{3};
-user_data.ngt = ~varargin{3};
-user_data.gt_boundary = bwperim(user_data.gt);
-user_data.gt_boundary_im = 0.999*repmat(user_data.gt_boundary, [1 1 3]);
-
-set(handles.text2, 'BackgroundColor', user_data.ctp);
-set(handles.text3, 'BackgroundColor', user_data.cfn);
-set(handles.text4, 'BackgroundColor', user_data.cfp);
-
-user_data.colorspace_scaling = 252;
-
-imshow(uint8(user_data.im1*user_data.colorspace_scaling));
-colormap([linspace(0,1,user_data.colorspace_scaling)'*[1 1 1]; user_data.ctp; user_data.cfn; user_data.cfp]);
-
-handles.user_data = user_data;
-
-threshold = get(handles.threshold_slider, 'Value');
-displayImage(handles, threshold);
+% call init to get the user data
+handles = init(handles, varargin{:});
 
 % Update handles structure
 guidata(hObject, handles);
 
 % UIWAIT makes roc_gui wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.roc_gui);
 
 
 % --- Outputs from this function are returned to the command line.
@@ -110,8 +95,40 @@ varargout{1} = handles.output;
 
 
 
-% --------------------------------------------------------------------
-function File_Callback(hObject, eventdata, handles)
-% hObject    handle to File (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function [ handles ] = init(handles, varargin)
+% user init function for creating user data and misc. initialization
+
+% colors for markers
+user_data.ctp = [0 1.0 0];
+user_data.cfn = [1.0 0 0];
+user_data.cfp = [0 0 0.8];
+
+user_data.im1 = rgb2gray(varargin{1});
+user_data.im1(end-10,end-10) = 1.0;
+user_data.posterior = varargin{2};
+user_data.gt = varargin{3};
+user_data.gt_boundary = bwperim(user_data.gt);
+user_data.gt_boundary_im = 0.999*repmat(user_data.gt_boundary, [1 1 3]);
+
+set(handles.text2, 'BackgroundColor', user_data.ctp);
+set(handles.text3, 'BackgroundColor', user_data.cfn);
+set(handles.text4, 'BackgroundColor', user_data.cfp);
+
+user_data.colorspace_scaling_tp = 252;
+user_data.colorspace_scaling_fn = 253;
+user_data.colorspace_scaling_fp = 254;
+
+% delete the axes images if any
+c = get(handles.axes1, 'Children');
+delete(c);
+
+% display image and set colormap
+imshow(uint8(user_data.im1*user_data.colorspace_scaling_tp));
+colormap([linspace(0,1,user_data.colorspace_scaling_tp)'*[1 1 1]; user_data.ctp; user_data.cfn; user_data.cfp]);
+
+threshold = get(handles.threshold_slider, 'Value');
+
+% fit user data in handles
+handles.user_data = user_data;
+
+displayImage(handles, threshold);
