@@ -20,7 +20,7 @@ classdef ClassifierOutputHandler < handle
         classifier_train_err;
         classifier_test_err;
         
-        USE_ONLY_OF;
+        settings;
     end
     
     
@@ -36,7 +36,7 @@ classdef ClassifierOutputHandler < handle
             obj.scene_id = scene_id;
             [ obj.comp_feat_vec obj.calc_flows ] = traintest_data.getFeatureVecAndFlow(scene_id);
             
-            obj.USE_ONLY_OF = settings.USE_ONLY_OF;
+            obj.settings = settings;
             obj.unique_id = obj.comp_feat_vec.getUniqueID();
             obj.feature_depths = obj.comp_feat_vec.feature_depths;
             obj.feature_types = obj.comp_feat_vec.feature_types;
@@ -46,7 +46,7 @@ classdef ClassifierOutputHandler < handle
             obj.classifier_out = reshape(obj.classifier_out, obj.comp_feat_vec.image_sz(2), obj.comp_feat_vec.image_sz(1))';   % need the transpose to read correctly
             
             % get all the info. from the console output of the classifier
-            obj.manageConsoleOutput( classifier_console_out, settings );
+            obj.manageConsoleOutput( classifier_console_out );
         end
         
         
@@ -170,10 +170,10 @@ classdef ClassifierOutputHandler < handle
     
     
     methods (Access = private)    
-        function manageConsoleOutput( obj, classifier_console_out, settings )
+        function manageConsoleOutput( obj, classifier_console_out )
             print_from = 1;
             
-            if str2num(settings.RF_GET_VAR_IMP)
+            if str2num(obj.settings.RF_GET_VAR_IMP)
                 ext = regexp(classifier_console_out, '\d+\s+((\d+\.)?\d+)\s*[\f\n\r]', 'tokenExtents');
                 obj.feature_importance = zeros(length(ext), 1);
                 for ext_idx = 1:length(ext)
@@ -205,8 +205,8 @@ classdef ClassifierOutputHandler < handle
                 comp_feat_vec_id = num2str(comp_feat_vec_id);
             end
             
-            if ~isempty(obj.USE_ONLY_OF)
-                    filename = fullfile(obj.out_dir, 'result', [scene_id_tag '_' comp_feat_vec_id '_' obj.USE_ONLY_OF '_%s']);
+            if ~isempty(obj.settings.USE_ONLY_OF)
+                    filename = fullfile(obj.out_dir, 'result', [scene_id_tag '_' comp_feat_vec_id '_' obj.settings.USE_ONLY_OF '_%s']);
             else
                 filename = fullfile(obj.out_dir, 'result', [scene_id_tag '_' comp_feat_vec_id '_%s']);
             end
