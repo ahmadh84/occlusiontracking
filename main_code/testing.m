@@ -1,13 +1,13 @@
 function testing
 % TESTING - Changing RF params
-main_dir = '../../Data/middlebury';
-out_dir = 'H:/middlebury/rf_comparison_tests';
+main_dir = '../../Data/oisin+middlebury';
+out_dir = 'H:/middlebury/temp';
 
 training_seq = [4 5 9 10 11 12 13 14 18 19];
 testing_seq = [4 9 18];
 
 
-changing no. of features per node
+% changing no. of features per node
 for rf_nactive_vars = 2:3:17
     close all;
     

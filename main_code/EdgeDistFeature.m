@@ -1,6 +1,15 @@
 classdef EdgeDistFeature < AbstractFeature
-    %EDGEDISTFEATURE Summary of this class goes here
-    %   Detailed explanation goes here
+    %EDGEDISTFEATURE the distance transfrom from the edges in the first 
+    %   image (using canny edge detector). The constructor either takes 
+    %   nothing or size 2 vector for computing the feature on scalespace 
+    %   (first value: number of scales, second value: resizing factor). If 
+    %   using scalespace, ComputeFeatureVectors object passed to
+    %   calcFeatures should have im1_scalespace (the scalespace structure),
+    %   apart from image_sz. image_sz and im1_gray are required for 
+    %   computing this feature without scalespace. . If using the 
+    %   scalespace, usually, the output features go up in the scalespace 
+    %   (increasing gaussian std-dev) with increasing depth.
+    
     
     properties
         no_scales = 1;
@@ -24,6 +33,11 @@ classdef EdgeDistFeature < AbstractFeature
         
         
         function [ dist feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        % this function outputs the feature for this class, and the depth 
+        %   of this feature (number of unique features associated with this
+        %   class). The size of dist is the same as the input image, with a
+        %   depth equivalent to the number of scales
+        
             if obj.no_scales > 1
                 assert(~isempty(fields(calc_feature_vec.im1_scalespace)), 'The scale space for im 1 has not been defined in the passed ComputeFeatureVectors');
                 

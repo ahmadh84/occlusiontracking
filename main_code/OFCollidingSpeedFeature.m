@@ -1,12 +1,41 @@
 classdef OFCollidingSpeedFeature < AbstractFeature
-    %PHOTOCONSTANCYFEATURE Summary of this class goes here
-    %   Detailed explanation goes here
+    %OFCOLLIDINGSPEEDEFEATURE computes the speed of collision given the 
+    %   flow vectors of diagonally opposite pixels in a  lengths in a small 
+    %   window (defined by nhood) around each pixel. This class computes 
+    %   summary statistics of the different collision speeds in a certain 
+    %   pixel nhood. The constructor takes a cell array of Flow objects 
+    %   which will be used for computing this feature. Second argument is 
+    %   of the nhood (a 5x5 window [c r] = meshgrid(-2:2, -2:2); 
+    %   nhood = cat(3, r(:), c(:)); 
+    %   nhood_cs(nhood_cs(:,:,1)==0 & nhood_cs(:,:,2)==0,:,:) = [];).
+    %   The constructor also optionally takes a size 2 vector for computing 
+    %   the feature on scalespace (first value: number of scales, second 
+    %   value: resizing factor). If using scalespace, ComputeFeatureVectors 
+    %   object passed to calcFeatures should have 
+    %   extra_info.flow_scalespace (the scalespace structure), apart from 
+    %   image_sz. Note that it is the responsibility of the user to provide 
+    %   enough number of scales in all scalespace structure. If not 
+    %   using scalespace, extra_info.calc_flows.uv_flows is required for 
+    %   computing this feature. If using the scalespace, usually, the 
+    %   output features go up in the scalespace (increasing gaussian 
+    %   std-dev) with increasing depth.
+    %
+    %   The features are first ordered by algorithms and then with max / 
+    %   min / var features and then by their respective scale
+    
     
     properties
         no_scales = 1;
         scale = 1;
         nhood_1;
         nhood_2;
+        
+        flow_ids = [];
+        flow_short_types = {};
+    end
+    
+    
+    properties (Transient) 
         pinv_dist_u;
         pinv_dist_v;
         proj_a1;
@@ -21,18 +50,30 @@ classdef OFCollidingSpeedFeature < AbstractFeature
         FEATURE_SHORT_TYPE = 'CS';
         
         FEATURES_PER_PIXEL = 3;
+        FEATURES_PER_PIXEL_TYPES = {'MAX', 'MIN', 'VAR'};
     end
     
     
     methods
-        function obj = OFCollidingSpeedFeature( nhood, varargin )
+        function obj = OFCollidingSpeedFeature( cell_flows, nhood, varargin )
+            assert(~isempty(cell_flows), ['There should be atleast 1 flow algorithm to compute ' class(obj)]);
+            
+            % store the flow algorithms to be used and their ids
+            for algo_idx = 1:length(cell_flows)
+                obj.flow_short_types{end+1} = cell_flows{algo_idx}.OF_SHORT_TYPE;
+                obj.flow_ids(end+1) = cell_flows{algo_idx}.returnNoID();
+            end
+            
+            % neighborhood window provided by user
             assert(mod(sqrt(size(nhood,1)+1), 1) == 0, 'The number of nhood pixels can be only (Z^2)-1');
             obj.nhood_1 = nhood(1:size(nhood,1)/2,:,:);
             obj.nhood_2 = nhood(end:-1:(size(nhood,1)/2)+1,:,:);
             
+            % initialize the other transient info required to compute this feature
             obj = obj.extraInfo();
             
-            if nargin > 1 && isvector(varargin{1}) && length(varargin{1}) == 2
+            % store any scalespace info provided by user
+            if nargin > 2 && isvector(varargin{1}) && length(varargin{1}) == 2
                 obj.no_scales = varargin{1}(1);
                 obj.scale = varargin{1}(2);
             end
@@ -40,6 +81,17 @@ classdef OFCollidingSpeedFeature < AbstractFeature
         
         
         function [ colspd feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        % this function outputs the feature for this class, and the depth 
+        %   of this feature (number of unique features associated with this
+        %   class). The size of colspd is the same as the input image, 
+        %   with a depth equivalent to the number of flow algos times the
+        %   features per pixel times the number of scales
+        
+            % find which algos to use
+            algos_to_use = cellfun(@(x) find(strcmp(x, calc_feature_vec.extra_info.calc_flows.algo_ids)), obj.flow_short_types);
+
+            assert(length(algos_to_use)==length(obj.flow_short_types), ['Can''t find matching flow algorithm(s) used in computation of ' class(obj)]);
+            
             if obj.no_scales > 1
                 assert(isfield(calc_feature_vec.extra_info, 'flow_scalespace') && ...
                     ~isempty(fields(calc_feature_vec.extra_info.flow_scalespace)), ...
@@ -50,7 +102,7 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                     'The scale space given for UV flow in ComputeFeatureVectors is incompatible');
                 
                 % get the number of flow algorithms
-                no_flow_algos = size(calc_feature_vec.extra_info.flow_scalespace.ss{1}, 4);
+                no_flow_algos = length(obj.flow_short_types);
                 
                 % initialize the output feature
                 colspd = zeros(calc_feature_vec.image_sz(1), calc_feature_vec.image_sz(2), no_flow_algos*obj.FEATURES_PER_PIXEL*obj.no_scales);
@@ -62,25 +114,19 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                     image_sz = image_sz([1 2]);
                     
                     % compute diagonally opposite pixel's colliding speed for each optical flow given
-                    colspd_temp = obj.computeCollidingSpeedForEachUV(  calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}, image_sz );
+                    colspd_temp = obj.computeCollidingSpeedForEachUV(  calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algos_to_use), image_sz );
                     
                     % iterate over all the candidate flow algorithms
                     for feat_idx = 1:size(colspd_temp,3)
-                        % store
-                        colspd(:,:,((scale_idx-1)*no_flow_algos*obj.FEATURES_PER_PIXEL)+feat_idx) = imresize(colspd_temp(:,:,feat_idx), calc_feature_vec.image_sz);
+                        % resize and store
+                        colspd(:,:,((feat_idx-1)*obj.no_scales)+scale_idx) = imresize(colspd_temp(:,:,feat_idx), calc_feature_vec.image_sz);
                     end
                 end
-                
-                % correct the ordering of features (order by (1) algos, (2)
-                % features, (3) scales)
-                temp = reshape(1:no_flow_algos*obj.FEATURES_PER_PIXEL*obj.no_scales, [obj.FEATURES_PER_PIXEL no_flow_algos obj.no_scales]);
-                temp = permute(temp, [3 1 2]);
-                colspd = colspd(:,:,temp(:));
             else
                 assert(isfield(calc_feature_vec.extra_info, 'calc_flows'), 'The CalcFlows object has not been defined in the passed ComputeFeatureVectors');
                 
                 % compute diagonally opposite pixel's colliding speed for each optical flow given
-                colspd = obj.computeCollidingSpeedForEachUV( calc_feature_vec.extra_info.calc_flows.uv_flows, calc_feature_vec.image_sz );
+                colspd = obj.computeCollidingSpeedForEachUV( calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,:,algos_to_use), calc_feature_vec.image_sz );
             end
             
             feature_depth = size(colspd,3);
@@ -98,7 +144,15 @@ classdef OFCollidingSpeedFeature < AbstractFeature
             % get first 2 decimal digits
             temp = mod(round(temp*100), 100);
             feature_no_id = (nos*100) + temp;
-        end    
+            
+            feature_no_id = feature_no_id + sum(obj.flow_ids);
+            
+            for ftr_idx = 1:length(obj.FEATURES_PER_PIXEL_TYPES)
+                nos = uint8(obj.FEATURES_PER_PIXEL_TYPES{ftr_idx});
+                nos = double(nos) .* ([1:length(nos)].^2);
+                feature_no_id = feature_no_id + sum(nos);
+            end
+        end
     end
     
     
