@@ -22,7 +22,7 @@ function varargout = roc_gui(varargin)
 
 % Edit the above text to modify the response to help roc_gui
 
-% Last Modified by GUIDE v2.5 29-Jul-2010 11:28:52
+% Last Modified by GUIDE v2.5 29-Jul-2010 13:14:15
 
 % if GUI already running, then exit
 set(0,'showhiddenhandles','on');
@@ -63,8 +63,16 @@ function roc_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for roc_gui
 handles.output = hObject;
 
-handles = adjustGUIandAxeses(hObject, 4, handles);
+handles = adjustGUIandAxeses(hObject, 6, handles);
 
+% create menu bar
+h1 = uimenu('Parent',hObject, 'Label','&Axes Options', 'Tag','MenuAxesOptions');
+uimenu('Parent',h1, 'Label','&1 Axes', 'Tag','menu_axes_1', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 1));
+uimenu('Parent',h1, 'Label','&2 Axes', 'Tag','menu_axes_2', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 2));
+uimenu('Parent',h1, 'Label','&4 Axes', 'Tag','menu_axes_4', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 4));
+uimenu('Parent',h1, 'Label','&6 Axes', 'Tag','menu_axes_6', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 6));
+
+% Set callbacks for UI controls
 set(handles.threshold_slider, 'Callback', @(hObject,eventdata) thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, guidata(hObject)) );
 set(handles.threshold_slider, 'CreateFcn', @(hObject,eventdata) thresholdSliderCallbacks('threshold_slider_CreateFcn', hObject, eventdata, guidata(hObject)) );
 addlistener(handles.threshold_slider, 'Action', @(hObject,eventdata) thresholdSliderCallbacks('threshold_slider_Action', hObject, eventdata, guidata(hObject)) );
@@ -111,9 +119,9 @@ user_data.gt = varargin{3};
 user_data.gt_boundary = bwperim(user_data.gt);
 user_data.gt_boundary_im = 0.999*repmat(user_data.gt_boundary, [1 1 3]);
 
-set(handles.text2, 'BackgroundColor', user_data.ctp);
-set(handles.text3, 'BackgroundColor', user_data.cfn);
-set(handles.text4, 'BackgroundColor', user_data.cfp);
+set(handles.text_ctp, 'BackgroundColor', user_data.ctp);
+set(handles.text_cfn, 'BackgroundColor', user_data.cfn);
+set(handles.text_cfp, 'BackgroundColor', user_data.cfp);
 
 user_data.colorspace_scaling_tp = 252;
 user_data.colorspace_scaling_fn = 253;
@@ -133,3 +141,10 @@ threshold = get(handles.threshold_slider, 'Value');
 handles.user_data = user_data;
 
 displayImage(handles, threshold);
+
+
+% --------------------------------------------------------------------
+function Untitled_2_Callback(hObject, eventdata, handles)
+% hObject    handle to Untitled_2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
