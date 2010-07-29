@@ -22,7 +22,7 @@ function varargout = roc_gui(varargin)
 
 % Edit the above text to modify the response to help roc_gui
 
-% Last Modified by GUIDE v2.5 27-Jul-2010 14:21:00
+% Last Modified by GUIDE v2.5 29-Jul-2010 11:28:52
 
 % if GUI already running, then exit
 set(0,'showhiddenhandles','on');
@@ -63,6 +63,8 @@ function roc_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for roc_gui
 handles.output = hObject;
 
+handles = adjustGUIandAxeses(hObject, 4, handles);
+
 set(handles.threshold_slider, 'Callback', @(hObject,eventdata) thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, guidata(hObject)) );
 set(handles.threshold_slider, 'CreateFcn', @(hObject,eventdata) thresholdSliderCallbacks('threshold_slider_CreateFcn', hObject, eventdata, guidata(hObject)) );
 addlistener(handles.threshold_slider, 'Action', @(hObject,eventdata) thresholdSliderCallbacks('threshold_slider_Action', hObject, eventdata, guidata(hObject)) );
@@ -74,7 +76,7 @@ set(handles.boundary_chkbox, 'Callback', @(hObject,eventdata) boundaryChkboxCall
 set(handles.boundary_chkbox, 'Value', 0);
 
 % call init to get the user data
-handles = init(handles, varargin{:});
+%handles = init(handles, varargin{:});
 
 % Update handles structure
 guidata(hObject, handles);
@@ -92,7 +94,6 @@ function varargout = roc_gui_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-
 
 
 function [ handles ] = init(handles, varargin)
