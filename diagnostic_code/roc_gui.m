@@ -63,14 +63,29 @@ function roc_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for roc_gui
 handles.output = hObject;
 
-handles = adjustGUIandAxeses(hObject, 6, handles);
+% add any paths required for running the GUI
+addpath(fullfile(pwd, '..', 'main_code'));
+addpath(genpath(fullfile(pwd, '..', 'main_code', 'utils')));
+
+
+% set user data defaults
+handles = setUserDataDefaults(handles);
+
+
+% create the starting axes and init the GUI
+handles = adjustGUIandAxeses(hObject, 1, handles);
+
 
 % create menu bar
-h1 = uimenu('Parent',hObject, 'Label','&Axes Options', 'Tag','MenuAxesOptions');
+h1 = uimenu('Parent',hObject, 'Label','&File', 'Tag','menu_file');
+uimenu('Parent',h1, 'Label','&Load Directory', 'Tag','menu_load_directory', 'Callback',@(hObject,eventdata) menuCallbacks('menu_load_directory_Callback', hObject, eventdata, guidata(hObject)));
+
+h1 = uimenu('Parent',hObject, 'Label','&Axes Options', 'Tag','menu_axes_options');
 uimenu('Parent',h1, 'Label','&1 Axes', 'Tag','menu_axes_1', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 1));
 uimenu('Parent',h1, 'Label','&2 Axes', 'Tag','menu_axes_2', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 2));
 uimenu('Parent',h1, 'Label','&4 Axes', 'Tag','menu_axes_4', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 4));
 uimenu('Parent',h1, 'Label','&6 Axes', 'Tag','menu_axes_6', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 6));
+
 
 % Set callbacks for UI controls
 set(handles.threshold_slider, 'Callback', @(hObject,eventdata) thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, guidata(hObject)) );
@@ -83,8 +98,15 @@ set(handles.threshold_text, 'CreateFcn', @(hObject,eventdata) thresholdTextCallb
 set(handles.boundary_chkbox, 'Callback', @(hObject,eventdata) boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, guidata(hObject)) );
 set(handles.boundary_chkbox, 'Value', 0);
 
+
+% set the colors for the text labels
+set(handles.text_ctp, 'BackgroundColor', handles.user_data.ctp);
+set(handles.text_cfn, 'BackgroundColor', handles.user_data.cfn);
+set(handles.text_cfp, 'BackgroundColor', handles.user_data.cfp);
+
+
 % call init to get the user data
-%handles = init(handles, varargin{:});
+%handles = setAxesAndUserData(handles, varargin{:});
 
 % Update handles structure
 guidata(hObject, handles);
@@ -104,47 +126,24 @@ function varargout = roc_gui_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-function [ handles ] = init(handles, varargin)
-% user init function for creating user data and misc. initialization
+function handles = setUserDataDefaults(handles)
+user_data = struct;
+
+% put in any user data which needs to go into handles
+if isfield(handles, 'user_data')
+    user_data = handles.user_data;    
+end
 
 % colors for markers
 user_data.ctp = [0 1.0 0];
 user_data.cfn = [1.0 0 0];
 user_data.cfp = [0 0 0.8];
 
-user_data.im1 = rgb2gray(varargin{1});
-user_data.im1(end-10,end-10) = 1.0;
-user_data.posterior = varargin{2};
-user_data.gt = varargin{3};
-user_data.gt_boundary = bwperim(user_data.gt);
-user_data.gt_boundary_im = 0.999*repmat(user_data.gt_boundary, [1 1 3]);
-
-set(handles.text_ctp, 'BackgroundColor', user_data.ctp);
-set(handles.text_cfn, 'BackgroundColor', user_data.cfn);
-set(handles.text_cfp, 'BackgroundColor', user_data.cfp);
-
 user_data.colorspace_scaling_tp = 252;
 user_data.colorspace_scaling_fn = 253;
 user_data.colorspace_scaling_fp = 254;
 
-% delete the axes images if any
-c = get(handles.axes1, 'Children');
-delete(c);
+user_data.curr_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\';
+user_data.axes_tag_prefix = 'roc_axes_';
 
-% display image and set colormap
-imshow(uint8(user_data.im1*user_data.colorspace_scaling_tp));
-colormap([linspace(0,1,user_data.colorspace_scaling_tp)'*[1 1 1]; user_data.ctp; user_data.cfn; user_data.cfp]);
-
-threshold = get(handles.threshold_slider, 'Value');
-
-% fit user data in handles
 handles.user_data = user_data;
-
-displayImage(handles, threshold);
-
-
-% --------------------------------------------------------------------
-function Untitled_2_Callback(hObject, eventdata, handles)
-% hObject    handle to Untitled_2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)

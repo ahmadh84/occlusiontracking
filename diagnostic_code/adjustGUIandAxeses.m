@@ -1,10 +1,11 @@
 function [ handles ] = adjustGUIandAxeses(hObject, no_axes, handles)
+% hObject needs to be the GUI figure
+
 top_ui_height = 0;
 border_pxls = 20;
 aspect_ratio_to_maintain = 1.333;
 min_gap = 10;
 gui_starting_pos = [ 40 100 ];
-axes_tag_prefix = 'roc_axes_';
 
             %Axes Axes_rows Axes_cols Gui_Width Gui_Height
 layouts = [ 1     1         1         850       650;        % for 1 axes
@@ -13,11 +14,14 @@ layouts = [ 1     1         1         850       650;        % for 1 axes
             6     2         3        1200       750 ];      % for 6 axes
 
 % delete all old axes handles
-axes_h = findall(hObject, '-regexp', 'Tag', [axes_tag_prefix '\d+']);
-delete(axes_h);
+axes_h = findall(handles.roc_gui, '-regexp', 'Tag', [handles.user_data.axes_tag_prefix '\d+'])';
+% remove from handles
+for h = axes_h
+    handles = rmfield(handles, get(h,'Tag'));
+end
+recursiveHandleDelete(axes_h);
 
-set(hObject, 'Units', 'pixels');
-fig_size = get(hObject, 'Position');
+set(handles.roc_gui, 'Units', 'pixels');
 
 % the layout positioning is from bottom left corner in row major order
 % calculate position for each axes
@@ -25,7 +29,7 @@ layout_idx = layouts(:,1)==no_axes;
 assert(nnz(layout_idx)==1, 'The number of axes demanded is not supported by adjustGUIandAxeses');
 
 % set the GUI position
-set(hObject, 'Position', [gui_starting_pos layouts(layout_idx,[4 5])]);
+set(handles.roc_gui, 'Position', [gui_starting_pos layouts(layout_idx,[4 5])]);
 
 % center the controls panel
 pos = get(handles.uipanel_main_controls, 'Position');
@@ -57,29 +61,34 @@ pos = [tempx(:), tempy(:), repmat([axes_width axes_height], [no_axes 1])];
 
 % loop over to create all the axes
 for axes_idx = 1:no_axes
-    axes_tag = [axes_tag_prefix num2str(axes_idx)];
+    axes_tag = [handles.user_data.axes_tag_prefix num2str(axes_idx)];
     
-    h1 = axes('Parent',hObject, ...
-        'Box', 'on', ...
-        'Units','pixels', ...
-        'Position',pos(axes_idx,:), ...
-        'Tag',axes_tag, ...
-        'XColor',[0 0 0], ...
-        'XTickMode','manual', ...
-        'YColor',[0 0 0], ...
-        'YTickMode','manual', ...
-        'ZColor',[0 0 0], ...
-        'ZTickMode','manual');
-
+    h1 = axes('Parent',handles.roc_gui, ...
+              'Box', 'on', ...
+              'Units','pixels', ...
+              'Position',pos(axes_idx,:), ...
+              'Tag',axes_tag, ...
+              'XTick', [], ...
+              'YTick', [], ...
+              'ZTick', []);
+    
     text(0.5,0.5, ['{\color{red}Axes ' num2str(axes_idx) '}'], 'FontSize',12, 'FontWeight','bold', 'HorizontalAlignment','center', 'VerticalAlignment','middle');
     
     handles.(axes_tag) = h1;
 end
 
-% put in any user data which needs to go into handles
-if isfield(handles, 'user_data')
-    handles.user_data.axes_tag_prefix = axes_tag_prefix;
-else
-    user_data.axes_tag_prefix = axes_tag_prefix;
-    handles.user_data = user_data;
+
+function recursiveHandleDelete(handle_list)
+% recursively (by going down the children tree) deletes all the handles in a list
+
+if isempty(handle_list)
+    return;
+end
+
+for hndl = handle_list
+    if ishandle(hndl)
+        children_hndls = get(hndl, 'Children');
+        recursiveHandleDelete(children_hndls);
+        delete(hndl);
+    end
 end
