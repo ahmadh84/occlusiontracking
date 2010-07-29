@@ -14,11 +14,13 @@ layouts = [ 1     1         1         850       650;        % for 1 axes
             6     2         3        1200       750 ];      % for 6 axes
 
 % delete all old axes handles
-axes_h = findall(handles.roc_gui, '-regexp', 'Tag', [handles.user_data.axes_tag_prefix '\d+'])';
-% remove from handles
+axes_h = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re)';
+% remove handles
 for h = axes_h
     handles = rmfield(handles, get(h,'Tag'));
 end
+% add uicontextmenu handles
+axes_h = [axes_h findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_uicontext_menu_re)'];
 recursiveHandleDelete(axes_h);
 
 set(handles.roc_gui, 'Units', 'pixels');
@@ -72,7 +74,13 @@ for axes_idx = 1:no_axes
               'YTick', [], ...
               'ZTick', []);
     
-    text(0.5,0.5, ['{\color{red}Axes ' num2str(axes_idx) '}'], 'FontSize',12, 'FontWeight','bold', 'HorizontalAlignment','center', 'VerticalAlignment','middle');
+    text(0.5,0.5, ['{\color{red}Axes ' num2str(axes_idx) '}'], 'Tag',['text_' axes_tag], 'FontSize',12, 'FontWeight','bold', 'HorizontalAlignment','center', 'VerticalAlignment','middle');
+    
+    hcmenu = uicontextmenu('Tag', ['context_menu_' axes_tag]);
+    uimenu(hcmenu, 'Label','Load overlay', 'Tag',['load_menu_' axes_tag], 'Callback', @(hObject,eventdata) menuCallbacks('menu_load_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag));
+    uimenu(hcmenu, 'Label','Clear overlay', 'Tag',['clear_menu_' axes_tag], 'Callback', @(hObject,eventdata) menuCallbacks('menu_clear_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag));
+    
+    set(h1, 'uicontextmenu',hcmenu);
     
     handles.(axes_tag) = h1;
 end

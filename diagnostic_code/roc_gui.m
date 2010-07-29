@@ -115,6 +115,7 @@ guidata(hObject, handles);
 % uiwait(handles.roc_gui);
 
 
+
 % --- Outputs from this function are returned to the command line.
 function varargout = roc_gui_OutputFcn(hObject, eventdata, handles) 
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -124,6 +125,7 @@ function varargout = roc_gui_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
 
 
 function handles = setUserDataDefaults(handles)
@@ -145,5 +147,7 @@ user_data.colorspace_scaling_fp = 254;
 
 user_data.curr_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\';
 user_data.axes_tag_prefix = 'roc_axes_';
+user_data.axes_search_re = ['^' user_data.axes_tag_prefix '\d+$'];
+user_data.axes_uicontext_menu_re = ['^context_menu_' user_data.axes_tag_prefix '\d+$'];
 
 handles.user_data = user_data;
