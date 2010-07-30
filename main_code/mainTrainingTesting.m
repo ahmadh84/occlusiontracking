@@ -58,17 +58,17 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
     % the labelling class used for the classifier
     settings.label_obj = OcclusionLabel;
     
-    
-    % override settings given by the user
-    override_fields = fieldnames(override_settings);
-    for idx = 1:length(override_fields)
-        if isfield(settings, override_fields{idx})
-            settings.(override_fields{idx}) = override_settings.(override_fields{idx});
-        else
-            error('mainTrainingTesting:override_fields', 'Field %s cannot be overriden since it does not exist', override_fields{idx});
+    if exist('override_settings', 'var')
+        % override settings given by the user
+        override_fields = fieldnames(override_settings);
+        for idx = 1:length(override_fields)
+            if isfield(settings, override_fields{idx})
+                settings.(override_fields{idx}) = override_settings.(override_fields{idx});
+            else
+                error('mainTrainingTesting:override_fields', 'Field %s cannot be overriden since it does not exist', override_fields{idx});
+            end
         end
     end
-    
     
     % create the main object, which creates the test and training data
     traintest_data = ComputeTrainTestData( main_dir, out_dir, settings, 0, COMPUTE_REFRESH );

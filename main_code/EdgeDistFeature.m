@@ -82,6 +82,20 @@ classdef EdgeDistFeature < AbstractFeature
             temp = mod(round(temp*100), 100);
             feature_no_id = (nos*100) + temp;
         end
+        
+        
+        function return_feature_list = returnFeatureList(obj)
+        % creates a cell vector where each item contains a string of the
+        % feature type (in the order the will be spit out by calcFeatures)
+            
+            return_feature_list = cell(obj.no_scales,1);
+            
+            return_feature_list{1} = {obj.FEATURE_TYPE, 'no scaling'};
+            
+            for scale_id = 2:obj.no_scales
+                return_feature_list{scale_id} = {obj.FEATURE_TYPE, ['scale ' num2str(scale_id)], ['size ' sprintf('%.1f%%', (obj.scale^(scale_id-1))*100)]};
+            end
+        end
     end
     
 end

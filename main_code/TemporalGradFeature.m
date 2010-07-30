@@ -146,6 +146,25 @@ classdef TemporalGradFeature < AbstractFeature
             
             feature_no_id = feature_no_id + sum(obj.flow_ids);
         end
+        
+        
+        function return_feature_list = returnFeatureList(obj)
+        % creates a cell vector where each item contains a string of the
+        % feature type (in the order the will be spit out by calcFeatures)
+            
+            return_feature_list = cell(obj.no_scales*2,1);
+            
+            return_feature_list{1} = {[obj.FEATURE_TYPE ' using ' num2str(length(obj.flow_short_types)) ' flow algos'], 'U temporal gradient', 'no scaling'};
+
+            for scale_id = 2:obj.no_scales
+                return_feature_list{scale_id} = {[obj.FEATURE_TYPE ' using ' num2str(length(obj.flow_short_types)) ' flow algos'], 'U temporal gradient', ['scale ' num2str(scale_id)], ['size ' sprintf('%.1f%%', (obj.scale^(scale_id-1))*100)]};
+            end
+            
+            return_feature_list(obj.no_scales+1:end) = return_feature_list(1:obj.no_scales);
+            for idx = obj.no_scales+1:obj.no_scales*2
+                return_feature_list{idx}{2} = 'V temporal gradient';
+            end
+        end
     end
 
 end

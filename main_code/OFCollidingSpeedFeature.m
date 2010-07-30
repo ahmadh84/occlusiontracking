@@ -153,6 +153,32 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                 feature_no_id = feature_no_id + sum(nos);
             end
         end
+        
+        
+        function return_feature_list = returnFeatureList(obj)
+        % creates a cell vector where each item contains a string of the
+        % feature type (in the order the will be spit out by calcFeatures)
+            
+            window_size = num2str(max((max(obj.nhood_2,[],1) - min(obj.nhood_1,[],1))+1));
+            return_feature_list = cell(obj.no_scales * obj.FEATURES_PER_PIXEL * length(obj.flow_short_types),1);
+            
+            for flow_id = 1:length(obj.flow_short_types)
+                for feature_id = 1:obj.FEATURES_PER_PIXEL
+                    starting_no = ((flow_id-1)*obj.no_scales*obj.FEATURES_PER_PIXEL) + ((feature_id-1)*obj.no_scales);
+                    
+                    return_feature_list{starting_no+1} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], ...
+                                                          [obj.FEATURES_PER_PIXEL_TYPES{feature_id} ' feature'], ...
+                                                          ['window size ' window_size], 'no scaling'};
+
+                    for scale_id = 2:obj.no_scales
+                        return_feature_list{starting_no+scale_id} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], ...
+                                                                     [obj.FEATURES_PER_PIXEL_TYPES{feature_id} ' feature'], ...
+                                                                     ['window size ' window_size], ['scale ' num2str(scale_id)], ...
+                                                                     ['size ' sprintf('%.1f%%', (obj.scale^(scale_id-1))*100)]};
+                    end
+                end
+            end
+        end
     end
     
     

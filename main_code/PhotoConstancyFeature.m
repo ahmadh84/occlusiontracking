@@ -162,6 +162,24 @@ classdef PhotoConstancyFeature < AbstractFeature
             
             feature_no_id = feature_no_id + sum(obj.flow_ids);
         end
+        
+        
+        function return_feature_list = returnFeatureList(obj)
+        % creates a cell vector where each item contains a string of the
+        % feature type (in the order the will be spit out by calcFeatures)
+            
+            return_feature_list = cell(obj.no_scales * length(obj.flow_short_types),1);
+            
+            for flow_id = 1:length(obj.flow_short_types)
+                starting_no = (flow_id-1)*obj.no_scales;
+                
+                return_feature_list{starting_no+1} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], 'no scaling'};
+
+                for scale_id = 2:obj.no_scales
+                    return_feature_list{starting_no+scale_id} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], ['scale ' num2str(scale_id)], ['size ' sprintf('%.1f%%', (obj.scale^(scale_id-1))*100)]};
+                end
+            end
+        end
     end
 
 end

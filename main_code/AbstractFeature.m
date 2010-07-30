@@ -22,6 +22,14 @@ classdef AbstractFeature
             nos = double(nos) .* ([1:length(nos)].^2);
             feature_no_id = sum(nos);
         end
+        
+        
+        function return_feature_list = returnFeatureList(obj)
+        % creates a cell vector where each item contains a string of the
+        % feature type (in the order the will be spit out by calcFeatures)
+            
+            return_feature_list{1} = {obj.FEATURE_TYPE, 'no scaling'};
+        end
     end
     
 end
