@@ -21,7 +21,7 @@ classdef AbstractLabel
         % name
         
             % create unique ID
-            nos = uint8(obj.FEATURE_SHORT_TYPE);
+            nos = uint8(obj.LABEL_SHORT_TYPE);
             nos = double(nos) .* ([1:length(nos)].^2);
             feature_no_id = sum(nos);
         end

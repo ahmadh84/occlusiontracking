@@ -1,6 +1,5 @@
 classdef OcclusionLabel < AbstractLabel
-    %OCCLUSIONLABEL Summary of this class goes here
-    %   Detailed explanation goes here
+    %OCCLUSIONLABEL label which gives occluded regions in flow
     
     properties (Constant)
         LABEL_TYPE = 'Occlusion GT Label';
@@ -10,6 +9,10 @@ classdef OcclusionLabel < AbstractLabel
     
     methods
         function [ label data_idxs idxs_per_label ] = calcLabelTraining( obj, comp_feat_vec, MAX_MARKINGS_PER_LABEL, extra_label_info )
+        % creates label data which can be used in training stage of a
+        % classifier. It would produce at maximum MAX_MARKINGS_PER_LABEL
+        % labels belonging to data_idxs
+        
             labels = obj.calcLabelWhole( comp_feat_vec, extra_label_info );
 
             % want equal contribution from each class
@@ -32,6 +35,9 @@ classdef OcclusionLabel < AbstractLabel
         
         
         function [ labels ] = calcLabelWhole( obj, comp_feat_vec, extra_label_info )
+        % outputs all the labels given the data features (usually not used) 
+        % and customizable extra information (here the GT flow)
+        
             assert(isfield(extra_label_info, 'calc_flows'), 'CalcFlows object is needed for computing occlusion label');
             
             mask = extra_label_info.calc_flows.gt_mask;

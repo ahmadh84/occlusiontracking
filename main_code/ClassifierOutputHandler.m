@@ -12,6 +12,7 @@ classdef ClassifierOutputHandler < handle
         scene_id;
         unique_id;
         prediction_out_filepath;
+        
         classifier_out;
         feature_importance = [];
         area_under_roc;
@@ -19,6 +20,10 @@ classdef ClassifierOutputHandler < handle
         feature_types;
         classifier_train_err;
         classifier_test_err;
+        
+        tpr = [];
+        fpr = [];
+        thresholds = 0:0.001:1;
         
         settings;
     end
@@ -47,6 +52,9 @@ classdef ClassifierOutputHandler < handle
             
             % get all the info. from the console output of the classifier
             obj.manageConsoleOutput( classifier_console_out );
+            
+            % get the ROC statistics
+            obj.computeROC();
         end
         
         
@@ -71,44 +79,18 @@ classdef ClassifierOutputHandler < handle
         
         
         function printROCCurve( obj )
-            % ROC
-            mask = obj.calc_flows.gt_mask;
-            labels = (mask == 0);
-
-            interval = [0:0.001:1];
-            errorToTest = 1;
-            i = 1;
-            fpr = zeros(length(interval),1);
-            tpr = zeros(length(interval),1);
-            
-            for t  = interval
-                tmpC1 = obj.classifier_out >= t;
-            %     tmpE1 = ((epe.*tmpC1)<errorToTest);
-
-                tmpC2 = obj.classifier_out < t;
-            %     tmpE2 = ((epe.*tmpC2)>=errorToTest);
-
-                % compute the True/False Positive, True/False Negative
-                tp = nnz( tmpC1 & labels );
-                fp = nnz( tmpC1 & ~labels );
-                tn = nnz( tmpC2 & ~labels );
-                fn = nnz( tmpC2 & labels );
-
-                fpr(i) = fp / (fp+tn);
-                tpr(i) = tp / (tp+fn);
-                i = i+1;
-            end
-
+            % print to new figure
             figure
-            plot(fpr, tpr)
-            for i=1:9    
-               hold on; plot(fpr(1+i*100),tpr(1+i*100),'bo')
+            plot(obj.fpr, obj.tpr);
+            hold on;
+            
+            for i=0.1:0.1:0.9
+                plot(obj.fpr(obj.thresholds==i), obj.tpr(obj.thresholds==i), 'bo');
             end
-            hold on;text(fpr(801)+0.02,tpr(801),'0.8', 'Color',[0 0 1])
-            hold on;text(fpr(501)+0.02,tpr(501),'0.5', 'Color',[0 0 1])
-            hold on;text(fpr(201)+0.02,tpr(201),'0.2', 'Color',[0 0 1])
-
-            obj.area_under_roc = sum((fpr(1:end-1)-fpr(2:end)).*((tpr(1:end-1) + tpr(2:end)).*0.5));
+            
+            text(obj.fpr(obj.thresholds==0.8)+0.02, obj.tpr(obj.thresholds==0.8), '0.8', 'Color',[0 0 1]);
+            text(obj.fpr(obj.thresholds==0.5)+0.02, obj.tpr(obj.thresholds==0.5), '0.5', 'Color',[0 0 1]);
+            text(obj.fpr(obj.thresholds==0.2)+0.02, obj.tpr(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
             
             title(sprintf('ROC of Occlusion Region detection - Area under ROC %.4f', obj.area_under_roc));
             line([0;1], [0;1], 'Color', [0.7 0.7 0.7], 'LineStyle','--', 'LineWidth', 1.5);     % draw the line of no-discrimination
@@ -143,6 +125,20 @@ classdef ClassifierOutputHandler < handle
             print('-depsc', '-r0', imp_filepath);
         end
         
+
+        function [ optimal_th ] = getOptimalThreshold( obj )
+        % gets the threshold which gives the closest point to the (0,1)
+        % point on the ROC
+        
+            % min||(0,1)-(FPR,TPR)||
+            % FPR dFPR/dT = (TPR-1) dTPR/dT
+            tmp1 = obj.fpr.*gradient(obj.fpr, obj.thresholds);
+            tmp2 = (obj.tpr-1).*gradient(obj.tpr, obj.thresholds);
+            [val, idx] = min(abs(tmp1 - tmp2));
+    
+            optimal_th = obj.thresholds(idx);
+        end
+        
         
         function filename = getPosteriorImageFilename( obj )
             filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'posterior');
@@ -166,6 +162,7 @@ classdef ClassifierOutputHandler < handle
             filename = [sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'rffeatureimp') '.mat'];
             filename = regexprep(filename, '/', '\');
         end
+        
     end
     
     
@@ -192,6 +189,47 @@ classdef ClassifierOutputHandler < handle
                 obj.classifier_train_err = str2double(remaining_str(ext{1}(1,1):ext{1}(1,2)));
                 obj.classifier_test_err = str2double(remaining_str(ext{1}(2,1):ext{1}(2,2)));
             end
+        end
+        
+        
+        function computeROC( obj )
+            % computes the TPR and FPR at different thresholds (given by
+            % obj.thresholds). Also computes the Area under the curve for
+            % ROC
+            
+            extra_label_info.calc_flows = obj.calc_flows;
+            labels = obj.settings.label_obj.calcLabelWhole( obj.comp_feat_vec, extra_label_info );
+            not_labels = ~labels;
+            
+            % get the number of positives and negatives
+            T = nnz(labels);
+            N = nnz(~labels);
+            
+            obj.fpr = zeros(length(obj.thresholds),1);
+            obj.tpr = zeros(length(obj.thresholds),1);
+            
+            temp_classifier_out = obj.classifier_out';
+            temp_classifier_out = temp_classifier_out(:);
+            
+            for idx = 1:length(obj.thresholds)
+                tmpC1 = temp_classifier_out >= obj.thresholds(idx);
+%                 tmpE1 = ((epe.*tmpC1)<errorToTest);
+
+%                 tmpC2 = ~tmpC1;
+%                 tmpE2 = ((epe.*tmpC2)>=errorToTest);
+
+                % compute the True/False Positive, True/False Negative
+                tp = nnz( tmpC1 & labels );
+                fn = T - tp;
+                fp = nnz( tmpC1 & not_labels );
+                tn = N - fp;
+
+                obj.fpr(idx) = fp / (fp+tn);
+                obj.tpr(idx) = tp / (tp+fn);
+            end
+            
+            % compute the area under the curve
+            obj.area_under_roc = sum((obj.fpr(1:end-1)-obj.fpr(2:end)).*((obj.tpr(1:end-1) + obj.tpr(2:end)).*0.5));
         end
         
         
