@@ -82,7 +82,7 @@ handles = adjustGUIandAxeses(hObject, handles.user_data.default_no_axes, handles
 
 
 % initialize the user image data
-handles = axesGlobalFuncs('reInitImageData', handles);
+handles = globalDataUtils('reInitImageData', handles);
 
 
 % create menu bar
@@ -112,10 +112,6 @@ set(handles.boundary_chkbox, 'Value', 0);
 set(handles.text_ctp, 'BackgroundColor', handles.user_data.ctp);
 set(handles.text_cfn, 'BackgroundColor', handles.user_data.cfn);
 set(handles.text_cfp, 'BackgroundColor', handles.user_data.cfp);
-
-
-% call init to get the user data
-%handles = setAxesAndUserData(handles, varargin{:});
 
 % Update handles structure
 guidata(hObject, handles);
@@ -159,6 +155,7 @@ user_data.curr_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered 
 user_data.curr_prediction_dir = {'H:\middlebury\', 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\'};
 user_data.axes_tag_prefix = 'roc_axes_';
 user_data.axes_txt_prefix = 'text_roc_axes_';
+user_data.im_gt_prefix = 'im_gt_roc_';
 user_data.axes_search_re = ['^' user_data.axes_tag_prefix '\d+$'];
 user_data.axes_uicontext_menu_re = ['^context_menu_' user_data.axes_tag_prefix '\d+$'];
 

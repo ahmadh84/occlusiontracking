@@ -1,10 +1,6 @@
 function displayImage(handles, threshold)
-% find all the axes
-all_axes_h = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re);
 
-% sort by axes no.
-[temp sorted_idx] = sort(cellfun(@(x) str2num(x{1}{1}), regexp(get(all_axes_h, 'Tag'), '(\d+)$', 'tokens')));
-all_axes_h = all_axes_h(sorted_idx);
+[ all_axes_h ] = globalAxesUtils('getAllAxesHandlesSorted', handles);
 
 % iterate over all axes
 for idx = 1:length(all_axes_h)
@@ -58,7 +54,7 @@ for idx = 1:length(all_axes_h)
                 'Units','pixels', 'Tag',tag_name, 'XTick',[], 'YTick',[], 'ZTick',[]);
     
     % incase there is a boundary image rearrange handles
-    if get(handles.boundary_chkbox, 'Value')
+    if get(handles.boundary_chkbox, 'Value') && ~isempty(handles.user_data.user_images(idx).gt_boundary_im)
         c = get(curr_axes_h, 'Children');
         c = findall(c, 'Type', 'image');    % filter out any thing other than images
         set(curr_axes_h, 'Children', [c(end-1); c([1:end-2 end])]);
@@ -66,7 +62,7 @@ for idx = 1:length(all_axes_h)
 end
 
 % adjust the position of the callbacks
-axesGlobalFuncs('adjustUicontextmenuCallback', handles);
+globalAxesUtils('adjustUicontextmenuCallback', handles);
 
 
 

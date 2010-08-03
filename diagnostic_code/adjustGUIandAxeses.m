@@ -8,7 +8,7 @@ min_gap = 10;
 gui_starting_pos = [ 40 100 ];
 
             %Axes Axes_rows Axes_cols Gui_Width Gui_Height
-layouts = [ 1     1         1         850       650;        % for 1 axes
+layouts = [ 1     1         1        1000       750;        % for 1 axes
             2     1         2        1100       550;        % for 2 axes
             4     2         2         850       750;        % for 4 axes
             6     2         3        1200       750 ];      % for 6 axes
@@ -21,7 +21,7 @@ for h = axes_h
 end
 % add uicontextmenu handles
 axes_h = [axes_h findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_uicontext_menu_re)'];
-recursiveHandleDelete(axes_h);
+globalAxesUtils('recursiveHandleDelete', axes_h);
 
 set(handles.roc_gui, 'Units', 'pixels');
 
@@ -87,20 +87,4 @@ for axes_idx = 1:no_axes
     
     % add handle to the set of handles
     handles.(axes_tag) = h1;
-end
-
-
-function recursiveHandleDelete(handle_list)
-% recursively (by going down the children tree) deletes all the handles in a list
-
-if isempty(handle_list)
-    return;
-end
-
-for hndl = handle_list
-    if ishandle(hndl)
-        children_hndls = get(hndl, 'Children');
-        recursiveHandleDelete(children_hndls);
-        delete(hndl);
-    end
 end

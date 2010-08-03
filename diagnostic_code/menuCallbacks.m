@@ -16,7 +16,7 @@ function menu_axes_num_Callback(hObject, eventdata, handles, no_axes)
 handles = adjustGUIandAxeses(gcf, no_axes, handles);
 
 % initialize the user image data
-handles = axesGlobalFuncs('reInitImageData', handles);
+handles = globalDataUtils('reInitImageData', handles);
 
 % Update handles structure
 guidata(gcf, handles);
@@ -61,17 +61,18 @@ handles.user_data.curr_dir = folder_name;
 no_axes = length(findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re));
 
 % replicate the data
-user_image.im1 = i1;
-user_image.im2 = i2;
-user_image.gt = mask;
-user_image.gt_boundary_im = 0.999*repmat(bwperim(user_image.gt), [1 1 3]);
-user_image.values = [];
-handles.user_data.user_images = repmat(user_image, [no_axes 1]);
-
-axesGlobalFuncs('setImageForAllAxes', handles);
+for axes_no = 1:no_axes
+    [ handles ] = globalDataUtils('setBackgroundImageData', i1, i2, mask, handles, axes_no );
+end
 
 % Update handles structure
 guidata(hObject, handles);
+
+% set the background image on all axes
+globalAxesUtils('setImageForAllAxes', handles);
+
+% check if the boundary image is needed on any axes
+boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, handles);
 
 
 
@@ -150,12 +151,14 @@ else
     handles.user_data.curr_prediction_dir{2} = folder_name;
 end
 
-
 % Update handles structure
 guidata(hObject, handles);
 
 % update the images on the all the axes
 thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, handles);
+
+% check if the boundary image is needed on any axes
+boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, handles);
 
 
 

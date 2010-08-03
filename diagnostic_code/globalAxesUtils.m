@@ -1,10 +1,11 @@
-function [ varargout ] = axesGlobalFuncs( varargin )
+function [ varargout ] = globalAxesUtils( varargin )
 % evaluate function according to the number of inputs and outputs
 if nargout(varargin{1}) > 0
     [varargout{1:nargout(varargin{1})}] = feval(varargin{:});
 else
     feval(varargin{:});
 end
+
 
 
 function setImageForAllAxes( handles )
@@ -20,6 +21,7 @@ end
 adjustUicontextmenuCallback( handles );
 
 
+
 function setImageForAxes( handles, axes_idx )
 axes_handle = handles.([handles.user_data.axes_tag_prefix num2str(axes_idx)]);
 
@@ -33,6 +35,7 @@ image(uint8(rgb2gray(handles.user_data.user_images(axes_idx).im1) * handles.user
 % set the axes properties
 set(axes_handle, 'DataAspectRatio', [1 1 1], 'Box','off', 'XColor',get(handles.roc_gui,'Color'), 'YColor',get(handles.roc_gui,'Color'), ...
     'Units','pixels', 'Tag',tag_name, 'XTick',[], 'YTick',[], 'ZTick',[]);
+
 
 
 function adjustUicontextmenuCallback( handles )
@@ -54,16 +57,29 @@ end
 
 
 
-function [ handles ] = reInitImageData( handles )
-% resets all the data for all the axes'
+function recursiveHandleDelete(handle_list)
+% recursively (by going down the children tree) deletes all the handles in a list
 
-% get the current no. of axes
-no_axes = length(findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re));
+if isempty(handle_list)
+    return;
+end
 
-% store the axes image
-user_image.im1 = [];
-user_image.im2 = [];
-user_image.gt = [];
-user_image.gt_boundary_im = [];
-user_image.values = [];
-handles.user_data.user_images = repmat(user_image, [no_axes 1]);
+for hndl = handle_list
+    if ishandle(hndl)
+        children_hndls = get(hndl, 'Children');
+        recursiveHandleDelete(children_hndls);
+        delete(hndl);
+    end
+end
+
+
+
+function [ all_axes_h ] = getAllAxesHandlesSorted(handles)
+% find all the axes
+all_axes_h = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re);
+
+if length(all_axes_h) > 1
+    % sort by axes no.
+    [temp sorted_idx] = sort(cellfun(@(x) str2num(x{1}{1}), regexp(get(all_axes_h, 'Tag'), '(\d+)$', 'tokens')));
+    all_axes_h = all_axes_h(sorted_idx);
+end
