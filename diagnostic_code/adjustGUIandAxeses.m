@@ -74,7 +74,10 @@ for axes_idx = 1:no_axes
               'YTick', [], ...
               'ZTick', []);
     
-    text(0.5,0.5, ['{\color{red}Axes ' num2str(axes_idx) '}'], 'Tag',['text_' axes_tag], 'FontSize',12, 'FontWeight','bold', 'HorizontalAlignment','center', 'VerticalAlignment','middle');
+    colormap(h1, [linspace(0,1,handles.user_data.colorspace_scaling_tp)'*[1 1 1]; 
+              handles.user_data.ctp; handles.user_data.cfn; handles.user_data.cfp]);
+    
+    text(0.5,0.5, ['{\color{red}Axes ' num2str(axes_idx) '}'], 'Tag',[handles.user_data.axes_txt_prefix num2str(axes_idx)], 'FontSize',12, 'FontWeight','bold', 'HorizontalAlignment','center', 'VerticalAlignment','middle');
     
     hcmenu = uicontextmenu('Tag', ['context_menu_' axes_tag]);
     uimenu(hcmenu, 'Label','Load overlay', 'Tag',['load_menu_' axes_tag], 'Callback', @(hObject,eventdata) menuCallbacks('menu_load_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
@@ -82,6 +85,7 @@ for axes_idx = 1:no_axes
     
     set(h1, 'uicontextmenu',hcmenu);
     
+    % add handle to the set of handles
     handles.(axes_tag) = h1;
 end
 

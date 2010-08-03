@@ -15,6 +15,9 @@ function menu_axes_num_Callback(hObject, eventdata, handles, no_axes)
 
 handles = adjustGUIandAxeses(gcf, no_axes, handles);
 
+% initialize the user image data
+handles = axesGlobalFuncs('reInitImageData', handles);
+
 % Update handles structure
 guidata(gcf, handles);
 
@@ -68,7 +71,7 @@ handles.user_data.user_images = repmat(user_image, [no_axes 1]);
 axesGlobalFuncs('setImageForAllAxes', handles);
 
 % Update handles structure
-guidata(gcf, handles);
+guidata(hObject, handles);
 
 
 
@@ -91,12 +94,11 @@ else
             % check if it has all the necessary files are there and readable
             msg_prefix = ['choosing file'];
             if strcmp(choice, RANDOM_FOREST_TXT)
-                filename_filter = '*.data';
+                [file_name folder_name] = uigetfile('*.data', 'Select file for overlay', handles.user_data.curr_prediction_dir{1});
             else
-                filename_filter = '*.mat';
+                [file_name folder_name] = uigetfile('*.mat', 'Select file for overlay', handles.user_data.curr_prediction_dir{2});
             end
-            [file_name folder_name] = uigetfile(filename_filter, 'Select file for overlay', handles.user_data.curr_prediction_dir);
-
+            
             if isscalar(file_name) && file_name == 0
                 return;
             end
@@ -142,10 +144,18 @@ else
 end
 
 % change to latest directory
-handles.user_data.curr_prediction_dir = folder_name;
+if strcmp(choice, RANDOM_FOREST_TXT)
+    handles.user_data.curr_prediction_dir{1} = folder_name;
+else
+    handles.user_data.curr_prediction_dir{2} = folder_name;
+end
+
 
 % Update handles structure
-guidata(gcf, handles);
+guidata(hObject, handles);
+
+% update the images on the all the axes
+thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, handles);
 
 
 

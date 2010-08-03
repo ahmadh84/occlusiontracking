@@ -29,7 +29,7 @@ function threshold_slider_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 %obtains the slider value from the slider component
-slider_value = get(hObject, 'Value');
+slider_value = get(handles.threshold_slider, 'Value');
  
 %puts the slider value into the edit text component
 set(handles.threshold_text, 'String', num2str(slider_value));
