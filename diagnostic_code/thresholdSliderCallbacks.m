@@ -1,5 +1,10 @@
-function thresholdSliderCallbacks( varargin )
-feval(varargin{:});
+function [ varargout ] = thresholdSliderCallbacks( varargin )
+% evaluate function according to the number of inputs and outputs
+if nargout(varargin{1}) > 0
+    [varargout{1:nargout(varargin{1})}] = feval(varargin{:});
+else
+    feval(varargin{:});
+end
 
 
 % --- Executes during object creation, after setting all properties.

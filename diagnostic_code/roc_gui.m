@@ -63,6 +63,11 @@ function roc_gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for roc_gui
 handles.output = hObject;
 
+
+% disallow figure to have doct controls
+set(hObject, 'DockControls','off');
+
+
 % add any paths required for running the GUI
 addpath(fullfile(pwd, '..', 'main_code'));
 addpath(genpath(fullfile(pwd, '..', 'main_code', 'utils')));
@@ -73,7 +78,11 @@ handles = setUserDataDefaults(handles);
 
 
 % create the starting axes and init the GUI
-handles = adjustGUIandAxeses(hObject, 1, handles);
+handles = adjustGUIandAxeses(hObject, handles.user_data.default_no_axes, handles);
+
+
+% initialize the user image data
+handles = axesGlobalFuncs('reInitImageData', handles);
 
 
 % create menu bar
@@ -145,9 +154,14 @@ user_data.colorspace_scaling_tp = 252;
 user_data.colorspace_scaling_fn = 253;
 user_data.colorspace_scaling_fp = 254;
 
+user_data.data_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\';
 user_data.curr_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\';
+user_data.curr_prediction_dir = 'H:\middlebury\';
 user_data.axes_tag_prefix = 'roc_axes_';
 user_data.axes_search_re = ['^' user_data.axes_tag_prefix '\d+$'];
 user_data.axes_uicontext_menu_re = ['^context_menu_' user_data.axes_tag_prefix '\d+$'];
+
+% no of axes by default
+user_data.default_no_axes = 1;
 
 handles.user_data = user_data;

@@ -1,7 +1,13 @@
-function [ output_args ] = boundaryChkboxCallbacks( varargin )
+function [ varargout ] = boundaryChkboxCallbacks( varargin )
 %BOUNDARYCHKBOXCALLBACKS Summary of this function goes here
 %   Detailed explanation goes here
-feval(varargin{:});
+
+% evaluate function according to the number of inputs and outputs
+if nargout(varargin{1}) > 0
+    [varargout{1:nargout(varargin{1})}] = feval(varargin{:});
+else
+    feval(varargin{:});
+end
 
 
 

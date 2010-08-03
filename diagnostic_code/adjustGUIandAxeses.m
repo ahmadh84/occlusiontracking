@@ -77,8 +77,8 @@ for axes_idx = 1:no_axes
     text(0.5,0.5, ['{\color{red}Axes ' num2str(axes_idx) '}'], 'Tag',['text_' axes_tag], 'FontSize',12, 'FontWeight','bold', 'HorizontalAlignment','center', 'VerticalAlignment','middle');
     
     hcmenu = uicontextmenu('Tag', ['context_menu_' axes_tag]);
-    uimenu(hcmenu, 'Label','Load overlay', 'Tag',['load_menu_' axes_tag], 'Callback', @(hObject,eventdata) menuCallbacks('menu_load_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag));
-    uimenu(hcmenu, 'Label','Clear overlay', 'Tag',['clear_menu_' axes_tag], 'Callback', @(hObject,eventdata) menuCallbacks('menu_clear_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag));
+    uimenu(hcmenu, 'Label','Load overlay', 'Tag',['load_menu_' axes_tag], 'Callback', @(hObject,eventdata) menuCallbacks('menu_load_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
+    uimenu(hcmenu, 'Label','Clear overlay', 'Tag',['clear_menu_' axes_tag], 'Enable','off', 'Callback', @(hObject,eventdata) menuCallbacks('menu_clear_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
     
     set(h1, 'uicontextmenu',hcmenu);
     

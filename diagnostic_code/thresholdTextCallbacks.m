@@ -1,5 +1,10 @@
-function [ output_args ] = thresholdTextCallbacks( varargin )
-feval(varargin{:});
+function [ varargout ] = thresholdTextCallbacks( varargin )
+% evaluate function according to the number of inputs and outputs
+if nargout(varargin{1}) > 0
+    [varargout{1:nargout(varargin{1})}] = feval(varargin{:});
+else
+    feval(varargin{:});
+end
 
 
 % --- Executes on threshold text change
