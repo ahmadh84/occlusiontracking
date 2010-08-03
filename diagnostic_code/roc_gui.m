@@ -24,6 +24,9 @@ function varargout = roc_gui(varargin)
 
 % Last Modified by GUIDE v2.5 29-Jul-2010 13:14:15
 
+% add main folder containing all the files
+addpath('rocgui');
+
 % if GUI already running, then exit
 set(0,'showhiddenhandles','on');
 p = findobj('tag','roc_gui','parent',0);

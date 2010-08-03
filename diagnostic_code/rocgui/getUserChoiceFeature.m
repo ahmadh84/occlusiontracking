@@ -49,7 +49,7 @@ function [ choices ] = makeChoiceFigure(min_ftr, max_ftr, feature)
     % delete any old figures
     delete(findobj('Tag','ftr_choice_gui'));
     
-    fig_size = [200,200,300,500];
+    fig_size = [200,200,300,550];
     gap = 20;
     
     h0 = figure('MenuBar','none', ...
@@ -151,6 +151,17 @@ function [ choices ] = makeChoiceFigure(min_ftr, max_ftr, feature)
     
     curr_h = curr_h + gap + 100;
     
+    c1 = uicontrol('Parent',h0, ...
+                   'Style','checkbox', ...
+                   'String','Invert Feature: ', ...
+                   'Position',[gap curr_h+gap 100 15], ...
+                   'BackgroundColor',get(h0,'Color'), ...
+                   'Tag','ftr_invert_chkbx', ...
+                   'Callback',@invertfeature, ...
+                   'HandleVisibility','off');
+    
+    curr_h = curr_h + gap + 15;
+               
     set(h2,'Visible','on');
 
     a0 = axes('Parent',h0, ...
@@ -168,6 +179,7 @@ function [ choices ] = makeChoiceFigure(min_ftr, max_ftr, feature)
     user_data.scaling = 0;
     user_data.min_value = min_ftr;
     user_data.max_value = max_ftr;
+    user_data.invert = 0;
     user_data.accept = 0;
     setappdata(0,'rocgui_userdata',user_data);
     
@@ -253,6 +265,17 @@ function maxclipping(hObject, eventdata)
 end
 
 
+function invertfeature(hObject, eventdata)
+    user_data = getappdata(0, 'rocgui_userdata');
+    
+    val = get(hObject, 'Value');
+    user_data.invert = val;
+    
+    setappdata(0, 'rocgui_userdata',user_data);
+    adjustImageOntoAxes(user_data);
+end
+
+
 function adjustImageOntoAxes(user_data)
     figure_h = findobj('Tag','ftr_choice_gui');
     
@@ -270,7 +293,7 @@ function adjustImageOntoAxes(user_data)
     set(axes_h, 'Box','off', 'XColor',get(figure_h,'Color'), 'YColor',get(figure_h,'Color'), ...
         'Units','pixels', 'Tag','ftr_preview_axes', 'XTick',[], 'YTick',[], 'ZTick',[]);
     
-    colormap(axes_h, 'summer') ;
+    colormap(axes_h, 'Gray') ;
 end
 
 
@@ -280,12 +303,16 @@ function [ feature ] = computeFeature( user_data )
     feature(feature > user_data.max_value) = user_data.max_value;
     feature(feature < user_data.min_value) = user_data.min_value;
     
+    if user_data.invert == 1
+        feature = user_data.max_value - feature;
+    end
+    
     if user_data.scaling == 1
         feature = real(log(feature));
+        user_data.min_value = real(log(user_data.min_value));
+        user_data.max_value = real(log(user_data.max_value));
     end
     
     % scale to between 0 and 1
-    min_val = min(feature(:));
-    max_val = max(feature(:));
-    feature = (feature - min_val)./(max_val - min_val);
+    feature = (feature - user_data.min_value)./(user_data.max_value - user_data.min_value);
 end
