@@ -63,6 +63,7 @@ no_axes = length(findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.ax
 % replicate the data
 for axes_no = 1:no_axes
     [ handles ] = globalDataUtils('setBackgroundImageData', i1, i2, mask, handles, axes_no );
+    [ handles ] = globalDataUtils('resetOverlayImageData', handles, axes_no );
 end
 
 % Update handles structure
@@ -160,8 +161,28 @@ thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, handle
 % check if the boundary image is needed on any axes
 boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, handles);
 
+% enable overlay clear button
+uicontextmenu_clear_h = findobj('Tag', [handles.user_data.axes_clear_menu_prefix num2str(axes_idx)]);
+set(uicontextmenu_clear_h, 'Enable', 'on');
+
 
 
 function menu_clear_overlay_Callback(hObject, eventdata, handles, axes_tag, axes_idx)
-disp('clearing overlay');
+[ handles ] = globalDataUtils('resetOverlayImageData', handles, axes_idx );
 
+% delete previous overlay images
+globalAxesUtils('deleteOverlayImages', handles, axes_idx);
+
+% Update handles structure
+guidata(hObject, handles);
+
+% update the images on the all the axes
+thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, handles);
+
+% disable overlay clear button
+uicontextmenu_clear_h = findobj('Tag', [handles.user_data.axes_clear_menu_prefix num2str(axes_idx)]);
+set(uicontextmenu_clear_h, 'Enable', 'off');
+
+
+
+function menu_ftr_imp_Callback(hObject, eventdata, handles, axes_tag)

@@ -83,3 +83,24 @@ if length(all_axes_h) > 1
     [temp sorted_idx] = sort(cellfun(@(x) str2num(x{1}{1}), regexp(get(all_axes_h, 'Tag'), '(\d+)$', 'tokens')));
     all_axes_h = all_axes_h(sorted_idx);
 end
+
+
+
+function deleteOverlayImages(handles, axes_no)
+curr_axes_h = handles.([handles.user_data.axes_tag_prefix num2str(axes_no)]);
+c = get(curr_axes_h, 'Children');
+
+c = findall(c, 'Type', 'image');    % filter out any thing other than images
+
+has_background = ~isempty(handles.user_data.user_images(axes_no).im1);
+
+if ~isempty(c)
+    % dont delete the boundary image on the axes
+    if get(handles.boundary_chkbox, 'Value')
+        % delete the lower image only if the background has not been set
+        delete(c(2:end-has_background));
+    else
+        % delete the lower image only if the background has not been set
+        delete(c(1:end-has_background));
+    end
+end

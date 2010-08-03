@@ -33,4 +33,8 @@ handles.user_data.user_images(axes_no).im2 = i2;
 handles.user_data.user_images(axes_no).gt = mask;
 handles.user_data.user_images(axes_no).gt_boundary_mask = bwperim(handles.user_data.user_images(axes_no).gt);
 handles.user_data.user_images(axes_no).gt_boundary_im = 0.999*repmat(bwperim(handles.user_data.user_images(axes_no).gt_boundary_mask), [1 1 3]);
+
+
+
+function [ handles ] = resetOverlayImageData( handles, axes_no )
 handles.user_data.user_images(axes_no).values = [];

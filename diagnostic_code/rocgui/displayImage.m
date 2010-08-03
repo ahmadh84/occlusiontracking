@@ -5,12 +5,8 @@ function displayImage(handles, threshold)
 % iterate over all axes
 for idx = 1:length(all_axes_h)
     curr_axes_h = all_axes_h(idx);
-    c = get(curr_axes_h, 'Children');
-    
-    c = findall(c, 'Type', 'image');    % filter out any thing other than images
     
     % bottom most handle is the background image if:
-    has_background = ~isempty(handles.user_data.user_images(idx).im1);
     has_features = ~isempty(handles.user_data.user_images(idx).values);
     
     % if feature not available then nothing to do
@@ -18,17 +14,9 @@ for idx = 1:length(all_axes_h)
         continue;
     end
     
-    if ~isempty(c)
-        % dont delete the boundary image on the axes
-        if get(handles.boundary_chkbox, 'Value')
-            % delete the lower image only if the background has not been set
-            delete(c(2:end-has_background));
-        else
-            % delete the lower image only if the background has not been set
-            delete(c(1:end-has_background));
-        end
-    end
-
+    % delete previous overlay images
+    globalAxesUtils('deleteOverlayImages', handles, idx);
+    
     % delete any text on the axes
     delete(findall(handles.roc_gui, 'Tag',[handles.user_data.axes_txt_prefix num2str(idx)]));
 

@@ -98,6 +98,9 @@ uimenu('Parent',h1, 'Label','&2 Axes', 'Tag','menu_axes_2', 'Callback',@(hObject
 uimenu('Parent',h1, 'Label','&4 Axes', 'Tag','menu_axes_4', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 4));
 uimenu('Parent',h1, 'Label','&6 Axes', 'Tag','menu_axes_6', 'Callback',@(hObject,eventdata) menuCallbacks('menu_axes_num_Callback', hObject, eventdata, guidata(hObject), 6));
 
+h1 = uimenu('Parent',hObject, 'Label','&Misc.', 'Tag','menu_misc');
+uimenu('Parent',h1, 'Label','&Feature Importance', 'Tag','menu_ftr_imp', 'Callback',@(hObject,eventdata) menuCallbacks('menu_ftr_imp_Callback', hObject, eventdata, guidata(hObject)));
+
 
 % Set callbacks for UI controls
 set(handles.threshold_slider, 'Callback', @(hObject,eventdata) thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, guidata(hObject)) );
@@ -158,6 +161,8 @@ user_data.curr_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered 
 user_data.curr_prediction_dir = {'H:\middlebury\', 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\'};
 user_data.axes_tag_prefix = 'roc_axes_';
 user_data.axes_txt_prefix = 'text_roc_axes_';
+user_data.axes_load_menu_prefix = 'load_menu_roc_axes_';
+user_data.axes_clear_menu_prefix = 'clear_menu_roc_axes_';
 user_data.im_gt_prefix = 'im_gt_roc_';
 user_data.axes_search_re = ['^' user_data.axes_tag_prefix '\d+$'];
 user_data.axes_uicontext_menu_re = ['^context_menu_' user_data.axes_tag_prefix '\d+$'];
