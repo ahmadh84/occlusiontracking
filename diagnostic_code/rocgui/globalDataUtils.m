@@ -17,6 +17,7 @@ no_axes = length(findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.ax
 % store the axes image
 user_image.im1 = [];
 user_image.im2 = [];
+user_image.flow = [];
 user_image.gt = [];
 user_image.gt_boundary_mask = [];
 user_image.gt_boundary_im = [];
@@ -25,12 +26,13 @@ handles.user_data.user_images = repmat(user_image, [no_axes 1]);
 
 
 
-function [ handles ] = setBackgroundImageData( i1, i2, mask, handles, axes_no )
+function [ handles ] = setBackgroundImageData( i1, i2, uv_gt, handles, axes_no )
 assert(axes_no >= 1 && axes_no <= length(handles.user_data.user_images), 'Invalid axes number provided');
 
 handles.user_data.user_images(axes_no).im1 = i1;
 handles.user_data.user_images(axes_no).im2 = i2;
-handles.user_data.user_images(axes_no).gt = mask;
+handles.user_data.user_images(axes_no).flow = uv_gt;
+handles.user_data.user_images(axes_no).gt = (uv_gt(:,:,1)>200 | uv_gt(:,:,2)>200);
 handles.user_data.user_images(axes_no).gt_boundary_mask = bwperim(handles.user_data.user_images(axes_no).gt);
 handles.user_data.user_images(axes_no).gt_boundary_im = 0.999*repmat(bwperim(handles.user_data.user_images(axes_no).gt_boundary_mask), [1 1 3]);
 

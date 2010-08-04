@@ -163,7 +163,10 @@ user_data.axes_tag_prefix = 'roc_axes_';
 user_data.axes_txt_prefix = 'text_roc_axes_';
 user_data.axes_load_menu_prefix = 'load_menu_roc_axes_';
 user_data.axes_clear_menu_prefix = 'clear_menu_roc_axes_';
+user_data.axes_flow_menu_prefix = 'flow_menu_roc_axes_';
 user_data.im_gt_prefix = 'im_gt_roc_';
+user_data.axes_flow_prefix = 'roc_axes_flow_';
+user_data.pixels_per_flow = 10;
 user_data.axes_search_re = ['^' user_data.axes_tag_prefix '\d+$'];
 user_data.axes_uicontext_menu_re = ['^context_menu_' user_data.axes_tag_prefix '\d+$'];
 

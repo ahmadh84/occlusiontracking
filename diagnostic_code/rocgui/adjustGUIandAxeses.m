@@ -5,7 +5,7 @@ top_ui_height = 0;
 border_pxls = 20;
 aspect_ratio_to_maintain = 1.333;
 min_gap = 10;
-gui_starting_pos = [ 40 100 ];
+gui_starting_pos = [ 40 60 ];
 
             %Axes Axes_rows Axes_cols Gui_Width Gui_Height
 layouts = [ 1     1         1        1000       750;        % for 1 axes
@@ -80,8 +80,12 @@ for axes_idx = 1:no_axes
     text(0.5,0.5, ['{\color{red}Axes ' num2str(axes_idx) '}'], 'Tag',[handles.user_data.axes_txt_prefix num2str(axes_idx)], 'FontSize',12, 'FontWeight','bold', 'HorizontalAlignment','center', 'VerticalAlignment','middle');
     
     hcmenu = uicontextmenu('Tag', ['context_menu_' axes_tag]);
-    uimenu(hcmenu, 'Label','Load overlay', 'Tag',[handles.user_data.axes_load_menu_prefix num2str(axes_idx)], 'Callback', @(hObject,eventdata) menuCallbacks('menu_load_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
-    uimenu(hcmenu, 'Label','Clear overlay', 'Tag',[handles.user_data.axes_clear_menu_prefix num2str(axes_idx)], 'Enable','off', 'Callback', @(hObject,eventdata) menuCallbacks('menu_clear_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
+    uimenu(hcmenu, 'Label','Load overlay', 'Tag',[handles.user_data.axes_load_menu_prefix num2str(axes_idx)], ...
+        'Callback', @(hObject,eventdata) contextMenuCallbacks('menu_load_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
+    uimenu(hcmenu, 'Label','Clear overlay', 'Tag',[handles.user_data.axes_clear_menu_prefix num2str(axes_idx)], 'Enable','off', ...
+        'Callback', @(hObject,eventdata) contextMenuCallbacks('menu_clear_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
+    uimenu(hcmenu, 'Label','Show flow', 'Tag',[handles.user_data.axes_flow_menu_prefix num2str(axes_idx)], 'Enable','off', 'Separator','on', 'Enable','off', ...
+        'Checked','off', 'Callback', @(hObject,eventdata) contextMenuCallbacks('menu_flow_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
     
     set(h1, 'uicontextmenu',hcmenu);
     
