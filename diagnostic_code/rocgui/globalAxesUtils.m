@@ -104,3 +104,10 @@ if ~isempty(c)
         delete(c(1:end-has_background));
     end
 end
+
+
+
+function switchContextMenuClear(handles, axes_no, enable_disable)
+% disable overlay clear button
+uicontextmenu_clear_h = findobj('Tag', [handles.user_data.axes_clear_menu_prefix num2str(axes_no)]);
+set(uicontextmenu_clear_h, 'Enable', enable_disable);

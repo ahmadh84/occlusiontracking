@@ -158,7 +158,7 @@ user_data.colorspace_scaling_fp = 254;
 
 user_data.data_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\';
 user_data.curr_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\';
-user_data.curr_prediction_dir = {'H:\middlebury\', 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\'};
+user_data.curr_prediction_dir = {'H:\middlebury\', 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Data\oisin+middlebury\', 'H:\middlebury\'};
 user_data.axes_tag_prefix = 'roc_axes_';
 user_data.axes_txt_prefix = 'text_roc_axes_';
 user_data.axes_load_menu_prefix = 'load_menu_roc_axes_';

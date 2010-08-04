@@ -47,6 +47,7 @@ function [ feature_list scene_id unique_id ] = returnFeatureList( filepath_or_ob
         
         % get feature depths and cell_features
         feature_depths = curr_obj.feature_depths;
+        assert(~isempty(curr_obj.settings), 'returnFeatureList:OldObject', 'This is an old, unsupported ClassifierOutputHandler object');
         cell_features = curr_obj.settings.cell_features;
     elseif isa(curr_obj, 'ComputeFeatureVectors')
         % pull data from ComputeFeatureVectors

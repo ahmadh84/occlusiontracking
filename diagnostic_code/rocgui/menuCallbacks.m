@@ -60,10 +60,13 @@ handles.user_data.curr_dir = folder_name;
 % get the current no. of axes
 no_axes = length(findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re));
 
-% replicate the data
+% adjust data and disable the clear button
 for axes_no = 1:no_axes
     [ handles ] = globalDataUtils('setBackgroundImageData', i1, i2, mask, handles, axes_no );
     [ handles ] = globalDataUtils('resetOverlayImageData', handles, axes_no );
+
+    % disable overlay clear button
+    globalAxesUtils('switchContextMenuClear', handles, axes_no, 'off');
 end
 
 % Update handles structure
@@ -139,7 +142,7 @@ else
             not_done = 0;
         catch exception
             set(handles.roc_gui, 'Visible', 'off');
-            uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid directory', 'modal'));
+            uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid file', 'modal'));
             set(handles.roc_gui, 'Visible', 'on');
         end
     end
@@ -161,9 +164,8 @@ thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, handle
 % check if the boundary image is needed on any axes
 boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, handles);
 
-% enable overlay clear button
-uicontextmenu_clear_h = findobj('Tag', [handles.user_data.axes_clear_menu_prefix num2str(axes_idx)]);
-set(uicontextmenu_clear_h, 'Enable', 'on');
+% disable overlay clear button
+globalAxesUtils('switchContextMenuClear', handles, axes_idx, 'on');
 
 
 
@@ -180,9 +182,37 @@ guidata(hObject, handles);
 thresholdSliderCallbacks('threshold_slider_Callback', hObject, eventdata, handles);
 
 % disable overlay clear button
-uicontextmenu_clear_h = findobj('Tag', [handles.user_data.axes_clear_menu_prefix num2str(axes_idx)]);
-set(uicontextmenu_clear_h, 'Enable', 'off');
+globalAxesUtils('switchContextMenuClear', handles, axes_idx, 'off');
 
 
 
-function menu_ftr_imp_Callback(hObject, eventdata, handles, axes_tag)
+function menu_ftr_imp_Callback(hObject, eventdata, handles)
+not_done = 1;
+msg_prefix = '[unknown action]';
+
+while not_done
+    try
+        % check if it has all the necessary files are there and readable
+        msg_prefix = ['choosing file'];
+        
+        [file_name folder_name] = uigetfile('*.mat', 'Select file for feature importance', handles.user_data.curr_prediction_dir{3});
+
+        if isscalar(file_name) && file_name == 0
+            return;
+        end
+        
+        msg_prefix = ['getting feature data'];
+        featureImportanceFig(fullfile(folder_name, file_name));
+        
+        not_done = 0;
+    catch exception
+        set(handles.roc_gui, 'Visible', 'off');
+        uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid file', 'modal'));
+        set(handles.roc_gui, 'Visible', 'on');
+    end
+end
+
+handles.user_data.curr_prediction_dir{3} = folder_name;
+
+% Update handles structure
+guidata(hObject, handles);
