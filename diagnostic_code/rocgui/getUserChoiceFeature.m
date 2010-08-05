@@ -288,11 +288,6 @@ function adjustImageOntoAxes(user_data)
     
     axes_h = findobj('Tag','ftr_preview_axes');
     image(feature*255, 'Parent',axes_h, 'Tag','ftr_preview_axes_im');
-
-    figure;
-    image(feature*255);
-    pause;
-    close;
     
     % set the axes properties
     set(axes_h, 'DataAspectRatio', [1 1 1], 'Box','off', 'XColor',get(figure_h,'Color'), 'YColor',get(figure_h,'Color'), ...

@@ -166,6 +166,7 @@ user_data.axes_load_menu_prefix = 'load_menu_roc_axes_';
 user_data.axes_clear_menu_prefix = 'clear_menu_roc_axes_';
 user_data.axes_flow_menu_prefix = 'flow_menu_roc_axes_';
 user_data.im_gt_prefix = 'im_gt_roc_';
+user_data.im_bg_prefix = 'im_bg_roc_';
 user_data.axes_flow_prefix = 'roc_axes_flow_';
 user_data.appdata_currtoolbar_button = 'rocgui_CurrentToolButton';
 user_data.pixels_per_flow = 10;

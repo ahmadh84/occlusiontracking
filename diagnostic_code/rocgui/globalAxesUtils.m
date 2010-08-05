@@ -30,7 +30,7 @@ tag_name = get(axes_handle, 'Tag');
 % delete all the previous children
 delete(get(axes_handle, 'Children'));
 
-image(uint8(rgb2gray(handles.user_data.user_images(axes_idx).im1) * handles.user_data.colorspace_scaling_tp), 'Parent',axes_handle);
+image(uint8(rgb2gray(handles.user_data.user_images(axes_idx).im1) * handles.user_data.colorspace_scaling_tp), 'Parent',axes_handle, 'Tag',[handles.user_data.im_bg_prefix num2str(axes_idx)]);
 
 % set the axes properties
 set(axes_handle, 'DataAspectRatio', [1 1 1], 'Box','off', 'XColor',get(handles.roc_gui,'Color'), 'YColor',get(handles.roc_gui,'Color'), ...
@@ -92,17 +92,20 @@ c = get(curr_axes_h, 'Children');
 
 c = findall(c, 'Type', 'image');    % filter out any thing other than images
 
-has_background = ~isempty(handles.user_data.user_images(axes_no).im1);
-
 if ~isempty(c)
-    % dont delete the boundary image on the axes
-    if get(handles.boundary_chkbox, 'Value')
-        % delete the lower image only if the background has not been set
-        delete(c(2:end-has_background));
-    else
-        % delete the lower image only if the background has not been set
-        delete(c(1:end-has_background));
-    end
+    % check if there is a background image
+    has_background = ~isempty(handles.user_data.user_images(axes_no).im1);
+
+    % check if there is a boundary image
+    gt_available = ~isempty(handles.user_data.user_images(axes_no).gt_boundary_im);
+    has_boundary = get(handles.boundary_chkbox, 'Value') && gt_available;
+    
+    % get list of handles to delete
+    del_handles = c(has_boundary+1:end-has_background);
+    del_handles = del_handles(ishandle(del_handles));
+    
+    % delete the handles to the overlay images
+    delete(del_handles);
 end
 
 

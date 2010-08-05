@@ -41,12 +41,27 @@ for idx = 1:length(all_axes_h)
     set(curr_axes_h, 'DataAspectRatio', [1 1 1], 'Box','off', 'XColor',get(handles.roc_gui,'Color'), 'YColor',get(handles.roc_gui,'Color'), ...
                 'Units','pixels', 'Tag',tag_name, 'XTick',[], 'YTick',[], 'ZTick',[]);
     
-    % incase there is a boundary image rearrange handles
-    if get(handles.boundary_chkbox, 'Value') && ~isempty(handles.user_data.user_images(idx).gt_boundary_im)
-        c = get(curr_axes_h, 'Children');
-        c = findall(c, 'Type', 'image');    % filter out any thing other than images
-        set(curr_axes_h, 'Children', [c(end-1); c([1:end-2 end])]);
-    end
+    
+    % SORT the images on the axes
+    
+    % get all children
+    c = get(curr_axes_h, 'Children');
+    
+    % get background image
+    bg_h = findall(curr_axes_h, 'Tag',[handles.user_data.im_bg_prefix num2str(idx)]);
+    
+    % get boundary image
+    bdry_h = findall(curr_axes_h, 'Tag',[handles.user_data.im_gt_prefix num2str(idx)]);
+    
+    % get flow image
+    flow_h = findall(curr_axes_h, 'Tag',[handles.user_data.axes_flow_prefix num2str(idx)]);
+    
+    % rest of the images
+    i = findall(c, 'Type', 'image');    % filter out any thing other than images
+    i(ismember(i, [bg_h bdry_h])) = [];
+    
+    % set the image order
+    set(curr_axes_h, 'Children', [flow_h; bdry_h; i; bg_h]);
 end
 
 % adjust the position of the callbacks

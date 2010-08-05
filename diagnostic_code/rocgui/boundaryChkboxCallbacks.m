@@ -30,7 +30,7 @@ for idx = 1:length(all_axes_h)
     
     if get(handles.boundary_chkbox, 'Value') && gt_available
         hold(all_axes_h(idx), 'on');
-        image(handles.user_data.user_images(idx).gt_boundary_im, 'AlphaData', handles.user_data.user_images(idx).gt_boundary_mask, 'Parent', all_axes_h(idx), 'Tag',[handles.user_data.im_gt_prefix num2str(idx)]);
+        image(handles.user_data.user_images(idx).gt_boundary_im, 'AlphaData', handles.user_data.user_images(idx).gt_boundary_mask, 'Parent',all_axes_h(idx), 'Tag',[handles.user_data.im_gt_prefix num2str(idx)]);
     else
         % if boundary was being shown previously then delete it
         c = findall(handles.roc_gui, 'Tag', [handles.user_data.im_gt_prefix num2str(idx)]);
