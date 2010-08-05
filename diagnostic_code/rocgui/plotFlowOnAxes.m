@@ -1,6 +1,7 @@
 function plotFlowOnAxes( axes_h, axes_no, user_data, handles )
-%PLOTFLOWONAXES Summary of this function goes here
-%   Detailed explanation goes here
+%PLOTFLOWONAXES plots flow on the axes according to the window size
+%   available (adjusting the density of flow according to the available
+%   space on axes)
 
     sz = get(axes_h, 'Position');
     width_vecs = sz(3) / handles.user_data.pixels_per_flow;
@@ -36,5 +37,8 @@ function plotFlowOnAxes( axes_h, axes_no, user_data, handles )
     
     hold on;
     quiver(X,Y, u, v, 'Parent',axes_h, 0, 'y-', 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
+    
+    % adjust the position of the callbacks
+    globalAxesUtils('adjustUicontextmenuCallback', handles);
 end
 

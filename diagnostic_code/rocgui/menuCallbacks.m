@@ -189,4 +189,3 @@ if display_flow
     
     plotFlowOnAxes( eventdata.Axes, axes_idx, handles.user_data.user_images(axes_idx), handles );
 end
-

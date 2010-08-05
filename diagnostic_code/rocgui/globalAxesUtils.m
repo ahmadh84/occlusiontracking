@@ -39,19 +39,30 @@ set(axes_handle, 'DataAspectRatio', [1 1 1], 'Box','off', 'XColor',get(handles.r
 
 
 function adjustUicontextmenuCallback( handles )
-% used for adjusting all the context menus (attaching to the most image) in
-%   all the axes'
+% used for adjusting all the context menus (attaching it to the top-most 
+%   image) in all the axes'. Also attaches it to any hggroup (flow quivers)
+%   if available
 
-a = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re);
-for axes_idx = 1:length(a)
-    menu_callback = get(a(axes_idx), 'Uicontextmenu');
-    axes_children = get(a(axes_idx), 'Children');
+% get all axes sorted
+[ all_axes_h ] = getAllAxesHandlesSorted(handles);
+
+for axes_no = 1:length(all_axes_h)
+    menu_callback = get(all_axes_h(axes_no), 'Uicontextmenu');
+    axes_children = get(all_axes_h(axes_no), 'Children');
     
     im_children = findobj(axes_children, 'Type', 'image');
     
     if all(ishandle(menu_callback)) && ~isempty(im_children)
        % add callback to top most image
        set(im_children(1), 'Uicontextmenu', menu_callback);
+    end
+    
+    % also attach to topmost hggroup
+    hg_children = findobj(axes_children, 'Type', 'hggroup');
+    
+    if all(ishandle(menu_callback)) && ~isempty(hg_children)
+       % add callback to top most image
+       set(hg_children(1), 'Uicontextmenu', menu_callback);
     end
 end
 
