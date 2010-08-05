@@ -3,15 +3,15 @@ function [ handles ] = adjustGUIandAxeses(hObject, no_axes, handles)
 
 top_ui_height = 0;
 border_pxls = 20;
-aspect_ratio_to_maintain = 1.333;
+aspect_ratio_to_maintain = 1.35;
 min_gap = 10;
 gui_starting_pos = [ 40 60 ];
 
             %Axes Axes_rows Axes_cols Gui_Width Gui_Height
 layouts = [ 1     1         1        1000       750;        % for 1 axes
-            2     1         2        1100       550;        % for 2 axes
+            2     1         2        1250       600;        % for 2 axes
             4     2         2         850       750;        % for 4 axes
-            6     2         3        1200       750 ];      % for 6 axes
+            6     2         3        1260       750 ];      % for 6 axes
 
 % delete all old axes handles
 axes_h = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re)';
