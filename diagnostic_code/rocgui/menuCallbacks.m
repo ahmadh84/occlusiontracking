@@ -112,3 +112,81 @@ handles.user_data.curr_prediction_dir{3} = folder_name;
 
 % Update handles structure
 guidata(hObject, handles);
+
+
+
+function setZoomingFunction(hObject, eventdata, handles, func_type)
+% if their was a previous button pressed then declick it
+prv_button = getappdata(handles.roc_gui, handles.user_data.appdata_currtoolbar_button);
+if ~isempty(prv_button)  % aborting one operation and starting another
+    if ishghandle(prv_button) ...
+        && strcmp(get(prv_button,'Type'),'uitoggletool') ...
+        && prv_button ~= gcbo ...  % not the same button
+        && ancestor(prv_button,'Figure') == handles.roc_gui % Same Window
+        
+        set(prv_button,'State','off');
+    end
+end
+
+% set the current tool to the current button
+setappdata(handles.roc_gui, handles.user_data.appdata_currtoolbar_button,hObject);
+
+if any(ishghandle(hObject))
+    % get the state of the current button
+    onoff = get(hObject,'State');
+    
+    % activate or deactivate according to the button that was clicked
+    switch func_type
+        case 'zoomin'
+            if strcmpi(onoff,'on')
+                h = zoom(handles.roc_gui);
+                set(h, 'Direction','in');
+                set(h, 'ActionPostCallback',@(objFigure,eventdata) menuCallbacks('adjustFlowDensity', objFigure, eventdata, guidata(objFigure), func_type));
+                set(h,'Enable','on');
+            else
+                zoom(handles.roc_gui,'off')
+            end
+        case 'zoomout'
+            if strcmpi(onoff,'on')
+                h = zoom(handles.roc_gui);
+                set(h, 'Direction','out');
+                set(h, 'ActionPostCallback',@(objFigure,eventdata) menuCallbacks('adjustFlowDensity', objFigure, eventdata, guidata(objFigure), func_type));
+                set(h,'Enable','on');
+            else
+                zoom(handles.roc_gui,'off')
+            end
+        case 'pan'
+            if strcmpi(onoff,'on')
+                pan(handles.roc_gui,'onkeepstyle');
+            else
+                pan(handles.roc_gui,'off');
+            end
+    end
+end
+
+
+
+function adjustFlowDensity( objFigure, eventdata, handles, func_type )
+%This function gets the quiver arrows for flow according to the available
+%   height and width of the image
+
+% find the axes no
+tok = regexp(get(eventdata.Axes, 'Tag'), handles.user_data.axes_search_re, 'Tokens');
+axes_idx = str2num(tok{1}{1});
+
+% new_limits = axis(eventdata.Axes);
+% fprintf(1, 'The new X-Limits are [%.2f %.2f %.2f %.2f].\n',new_limits);
+
+% get what the tick value was
+flow_menu_h = findall(handles.roc_gui, 'Tag', [handles.user_data.axes_flow_menu_prefix num2str(axes_idx)]);
+
+% toggle
+display_flow = strcmp(get(flow_menu_h, 'Checked'), 'on');
+if display_flow
+    % find quiver handle
+    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_idx)]);
+    delete(quiver_h);
+    
+    plotFlowOnAxes( eventdata.Axes, axes_idx, handles.user_data.user_images(axes_idx), handles );
+end
+

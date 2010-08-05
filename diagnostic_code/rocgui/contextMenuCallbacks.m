@@ -138,3 +138,4 @@ else
     quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_idx)]);
     delete(quiver_h);
 end
+

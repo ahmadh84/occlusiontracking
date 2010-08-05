@@ -22,7 +22,7 @@ function varargout = roc_gui(varargin)
 
 % Edit the above text to modify the response to help roc_gui
 
-% Last Modified by GUIDE v2.5 29-Jul-2010 13:14:15
+% Last Modified by GUIDE v2.5 04-Aug-2010 22:49:36
 
 % add main folder containing all the files
 addpath('rocgui');
@@ -79,13 +79,14 @@ addpath(genpath(fullfile(pwd, '..', 'main_code', 'utils')));
 % set user data defaults
 handles = setUserDataDefaults(handles);
 
-
 % create the starting axes and init the GUI
 handles = adjustGUIandAxeses(hObject, handles.user_data.default_no_axes, handles);
 
-
 % initialize the user image data
 handles = globalDataUtils('reInitImageData', handles);
+
+% set the callback functions for the zoom controls
+handles = setZoomToolbarButtons(handles);
 
 
 % create menu bar
@@ -166,11 +167,36 @@ user_data.axes_clear_menu_prefix = 'clear_menu_roc_axes_';
 user_data.axes_flow_menu_prefix = 'flow_menu_roc_axes_';
 user_data.im_gt_prefix = 'im_gt_roc_';
 user_data.axes_flow_prefix = 'roc_axes_flow_';
+user_data.appdata_currtoolbar_button = 'rocgui_CurrentToolButton';
 user_data.pixels_per_flow = 10;
-user_data.axes_search_re = ['^' user_data.axes_tag_prefix '\d+$'];
+user_data.axes_search_re = ['^' user_data.axes_tag_prefix '(\d+)$'];
 user_data.axes_uicontext_menu_re = ['^context_menu_' user_data.axes_tag_prefix '\d+$'];
 
 % no of axes by default
 user_data.default_no_axes = 1;
 
 handles.user_data = user_data;
+
+
+
+function handles = setZoomToolbarButtons(handles)
+fig_children = get(handles.roc_gui, 'Children');
+toolbar_h = strcmp(get(fig_children, 'Type'), 'uitoolbar');
+assert(nnz(toolbar_h)==1, 'Unable to accurately find the figure toolbar');
+toolbar_h = fig_children(toolbar_h);
+
+toolbar_children = get(toolbar_h, 'Children');
+zoomin_h = strcmp(get(toolbar_children,'Tag'), 'uitoggletool_zoomin');
+zoomout_h = strcmp(get(toolbar_children,'Tag'), 'uitoggletool_zoomout');
+pan_h = strcmp(get(toolbar_children,'Tag'), 'uitoggletool_pan');
+assert(nnz(zoomin_h)==1 && nnz(zoomout_h)==1 && nnz(pan_h)==1, 'Unable to accurately find the zoom-in, zoom-out and/or pan buttons');
+zoomin_h = toolbar_children(zoomin_h);
+zoomout_h = toolbar_children(zoomout_h);
+pan_h = toolbar_children(pan_h);
+
+% set the callback functions
+set(zoomin_h, 'ClickedCallback', @(hObject, eventdata) menuCallbacks('setZoomingFunction', hObject, eventdata, guidata(hObject), 'zoomin'));
+set(zoomout_h, 'ClickedCallback', @(hObject, eventdata) menuCallbacks('setZoomingFunction', hObject, eventdata, guidata(hObject), 'zoomout'));
+set(pan_h, 'ClickedCallback', @(hObject, eventdata) menuCallbacks('setZoomingFunction', hObject, eventdata, guidata(hObject), 'pan'));
+
+setappdata(handles.roc_gui, handles.user_data.appdata_currtoolbar_button,[]);
