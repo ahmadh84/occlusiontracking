@@ -122,13 +122,22 @@ end
 
 
 function switchContextMenuClear(handles, axes_no, enable_disable)
-% disable overlay clear button
+% disable/enable overlay clear button
 uicontextmenu_clear_h = findobj('Tag', [handles.user_data.axes_clear_menu_prefix num2str(axes_no)]);
 set(uicontextmenu_clear_h, 'Enable', enable_disable);
 
 
 
 function switchAndToggleContextMenuFlow(handles, axes_no, enable_disable, ticked_not_ticked)
-% disable overlay clear button
+% disable/enable tick/untick GT flow button
 uicontextmenu_flow_h = findobj('Tag', [handles.user_data.axes_flow_menu_prefix num2str(axes_no)]);
-set(uicontextmenu_flow_h, 'Enable',enable_disable, 'Checked',ticked_not_ticked);
+set(uicontextmenu_flow_h, 'Checked',ticked_not_ticked);
+if ~strcmp(enable_disable, 'keep')
+    set(uicontextmenu_flow_h, 'Enable',enable_disable);
+end
+
+
+function switchAndToggleContextMenuAlternateFlow(handles, axes_no, ticked_not_ticked)
+% tick/untick flow algo button
+uicontextmenu_aflow_h = findobj('Tag', [handles.user_data.axes_algo_flow_menu_prefix num2str(axes_no)]);
+set(uicontextmenu_aflow_h, 'Checked',ticked_not_ticked);

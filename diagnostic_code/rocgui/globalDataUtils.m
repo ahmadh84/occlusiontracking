@@ -18,6 +18,7 @@ no_axes = length(findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.ax
 user_image.im1 = [];
 user_image.im2 = [];
 user_image.flow = [];
+user_image.flow_alternate = [];
 user_image.gt = [];
 user_image.gt_boundary_mask = [];
 user_image.gt_boundary_im = [];
@@ -40,3 +41,4 @@ handles.user_data.user_images(axes_no).gt_boundary_im = 0.999*repmat(bwperim(han
 
 function [ handles ] = resetOverlayImageData( handles, axes_no )
 handles.user_data.user_images(axes_no).values = [];
+handles.user_data.user_images(axes_no).flow_alternate = [];

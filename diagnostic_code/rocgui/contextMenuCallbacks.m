@@ -113,29 +113,114 @@ globalAxesUtils('switchContextMenuClear', handles, axes_idx, 'off');
 
 
 
-function menu_flow_overlay_Callback(hObject, eventdata, handles, axes_tag, axes_idx)
+function menu_flow_overlay_Callback(hObject, eventdata, handles, axes_tag, axes_no)
 % get what the tick value was
-flow_menu_h = findall(handles.roc_gui, 'Tag', [handles.user_data.axes_flow_menu_prefix num2str(axes_idx)]);
+flow_menu_h = findall(handles.roc_gui, 'Tag', [handles.user_data.axes_flow_menu_prefix num2str(axes_no)]);
 
 % toggle
 display_flow = strcmp(get(flow_menu_h, 'Checked'), 'off');
 if display_flow
-    if isempty(handles.user_data.user_images(axes_idx).flow)
+    if isempty(handles.user_data.user_images(axes_no).flow)
         uiwait(errordlg('Flow data not available', 'Data error', 'modal'));
         return;
     end
+    % empty the algo flow
+    handles.user_data.user_images(axes_no).flow_alternate = [];
     
-    % check flow button
-    globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_idx, 'on', 'on');
+    % check off Algo. flow button
+    globalAxesUtils('switchAndToggleContextMenuAlternateFlow', handles, axes_no, 'off');
     
-    axes_h = handles.([handles.user_data.axes_tag_prefix num2str(axes_idx)]);
-    plotFlowOnAxes( axes_h, axes_idx, handles.user_data.user_images(axes_idx), handles );
+    % check GT flow button
+    globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_no, 'on', 'on');
+    
+    axes_h = handles.([handles.user_data.axes_tag_prefix num2str(axes_no)]);
+    plotFlowOnAxes( axes_h, axes_no, handles.user_data.user_images(axes_no), handles );
 else
     % check off flow button
-    globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_idx, 'on', 'off');
+    globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_no, 'on', 'off');
     
     % find quiver handle
-    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_idx)]);
+    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
+    delete(quiver_h);
+end
+
+
+
+function menu_algo_flow_overlay_Callback(hObject, eventdata, handles, axes_tag, axes_no)
+% get what the tick value was
+algo_menu_h = findall(handles.roc_gui, 'Tag', [handles.user_data.axes_algo_flow_menu_prefix num2str(axes_no)]);
+
+% toggle
+display_flow = strcmp(get(algo_menu_h, 'Checked'), 'off');
+if display_flow
+    not_done = 1;
+    msg_prefix = '[unknown action]';
+
+    % loop until either user gives up (cancels) or finds the flow algo
+    while not_done
+        try
+            % check if it has all the necessary files are there and readable
+            msg_prefix = ['choosing file'];
+            [file_name folder_name] = uigetfile('*.mat', 'Select file for algo. flow overlay', handles.user_data.curr_dir);
+
+            if isscalar(file_name) && file_name == 0
+                return;
+            end
+
+            msg_prefix = ['setting flow algorithm data'];
+            busy_h = busydlg('Please wait... Loading CalcFlows object from file...', 'ROC gui', 'WindowStyle','modal');
+            loaded_vars = load(fullfile(folder_name, file_name));
+            delete(busy_h);
+
+            temp = fields(loaded_vars);
+            calc_flows = loaded_vars.(temp{1});
+            assert(isa(calc_flows, 'CalcFlows'), 'Callback:InvalidInput', 'The loaded file doesn''t contain CalcFlows object');
+
+            % check if it matches with the background
+            if ~isempty(handles.user_data.user_images(axes_no).im1)
+                bg_sz = size(handles.user_data.user_images(axes_no).im1);
+                flow_sz = size(calc_flows.uv_flows);
+                assert(all(bg_sz(1:2)==flow_sz(1:2)), 'Callback:InvalidInput', 'The loaded flow is incompatible in size with the current background');
+            end
+
+            flow_list = arrayfun(@(i) calc_flows.cell_flow_algos{i}.OF_TYPE, 1:length(calc_flows.cell_flow_algos), 'UniformOutput',false);
+
+            selection_id = listdlg('ListString',flow_list, 'SelectionMode','single', 'ListSize',[300,200], 'Name','Select flow algo.', ...
+                    'PromptString','Select from the list of available flow algorithms for overlay:');
+
+            if isempty(selection_id)
+                return
+            end
+
+            handles.user_data.user_images(axes_no).flow_alternate = calc_flows.uv_flows(:,:,:,selection_id);
+
+            % Update handles structure
+            guidata(hObject, handles);
+
+            not_done = 0;
+        catch exception
+            set(handles.roc_gui, 'Visible', 'off');
+            uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid file', 'modal'));
+            set(handles.roc_gui, 'Visible', 'on');
+        end
+    end
+    % check off GT flow button
+    globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_no, 'keep', 'off');
+    
+    % check Algo. flow button
+    globalAxesUtils('switchAndToggleContextMenuAlternateFlow', handles, axes_no, 'on');
+    
+    axes_h = handles.([handles.user_data.axes_tag_prefix num2str(axes_no)]);
+    plotFlowOnAxes( axes_h, axes_no, handles.user_data.user_images(axes_no), handles );
+else
+    % empty the algo flow
+    handles.user_data.user_images(axes_no).flow_alternate = [];
+    
+    % check off flow button
+    globalAxesUtils('switchAndToggleContextMenuAlternateFlow', handles, axes_no, 'off');
+    
+    % find quiver handle
+    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
     delete(quiver_h);
 end
 

@@ -25,7 +25,8 @@ function varargout = roc_gui(varargin)
 % Last Modified by GUIDE v2.5 04-Aug-2010 22:49:36
 
 % add main folder containing all the files
-addpath('rocgui');
+addpath(pwd);
+addpath(fullfile(pwd, 'rocgui'));
 
 % if GUI already running, then exit
 set(0,'showhiddenhandles','on');
@@ -165,6 +166,7 @@ user_data.axes_txt_prefix = 'text_roc_axes_';
 user_data.axes_load_menu_prefix = 'load_menu_roc_axes_';
 user_data.axes_clear_menu_prefix = 'clear_menu_roc_axes_';
 user_data.axes_flow_menu_prefix = 'flow_menu_roc_axes_';
+user_data.axes_algo_flow_menu_prefix = 'algo_flow_menu_roc_axes_';
 user_data.im_gt_prefix = 'im_gt_roc_';
 user_data.im_bg_prefix = 'im_bg_roc_';
 user_data.axes_flow_prefix = 'roc_axes_flow_';

@@ -13,7 +13,7 @@ function menu_axes_num_Callback(hObject, eventdata, handles, no_axes)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles = adjustGUIandAxeses(gcf, no_axes, handles);
+handles = adjustGUIandAxeses(handles.roc_gui, no_axes, handles);
 
 % initialize the user image data
 handles = globalDataUtils('reInitImageData', handles);
@@ -179,10 +179,12 @@ axes_idx = str2num(tok{1}{1});
 
 % get what the tick value was
 flow_menu_h = findall(handles.roc_gui, 'Tag', [handles.user_data.axes_flow_menu_prefix num2str(axes_idx)]);
+algo_menu_h = findall(handles.roc_gui, 'Tag', [handles.user_data.axes_algo_flow_menu_prefix num2str(axes_idx)]);
 
 % toggle
 display_flow = strcmp(get(flow_menu_h, 'Checked'), 'on');
-if display_flow
+display_algo = strcmp(get(algo_menu_h, 'Checked'), 'on');
+if display_flow || display_algo
     % find quiver handle
     quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_idx)]);
     delete(quiver_h);
