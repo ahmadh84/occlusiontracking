@@ -124,6 +124,11 @@ if display_flow
         uiwait(errordlg('Flow data not available', 'Data error', 'modal'));
         return;
     end
+    
+    % find quiver handle and delete if any
+    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
+    delete(quiver_h);
+    
     % empty the algo flow
     handles.user_data.user_images(axes_no).flow_alternate = [];
     
@@ -204,6 +209,11 @@ if display_flow
             set(handles.roc_gui, 'Visible', 'on');
         end
     end
+    
+    % find quiver handle and delete if any
+    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
+    delete(quiver_h);
+    
     % check off GT flow button
     globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_no, 'keep', 'off');
     
