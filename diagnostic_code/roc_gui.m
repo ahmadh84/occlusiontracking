@@ -22,7 +22,7 @@ function varargout = roc_gui(varargin)
 
 % Edit the above text to modify the response to help roc_gui
 
-% Last Modified by GUIDE v2.5 04-Aug-2010 22:49:36
+% Last Modified by GUIDE v2.5 07-Aug-2010 13:00:45
 
 % add main folder containing all the files
 addpath(pwd);
@@ -115,11 +115,18 @@ set(handles.threshold_text, 'CreateFcn', @(hObject,eventdata) thresholdTextCallb
 set(handles.boundary_chkbox, 'Callback', @(hObject,eventdata) boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, guidata(hObject)) );
 set(handles.boundary_chkbox, 'Value', 0);
 
+set(handles.button_ctp, 'Callback', @(hObject,eventdata) otherUICallbacks('ctp_button_callback', hObject, eventdata, guidata(hObject)) );
+set(handles.button_cfn, 'Callback', @(hObject,eventdata) otherUICallbacks('cfn_button_callback', hObject, eventdata, guidata(hObject)) );
+set(handles.button_cfp, 'Callback', @(hObject,eventdata) otherUICallbacks('cfp_button_callback', hObject, eventdata, guidata(hObject)) );
 
-% set the colors for the text labels
-set(handles.text_ctp, 'BackgroundColor', handles.user_data.ctp);
-set(handles.text_cfn, 'BackgroundColor', handles.user_data.cfn);
-set(handles.text_cfp, 'BackgroundColor', handles.user_data.cfp);
+
+% set the background and foreground colors for the text labels
+set(handles.button_ctp, 'BackgroundColor', handles.user_data.ctp);
+set(handles.button_ctp, 'ForegroundColor', globalDataUtils('getOppositeColor', handles.user_data.ctp));
+set(handles.button_cfn, 'BackgroundColor', handles.user_data.cfn);
+set(handles.button_cfn, 'ForegroundColor', globalDataUtils('getOppositeColor', handles.user_data.cfn));
+set(handles.button_cfp, 'BackgroundColor', handles.user_data.cfp);
+set(handles.button_cfp, 'ForegroundColor', globalDataUtils('getOppositeColor', handles.user_data.cfp));
 
 % Update handles structure
 guidata(hObject, handles);

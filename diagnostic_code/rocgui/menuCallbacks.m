@@ -47,9 +47,7 @@ while not_done
 
         not_done = 0;
     catch exception
-        set(handles.roc_gui, 'Visible', 'off');
         uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid directory', 'modal'));
-        set(handles.roc_gui, 'Visible', 'on');
     end
 end
 
@@ -102,9 +100,7 @@ while not_done
         
         not_done = 0;
     catch exception
-        set(handles.roc_gui, 'Visible', 'off');
         uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid file', 'modal'));
-        set(handles.roc_gui, 'Visible', 'on');
     end
 end
 

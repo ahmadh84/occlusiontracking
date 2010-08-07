@@ -63,7 +63,7 @@ function plotFlowOnAxes( axes_h, axes_no, user_data, handles )
     end
     
     hold on;
-    quiver(X,Y, u, v, 'Parent',axes_h, 0, 'y-', 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
+    quiver(X,Y, u, v, 'Parent',axes_h, 2, 'y-', 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
     
     % adjust the position of the callbacks
     globalAxesUtils('adjustUicontextmenuCallback', handles);

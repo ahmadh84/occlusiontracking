@@ -141,3 +141,17 @@ function switchAndToggleContextMenuAlternateFlow(handles, axes_no, ticked_not_ti
 % tick/untick flow algo button
 uicontextmenu_aflow_h = findobj('Tag', [handles.user_data.axes_algo_flow_menu_prefix num2str(axes_no)]);
 set(uicontextmenu_aflow_h, 'Checked',ticked_not_ticked);
+
+
+
+function adjustColormapAllAxes( handles )
+% readjusts colormaps for all axes
+all_axes_h = getAllAxesHandlesSorted(handles);
+    
+% loop over to create all the axes
+for axes_no = 1:length(all_axes_h)
+    axes_h = all_axes_h(axes_no);
+    
+    colormap(axes_h, [linspace(0,1,handles.user_data.colorspace_scaling_tp)'*[1 1 1]; 
+              handles.user_data.ctp; handles.user_data.cfn; handles.user_data.cfp]);
+end

@@ -42,3 +42,23 @@ handles.user_data.user_images(axes_no).gt_boundary_im = 0.999*repmat(bwperim(han
 function [ handles ] = resetOverlayImageData( handles, axes_no )
 handles.user_data.user_images(axes_no).values = [];
 handles.user_data.user_images(axes_no).flow_alternate = [];
+
+
+
+function [ opp_color ] = getOppositeColor( curr_color )
+% get opposite contrast color ... good for choosing foreground text color
+% given a background
+
+% convert to HSV space
+opp_color = rgb2hsv(curr_color);
+
+% turn hue by 180 degrees
+opp_color(1) = mod(opp_color(1)+0.25, 1);
+% push value by half-way
+opp_color(3) = mod(opp_color(3)+0.25, 1);
+% invert saturation
+% opp_color(2) = 1 - opp_color(2);
+
+% covert back to RGB
+opp_color = hsv2rgb(opp_color);
+
