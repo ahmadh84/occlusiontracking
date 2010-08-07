@@ -52,12 +52,8 @@ function [ opp_color ] = getOppositeColor( curr_color )
 % convert to HSV space
 opp_color = rgb2hsv(curr_color);
 
-% turn hue by 180 degrees
-opp_color(1) = mod(opp_color(1)+0.25, 1);
-% push value by half-way
-opp_color(3) = mod(opp_color(3)+0.25, 1);
-% invert saturation
-% opp_color(2) = 1 - opp_color(2);
+% invert value
+opp_color(3) = 1-round(opp_color(3));
 
 % covert back to RGB
 opp_color = hsv2rgb(opp_color);

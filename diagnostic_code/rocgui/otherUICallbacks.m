@@ -9,7 +9,7 @@ end
 
 
 function ctp_button_callback(hObject, eventdata, handles)
-c_selected = uisetcolor(get(handles.button_ctp, 'ForegroundColor'), 'True Positive color');
+c_selected = uisetcolor(get(handles.button_ctp, 'BackgroundColor'), 'True Positive color');
 
 handles.user_data.ctp = c_selected;
 
@@ -26,7 +26,7 @@ globalAxesUtils('adjustColormapAllAxes', handles);
 
 
 function cfn_button_callback(hObject, eventdata, handles)
-c_selected = uisetcolor(get(handles.button_cfn, 'ForegroundColor'), 'False Negative color');
+c_selected = uisetcolor(get(handles.button_cfn, 'BackgroundColor'), 'False Negative color');
 
 handles.user_data.cfn = c_selected;
 
@@ -44,7 +44,7 @@ globalAxesUtils('adjustColormapAllAxes', handles);
 
 
 function cfp_button_callback(hObject, eventdata, handles)
-c_selected = uisetcolor(get(handles.button_cfp, 'ForegroundColor'), 'False Positive color');
+c_selected = uisetcolor(get(handles.button_cfp, 'BackgroundColor'), 'False Positive color');
 
 handles.user_data.cfp = c_selected;
 
