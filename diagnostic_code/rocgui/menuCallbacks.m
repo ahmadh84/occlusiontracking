@@ -73,7 +73,7 @@ end
 guidata(hObject, handles);
 
 % set the background image on all axes
-globalAxesUtils('setImageForAllAxes', handles);
+globalAxesUtils('setBgImageForAllAxes', handles);
 
 % check if the boundary image is needed on any axes
 boundaryChkboxCallbacks('boundary_chkbox_Callback', hObject, eventdata, handles);

@@ -8,13 +8,13 @@ end
 
 
 
-function setImageForAllAxes( handles )
+function setBgImageForAllAxes( handles )
 % sets the background image to all the axes and assigns the context menu to
 %   that image
 
 a = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re);
 for axes_idx = 1:length(a)
-    setImageForAxes( handles, axes_idx );
+    setBgImageForAxes( handles, axes_idx );
 end
 
 % adjust the uicontextmenu handles
@@ -22,7 +22,7 @@ adjustUicontextmenuCallback( handles );
 
 
 
-function setImageForAxes( handles, axes_idx )
+function setBgImageForAxes( handles, axes_idx )
 axes_handle = handles.([handles.user_data.axes_tag_prefix num2str(axes_idx)]);
 
 tag_name = get(axes_handle, 'Tag');
@@ -30,12 +30,74 @@ tag_name = get(axes_handle, 'Tag');
 % delete all the previous children
 delete(get(axes_handle, 'Children'));
 
-image(uint8(rgb2gray(handles.user_data.user_images(axes_idx).im1) * handles.user_data.colorspace_scaling_tp), 'Parent',axes_handle, 'Tag',[handles.user_data.im_bg_prefix num2str(axes_idx)]);
+% choose image to show according to the im choice uipanel
+if strcmp(get(get(handles.uipanel_im_choice, 'SelectedObject'), 'String'), 'image 1')
+    im_to_show = handles.user_data.user_images(axes_idx).im1;
+else
+    im_to_show = handles.user_data.user_images(axes_idx).im2;
+end
+image(uint8(rgb2gray(im_to_show) * handles.user_data.colorspace_scaling_tp), 'Parent',axes_handle, 'Tag',[handles.user_data.im_bg_prefix num2str(axes_idx)]);
 
 % set the axes properties
 set(axes_handle, 'DataAspectRatio', [1 1 1], 'Box','off', 'XColor',get(handles.roc_gui,'Color'), 'YColor',get(handles.roc_gui,'Color'), ...
     'Units','pixels', 'Tag',tag_name, 'XTick',[], 'YTick',[], 'ZTick',[]);
 
+
+
+function switchBgImageForAllAxes( handles )
+% switches the background image (between im1 and im2) for all the axes and 
+%   assigns the context menu to that image
+
+a = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re);
+for axes_idx = 1:length(a)
+    switchBgImageForAxes( handles, axes_idx );
+end
+
+% adjust the uicontextmenu handles
+adjustUicontextmenuCallback( handles );
+
+
+
+function switchBgImageForAxes( handles, axes_idx )
+% choose image to show according to the im choice uipanel
+if strcmp(get(get(handles.uipanel_im_choice, 'SelectedObject'), 'String'), 'image 1')
+    im_to_show = handles.user_data.user_images(axes_idx).im1;
+else
+    im_to_show = handles.user_data.user_images(axes_idx).im2;
+end
+
+if isempty(im_to_show)
+    return;
+end
+
+axes_handle = handles.([handles.user_data.axes_tag_prefix num2str(axes_idx)]);
+
+tag_name = get(axes_handle, 'Tag');
+    
+% find all children handles
+children_h = get(axes_handle, 'Children');
+
+% find the old image handle (if exists)
+old_im_h = findall(axes_handle, 'Tag',[handles.user_data.im_bg_prefix num2str(axes_idx)]);
+
+% find the order in which it lies
+prv_child_order_no = find(children_h == old_im_h);
+
+% delete old image
+delete(old_im_h);
+
+% draw image
+new_im_h = image(uint8(rgb2gray(im_to_show) * handles.user_data.colorspace_scaling_tp), 'Parent',axes_handle, 'Tag',[handles.user_data.im_bg_prefix num2str(axes_idx)]);
+% set the axes properties
+set(axes_handle, 'DataAspectRatio', [1 1 1], 'Box','off', 'XColor',get(handles.roc_gui,'Color'), 'YColor',get(handles.roc_gui,'Color'), ...
+    'Units','pixels', 'Tag',tag_name, 'XTick',[], 'YTick',[], 'ZTick',[]);
+
+% find children again
+children_h = get(axes_handle, 'Children');
+
+% adjust order
+children_h(children_h == new_im_h) = [];
+set(axes_handle, 'Children',[children_h(1:prv_child_order_no-1); new_im_h; children_h(prv_child_order_no:end)]);
 
 
 function adjustUicontextmenuCallback( handles )

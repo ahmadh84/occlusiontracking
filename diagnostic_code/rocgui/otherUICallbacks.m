@@ -58,3 +58,7 @@ guidata(hObject, handles);
 % adjust the colormaps for all axes
 globalAxesUtils('adjustColormapAllAxes', handles);
 
+
+
+function uibuttonchoice_im_switch(hObject, eventdata, handles)
+globalAxesUtils('switchBgImageForAllAxes', handles);
