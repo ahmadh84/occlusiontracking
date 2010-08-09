@@ -2,15 +2,15 @@ function computeExtraAlgosLinux( sequences )
 %COMPUTEEXTRAALGOSLINUX script to compute flow from algorithms which only
 %   run on linux
 
-    main_dir = '../../Data/middlebury';
+    main_dir = '../../Data/oisin+middlebury';
 %     addpath(genpath('algorithms/Classic NL'));
 %     addpath(genpath('algorithms/Large Disp OF'));
     
-    flowsave_filenames = { 'classicnl.mat', 'largedispof.mat' };
-    flowsave_varnames = { 'uv_cn', 'uv_ld' };
+    flowsave_filenames = { 'largedispof.mat' };
+    flowsave_varnames = { 'uv_ld' };
+    flowsave_r_varnames = { 'uv_ld_r' };
     
-    cell_flows = { ClassicNLOF, ...
-                   LargeDisplacementOF };
+    cell_flows = { LargeDisplacementOF };
     
     for scene_id = sequences
         scene_dir = fullfile(main_dir, num2str(scene_id));
@@ -21,10 +21,13 @@ function computeExtraAlgosLinux( sequences )
         
         for algo_idx = 1:length(cell_flows)
             temp = cell_flows{algo_idx}.calcFlow(im1, im2);
-            
             eval([flowsave_varnames{algo_idx} ' = temp;']);
+            
+            temp = cell_flows{algo_idx}.calcFlow(im2, im1);
+            eval([flowsave_r_varnames{algo_idx} ' = temp;']);
+            
             mat_filepath = fullfile(scene_dir, flowsave_filenames{algo_idx});
-            save(mat_filepath, flowsave_varnames{algo_idx});
+            save(mat_filepath, flowsave_varnames{algo_idx}, flowsave_r_varnames{algo_idx});
         end
     end
 

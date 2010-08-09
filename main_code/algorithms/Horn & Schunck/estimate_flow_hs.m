@@ -40,7 +40,7 @@ function uv = estimate_flow_ba(im1, im2, varargin)
 % ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 % OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.   
 
-addpath(genpath('utils'));
+% addpath(genpath('utils'));
 
 % Load flow estimation method
 ope           = hs_optical_flow;

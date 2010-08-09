@@ -13,20 +13,23 @@ function computeFlows( obj )
     end
 
     obj.uv_flows = [];
+    obj.uv_flows_reverse = [];
     obj.algo_ids = cell(1, obj.no_algos);
 
     % COMPUTE ALL THE OPTICAL FLOWs and store their IDs
     for algo_idx = 1:obj.no_algos
-        if strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Classic NL')
-            warning('CalcFlows:computeFlows', 'loading directly from file');
-            load(fullfile(obj.scene_dir, 'classicnl.mat'));
-            obj.uv_flows(:,:,:,algo_idx) = uv_cn;
-        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Large Displacement OF')
+        if strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Large Displacement OF')
+            % DON'T HAVE 64BIT MEX FOR LDOF
             warning('CalcFlows:computeFlows', 'loading directly from file');
             load(fullfile(obj.scene_dir, 'largedispof.mat'));
             obj.uv_flows(:,:,:,algo_idx) = uv_ld;
         else
             obj.uv_flows(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2);
+            
+            % if we need to compute the flow in reverse
+            if obj.compute_reverse
+                obj.uv_flows_reverse(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im2, obj.im1);
+            end
         end
         obj.algo_ids{algo_idx} = obj.cell_flow_algos{algo_idx}.OF_SHORT_TYPE;
     end

@@ -17,9 +17,8 @@ classdef LargeDisplacementOF < AbstractOF
             % calculates the Brox's Large Displacement Optical flow
             fprintf('--> Computing Large Displacement Optical flow\n');
             
-            % add paths for the algorithms
-%             CalcFlows.addPaths();
-            addpath(genpath('algorithms/Large Disp OF'));
+            % add paths for all the flow algorithms
+            CalcFlows.addPaths();
             
             uv_ld = mex_LDOF(double(im1), double(im2));
         end

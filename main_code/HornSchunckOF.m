@@ -6,6 +6,8 @@ classdef HornSchunckOF < AbstractOF
     properties (Constant)
         OF_TYPE = 'Horn-Schunck';
         OF_SHORT_TYPE = 'HS';
+        
+        OF_DIRECTORY_NAME = 'Horn & Schunck';
     end
     
     
@@ -14,10 +16,16 @@ classdef HornSchunckOF < AbstractOF
             % calculates the Horn Schunk flow
             fprintf('--> Computing Horn Schunk flow\n');
             
-            % add paths for the algorithms
+            % add paths for all the flow algorithms
             CalcFlows.addPaths();
             
+            % add sub-directories for this algorithm
+            sub_dirs = addSubDirsToPath( fullfile(CalcFlows.ALGOS_PATH, HornSchunckOF.OF_DIRECTORY_NAME) );
+            
             uv_hs = estimate_flow_hs(im1, im2, 'lambda', 200);
+            
+            % remove the algo sub-directories after computation
+            rmpath(sub_dirs);
         end
     end
 end

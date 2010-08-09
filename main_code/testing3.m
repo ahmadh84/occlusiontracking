@@ -3,7 +3,7 @@ function testing3
 %   Detailed explanation goes here
 
 main_dir = 'H:/oisin+middlebury_cropped';
-out_dir = 'H:/middlebury/features_comparison_tests';
+out_dir = 'H:/middlebury/temp_tests';
 
 training_seq = [4 5 9 10 11 12 13 14 18 19];
 testing_seq = [4 9 18];

@@ -47,9 +47,9 @@ if nargin < 3
     method = 'classic+nl-fast';
 end;
 
-if (~isdeployed)
-    addpath(genpath('utils'));
-end
+% if (~isdeployed)
+%     addpath(genpath('utils'));
+% end
 
 % Load default parameters
 ope = load_of_method(method);

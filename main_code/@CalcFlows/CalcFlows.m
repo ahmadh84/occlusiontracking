@@ -12,6 +12,8 @@ classdef CalcFlows < handle
     properties (Transient) 
         im1;
         im2;
+        compute_refresh = 0;
+        compute_reverse = 1;
     end
     
     
@@ -20,6 +22,7 @@ classdef CalcFlows < handle
         cell_flow_algos;
         algo_ids;
         uv_flows = [];
+        uv_flows_reverse = [];
         uv_gt = [];
         uv_ang_err = [];
         uv_epe = [];
@@ -37,7 +40,6 @@ classdef CalcFlows < handle
     properties (Access = private)
         no_algos;
         force_no_gt = 0;
-        compute_refresh = 0;
     end
     
     
@@ -64,6 +66,15 @@ classdef CalcFlows < handle
             if nargin > 3 && isscalar(varargin{2})
                 obj.compute_refresh = varargin{2};
             end
+
+            % if user wants also wants to compute the reverse optical flow
+            % (i.e. flow from im2 to im1) (by default switched on)
+            if nargin > 4 && isscalar(varargin{3})
+                obj.compute_reverse = varargin{3};
+            end
+            
+            % add algo paths to the MATLAB path
+            CalcFlows.addPaths();
             
             % perform the main computation of this object
             obj.computeFlows();
@@ -94,6 +105,10 @@ classdef CalcFlows < handle
             
             for algo_idx = 1:obj.no_algos
                 unique_id = [unique_id obj.cell_flow_algos{algo_idx}.returnNoID()];
+            end
+            
+            if obj.compute_reverse
+                unique_id = unique_id*2;
             end
             
             % sum them since order doesn't matter
@@ -138,7 +153,7 @@ classdef CalcFlows < handle
             % get the scene id
             [d sceneID] = fileparts(obj.scene_dir);
             if isempty(sceneID)
-                [~, sceneID] = fileparts(d);
+                [temp, sceneID] = fileparts(d);
             end
             
             if obj.checkGTAvailable()
@@ -154,7 +169,15 @@ classdef CalcFlows < handle
         function addPaths()
         % add paths if not already in path
             addpath(genpath(ComputeTrainTestData.UTILS_PATH));
-            addpath(genpath(CalcFlows.ALGOS_PATH));
+            
+            % add each individual algo's root directory to the path
+            addpath(CalcFlows.ALGOS_PATH);
+            d = dir(CalcFlows.ALGOS_PATH);
+            for idx = 1:length(d)
+                if d(idx).isdir && ~(strcmp(d(idx).name, '.') || strcmp(d(idx).name, '..'))
+                    addpath(fullfile(CalcFlows.ALGOS_PATH, d(idx).name));
+                end
+            end
         end
     end
 end

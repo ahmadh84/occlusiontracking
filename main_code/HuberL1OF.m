@@ -15,7 +15,7 @@ classdef HuberL1OF < AbstractOF
             % calculates the anisotropic Huber-L1 flow
             fprintf('--> Computing Huber-L1 flow\n');
             
-            % add paths for the algorithms
+            % add paths for all the flow algorithms
             CalcFlows.addPaths();
             
             curr_path = pwd;

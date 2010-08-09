@@ -15,7 +15,7 @@ classdef TVL1OF < AbstractOF
             % calculates the TV-L1 flow
             fprintf('--> Computing TV-L1 flow\n');
             
-            % add paths for the algorithms        
+            % add paths for all the flow algorithms
             CalcFlows.addPaths();
             
             uv_tv = tvl1of(im1, im2);
