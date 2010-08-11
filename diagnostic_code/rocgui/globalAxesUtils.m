@@ -149,7 +149,7 @@ end
 
 function [ all_axes_h ] = getAllAxesHandlesSorted(handles)
 % find all the axes
-all_axes_h = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re);
+all_axes_h = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_search_re)';
 
 if length(all_axes_h) > 1
     % sort by axes no.
@@ -179,6 +179,20 @@ if ~isempty(c)
     
     % delete the handles to the overlay images
     delete(del_handles);
+end
+
+
+function deleteFlowImage(handles, axes_no, reset_menu_buttons)
+% find quiver handle and delete if any
+quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
+delete(quiver_h);
+
+if reset_menu_buttons
+    % check GT flow button
+    switchAndToggleContextMenuFlow(handles, axes_no, 'keep', 'off');
+
+    % check off Algo. flow button
+    switchAndToggleContextMenuAlternateFlow(handles, axes_no, 'off');
 end
 
 

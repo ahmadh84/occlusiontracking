@@ -19,7 +19,7 @@ handles = adjustGUIandAxeses(handles.roc_gui, no_axes, handles);
 handles = globalDataUtils('reInitImageData', handles);
 
 % Update handles structure
-guidata(gcf, handles);
+guidata(handles.roc_gui, handles);
 
 
 function menu_load_directory_Callback(hObject, eventdata, handles)
@@ -64,6 +64,12 @@ for axes_no = 1:no_axes
 
     % disable overlay clear button
     globalAxesUtils('switchContextMenuClear', handles, axes_no, 'off');
+    
+    % empty the algo flow
+    [ handles ] = globalDataUtils('resetAlgoFlowData', handles, axes_no);
+    
+    % delete the flow image from the axes
+    globalAxesUtils('deleteFlowImage', handles, axes_no, 1);
     
     % enable flow button
     globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_no, 'on', 'off');

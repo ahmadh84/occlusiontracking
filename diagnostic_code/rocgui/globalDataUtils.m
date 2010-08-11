@@ -41,6 +41,10 @@ handles.user_data.user_images(axes_no).gt_boundary_im = 0.999*repmat(bwperim(han
 
 function [ handles ] = resetOverlayImageData( handles, axes_no )
 handles.user_data.user_images(axes_no).values = [];
+
+
+
+function [ handles ] = resetAlgoFlowData( handles, axes_no )
 handles.user_data.user_images(axes_no).flow_alternate = [];
 
 

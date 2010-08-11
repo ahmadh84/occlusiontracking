@@ -61,4 +61,12 @@ globalAxesUtils('adjustColormapAllAxes', handles);
 
 
 function uibuttonchoice_im_switch(hObject, eventdata, handles)
+% find all the axes handles
+axes_hs = globalAxesUtils('getAllAxesHandlesSorted', handles);
+for axes_no = 1:length(axes_hs)
+    plotFlowOnAxes( axes_hs(axes_no), axes_no, handles.user_data.user_images(axes_no), handles );
+end
+
 globalAxesUtils('switchBgImageForAllAxes', handles);
+
+

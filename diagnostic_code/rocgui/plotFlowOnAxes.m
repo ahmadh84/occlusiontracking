@@ -13,12 +13,19 @@ function plotFlowOnAxes( axes_h, axes_no, user_data, handles )
     if gt_flow
         flow_im = user_data.flow;
     elseif algo_flow
-        flow_im = user_data.flow_alternate;
+        if size(user_data.flow_alternate,4) == 1 || strcmp(get(get(handles.uipanel_im_choice, 'SelectedObject'), 'String'), 'image 1')
+            flow_im = user_data.flow_alternate(:,:,:,1);
+        else
+            flow_im = user_data.flow_alternate(:,:,:,2);
+        end
     else
         return;
     end
     
     assert(~isempty(flow_im), 'The flow selected is unavailable');
+    
+    % delete the previous flow image
+    globalAxesUtils('deleteFlowImage', handles, axes_no, 0);
     
     sz = get(axes_h, 'Position');
     width_vecs = sz(3) / handles.user_data.pixels_per_flow;

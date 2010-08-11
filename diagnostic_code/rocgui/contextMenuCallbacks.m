@@ -68,7 +68,7 @@ else
 
             not_done = 0;
         catch exception
-            uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid file', 'modal'));s
+            uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid file', 'modal'));
         end
     end
 end
@@ -123,15 +123,11 @@ if display_flow
         return;
     end
     
-    % find quiver handle and delete if any
-    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
-    delete(quiver_h);
-    
     % empty the algo flow
-    handles.user_data.user_images(axes_no).flow_alternate = [];
+    handles = globalDataUtils('resetAlgoFlowData', handles, axes_no);
     
-    % check off Algo. flow button
-    globalAxesUtils('switchAndToggleContextMenuAlternateFlow', handles, axes_no, 'off');
+    % delete the flow image from the axes
+    globalAxesUtils('deleteFlowImage', handles, axes_no, 1);
     
     % check GT flow button
     globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_no, 'on', 'on');
@@ -139,13 +135,12 @@ if display_flow
     axes_h = handles.([handles.user_data.axes_tag_prefix num2str(axes_no)]);
     plotFlowOnAxes( axes_h, axes_no, handles.user_data.user_images(axes_no), handles );
 else
-    % check off flow button
-    globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_no, 'on', 'off');
-    
-    % find quiver handle
-    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
-    delete(quiver_h);
+    % delete the flow image from the axes
+    globalAxesUtils('deleteFlowImage', handles, axes_no, 1);
 end
+
+% Update handles structure
+guidata(hObject, handles);
 
 
 
@@ -195,23 +190,21 @@ if display_flow
                 return
             end
 
-            handles.user_data.user_images(axes_no).flow_alternate = calc_flows.uv_flows(:,:,:,selection_id);
+            % delete the flow image from the axes
+            globalAxesUtils('deleteFlowImage', handles, axes_no, 1);
 
-            % Update handles structure
-            guidata(hObject, handles);
+            handles.user_data.user_images(axes_no).flow_alternate(:,:,:,1) = calc_flows.uv_flows(:,:,:,selection_id);
 
+            % if reverse flow is available
+            if ~isempty(calc_flows.uv_flows_reverse)
+                handles.user_data.user_images(axes_no).flow_alternate(:,:,:,2) = calc_flows.uv_flows_reverse(:,:,:,selection_id);
+            end
+            
             not_done = 0;
         catch exception
             uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid file', 'modal'));
         end
     end
-    
-    % find quiver handle and delete if any
-    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
-    delete(quiver_h);
-    
-    % check off GT flow button
-    globalAxesUtils('switchAndToggleContextMenuFlow', handles, axes_no, 'keep', 'off');
     
     % check Algo. flow button
     globalAxesUtils('switchAndToggleContextMenuAlternateFlow', handles, axes_no, 'on');
@@ -220,13 +213,11 @@ if display_flow
     plotFlowOnAxes( axes_h, axes_no, handles.user_data.user_images(axes_no), handles );
 else
     % empty the algo flow
-    handles.user_data.user_images(axes_no).flow_alternate = [];
+    handles = globalDataUtils('resetAlgoFlowData', handles, axes_no);
     
-    % check off flow button
-    globalAxesUtils('switchAndToggleContextMenuAlternateFlow', handles, axes_no, 'off');
-    
-    % find quiver handle
-    quiver_h = findall(handles.roc_gui, 'Tag',[handles.user_data.axes_flow_prefix num2str(axes_no)]);
-    delete(quiver_h);
+    % delete the flow image from the axes
+    globalAxesUtils('deleteFlowImage', handles, axes_no, 1);
 end
 
+% Update handles structure
+guidata(hObject, handles);

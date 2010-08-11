@@ -19,7 +19,7 @@ axes_h = findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_searc
 for h = axes_h
     handles = rmfield(handles, get(h,'Tag'));
 end
-% add uicontextmenu handles
+% append uicontextmenu handles to the list of axes handles
 axes_h = [axes_h findall(handles.roc_gui, '-regexp', 'Tag', handles.user_data.axes_uicontext_menu_re)'];
 globalAxesUtils('recursiveHandleDelete', axes_h);
 
