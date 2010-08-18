@@ -6,8 +6,6 @@ training_seq = [4 5 9 10 11 12 13 14 17 18 19];
 addpath(genpath('main_code/utils'));
 addpath('main_code');
 
-extra_flow_algos = {'classicnl.mat', 'largedispof.mat'};
-
 bounds = [ 2 583 1 387;
            2 579 1 387;
            1 593 27 480;
