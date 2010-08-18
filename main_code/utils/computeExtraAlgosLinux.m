@@ -19,6 +19,12 @@ function computeExtraAlgosLinux( sequences )
         im1 = imread(fullfile(scene_dir, ComputeTrainTestData.IM1_PNG));
         im2 = imread(fullfile(scene_dir, ComputeTrainTestData.IM2_PNG));
         
+        % make RGB image if not already (LDOF doesn't take grayscales)
+        if size(im1,3) == 1
+            im1 = cat(3, im1, im1, im1);
+            im2 = cat(3, im2, im2, im2);
+        end
+        
         for algo_idx = 1:length(cell_flows)
             temp = cell_flows{algo_idx}.calcFlow(im1, im2);
             eval([flowsave_varnames{algo_idx} ' = temp;']);
