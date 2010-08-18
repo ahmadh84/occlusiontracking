@@ -134,7 +134,7 @@ classdef ReverseFlowAngleDiffFeature < AbstractFeature
                         ang_diff(outside_idcs) = ReverseFlowAngleDiffFeature.NAN_VAL;
                         
                         % store
-                        revangdiff(:,:,((algo_idx-1)*obj.no_scales)+scale_idx) = imresize(ang_diff, calc_feature_vec.image_sz);
+                        revangdiff(:,:,((algo_idx-1)*obj.no_scales)+scale_idx) = imresize(real(ang_diff), calc_feature_vec.image_sz);
                     end
                 end
             else
@@ -188,7 +188,7 @@ classdef ReverseFlowAngleDiffFeature < AbstractFeature
                     ang_diff(outside_idcs) = ReverseFlowAngleDiffFeature.NAN_VAL;
                     
                     % store
-                    revangdiff(:,:,algo_idx) = ang_diff;
+                    revangdiff(:,:,algo_idx) = real(ang_diff);
                 end
             end
             
