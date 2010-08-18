@@ -23,6 +23,11 @@ function computeFlows( obj )
             warning('CalcFlows:computeFlows', 'loading directly from file');
             load(fullfile(obj.scene_dir, 'largedispof.mat'));
             obj.uv_flows(:,:,:,algo_idx) = uv_ld;
+            
+            % if we need to compute the flow in reverse
+            if obj.compute_reverse
+                obj.uv_flows_reverse(:,:,:,algo_idx) = uv_ld_r;
+            end
         else
             obj.uv_flows(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2);
             
@@ -60,6 +65,11 @@ function computeFlows( obj )
         % GT mask
         obj.gt_mask = obj.loadGTMask( 0 );
 
+        % check if unsure/ignore mask is available
+        if exist(fullfile(obj.scene_dir, CalcFlows.GT_UNSURE_MASK), 'file') == 2
+            obj.gt_ignore_mask = imread(fullfile(obj.scene_dir, CalcFlows.GT_UNSURE_MASK));
+        end
+        
         % Average EPE relative to the mask
         pts = nnz(obj.gt_mask);
         for algo_idx = 1:obj.no_algos

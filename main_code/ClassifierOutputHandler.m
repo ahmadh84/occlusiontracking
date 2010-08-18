@@ -198,7 +198,11 @@ classdef ClassifierOutputHandler < handle
             % ROC
             
             extra_label_info.calc_flows = obj.calc_flows;
-            labels = obj.settings.label_obj.calcLabelWhole( obj.comp_feat_vec, extra_label_info );
+            [ labels ignore_labels ] = obj.settings.label_obj.calcLabelWhole( obj.comp_feat_vec, extra_label_info );
+            
+            % remove labels which we are unsure about
+            labels(ignore_labels) = [];
+            
             not_labels = ~labels;
             
             % get the number of positives and negatives
@@ -210,6 +214,9 @@ classdef ClassifierOutputHandler < handle
             
             temp_classifier_out = obj.classifier_out';
             temp_classifier_out = temp_classifier_out(:);
+            
+            % remove classifier output which we are unsure about
+            temp_classifier_out(ignore_labels) = [];
             
             for idx = 1:length(obj.thresholds)
                 tmpC1 = temp_classifier_out >= obj.thresholds(idx);

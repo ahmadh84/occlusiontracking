@@ -5,6 +5,7 @@ classdef CalcFlows < handle
     properties (Constant, Transient)
         ALGOS_PATH = fullfile(pwd, 'algorithms');
         GT_FLOW_FILE = '1_2.flo';
+        GT_UNSURE_MASK = 'unsure_mask.png';
         SAVE_OBJ_NAME = 'flow_info';
     end
     
@@ -32,6 +33,7 @@ classdef CalcFlows < handle
         class_epe = [];
         epe_dist_btwfirstsec = [];
         gt_mask = [];
+        gt_ignore_mask = [];
         algo_avg_epe = [];
         opt_avg_epe = 0.0;
     end

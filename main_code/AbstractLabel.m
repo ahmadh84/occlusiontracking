@@ -11,7 +11,7 @@ classdef AbstractLabel
     methods (Abstract)
         [ label data_idxs idxs_per_label ] = calcLabelTraining( obj, comp_feat_vec, MAX_MARKINGS_PER_LABEL, extra_label_info );
         
-        [ labels ] = calcLabelWhole( obj, comp_feat_vec, extra_label_info );
+        [ labels ignore_labels ] = calcLabelWhole( obj, comp_feat_vec, extra_label_info );
     end
     
     
