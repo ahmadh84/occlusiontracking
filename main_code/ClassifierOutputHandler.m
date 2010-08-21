@@ -184,7 +184,7 @@ classdef ClassifierOutputHandler < handle
             % printout everything else
             fprintf(1, '%s\n', remaining_str);
             
-            ext = regexp(remaining_str, '.*train err\s+((\d+\.)?\d+)\s*%\s+test err\s+((\d+\.)?\d+)\s*%', 'tokenExtents');
+            ext = regexp(remaining_str, '.*train err\s+(-?(?:\d+\.)?\d+)\s*%\s+test err\s+(-?(?:\d+\.)?\d+)\s*%', 'tokenExtents');
             if ~isempty(ext)
                 obj.classifier_train_err = str2double(remaining_str(ext{1}(1,1):ext{1}(1,2)));
                 obj.classifier_test_err = str2double(remaining_str(ext{1}(2,1):ext{1}(2,2)));

@@ -1,5 +1,5 @@
-function [ test_filename ] = produceTestingData( obj, scene_id, comp_feat_vec, calc_flows )
-%PRODUCETESTINGDATA Summary of this function goes here
+function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_vec, calc_flows )
+%PRODUCETESTINGDATAFILE Summary of this function goes here
 %   Detailed explanation goes here
 
     if ~isfield(obj.settings, 'USE_ONLY_OF')

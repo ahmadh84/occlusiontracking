@@ -1,7 +1,12 @@
-function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, out_dir, override_settings )
+function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, out_dir, override_settings, produce_rf_xml_out )
 %MAINTRAININGTESTING Summary of this function goes here
 %   Detailed explanation goes here
 
+    % if not bothered about an RF xml classifier, don't create it
+    if ~exist('produce_rf_xml_out', 'var')
+        produce_rf_xml_out = 0;
+    end
+    
     COMPUTE_REFRESH = 0;
     RANDOM_FOREST_RUN = 'randomForest\src\predictDescriptor\Release\predictDescriptor.exe ';
     
@@ -77,22 +82,46 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
     % do cross-validation for each of scenes (using all the remaining sequences)
     for scenes_idx = 1:length(testing_seq)
         scene_id = testing_seq(scenes_idx);
-        training_ids = setdiff(training_seq, scene_id);
         
-        % produce the training and testing data
-        [ TRAIN_PATH TEST_PATH unique_id ] = traintest_data.produceTrainingTestingData(scene_id, training_ids);
-        
-        
-        CLASS_XML_PATH = getXMLDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
-%         TRAIN_PATH = fullfile(pwd, TRAIN_PATH);
-%         TEST_PATH = fullfile(pwd, TEST_PATH);
-        PREDICTION_DATA_PATH = getPredictionDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
-        
-        %randomforest_cmd = [RANDOM_FOREST_RUN ' 100 4 30 30 25 ' settings.RF_GET_VAR_IMP ' -s "' CLASS_XML_PATH '" "' TRAIN_PATH '" "' TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
-        randomforest_cmd = [RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
-            settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
-            settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' "' TRAIN_PATH '" "' ...
-            TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+        if ~isempty(training_seq)
+            % if need to train and test both
+            
+            % bootstrap
+            training_ids = setdiff(training_seq, scene_id);
+
+            % produce the training and testing data
+            [ TRAIN_PATH TEST_PATH unique_id ] = traintest_data.produceTrainingTestingData(scene_id, training_ids);
+            
+            PREDICTION_DATA_PATH = getPredictionDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
+            
+            if produce_rf_xml_out == 0
+                % if you dont want to produce the xml classifier from the% RF
+                
+                randomforest_cmd = [RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
+                    settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
+                    settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' "' TRAIN_PATH '" "' ...
+                    TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+            else
+                % if you want to produce the xml classifier from the RF
+                CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF);
+                
+                randomforest_cmd = [RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
+                    settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
+                    settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' -s "' CLASS_XML_PATH '" "' ...
+                    TRAIN_PATH '" "' TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+            end
+        else
+            % if need to test only
+            
+            % produce the training and testing data
+            [ TEST_PATH unique_id ] = traintest_data.produceTestingData( scene_id );
+            
+            PREDICTION_DATA_PATH = getPredictionDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
+            CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF);
+
+            randomforest_cmd = [RANDOM_FOREST_RUN ' -l "' CLASS_XML_PATH '" "' ...
+                TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+        end
         
         fprintf(1, '\nRunning Random Forest classifier (get some coffee - this will take time!)\n');
         tic;
@@ -114,19 +143,16 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
     end
 end
 
-        
-function filename = getXMLDataFilename(out_dir, scene_id, comp_feat_vec_id, only_of)
-    if isnumeric(scene_id)
-        scene_id = num2str(scene_id);
-    end
+
+function filename = getXMLDataFilename(out_dir, comp_feat_vec_id, only_of)
     if isnumeric(comp_feat_vec_id)
         comp_feat_vec_id = num2str(comp_feat_vec_id);
     end
 
     if exist('only_of', 'var') && ~isempty(only_of)
-        filename = fullfile(out_dir, [scene_id '_' comp_feat_vec_id '_' only_of '_class.xml']);
+        filename = fullfile(out_dir, [comp_feat_vec_id '_' only_of '_class.xml']);
     else
-        filename = fullfile(out_dir, [scene_id '_' comp_feat_vec_id '_class.xml']);
+        filename = fullfile(out_dir, [comp_feat_vec_id '_class.xml']);
     end
 end
 

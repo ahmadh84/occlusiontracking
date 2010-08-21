@@ -60,12 +60,23 @@ classdef ComputeTrainTestData < handle
             
             % produce the training data
             if ~obj.force_no_gt
-                [ train_filepath ] = obj.produceTrainingData( scene_id, training_ids, comp_feat_vec );
+                [ train_filepath ] = obj.produceTrainingDataFile( scene_id, training_ids, comp_feat_vec );
             end
             
             % produce the testing data
-            [ test_filepath ] = obj.produceTestingData( scene_id, comp_feat_vec, calc_flows );
+            [ test_filepath ] = obj.produceTestingDataFile( scene_id, comp_feat_vec, calc_flows );
             
+            
+            % send the unique id used for appending to filenames
+            unique_id = comp_feat_vec.getUniqueID();
+        end
+        
+        
+        function [ test_filepath unique_id ] = produceTestingData( obj, scene_id )
+            [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(scene_id);
+            
+            % produce the testing data
+            [ test_filepath ] = obj.produceTestingDataFile( scene_id, comp_feat_vec, calc_flows );
             
             % send the unique id used for appending to filenames
             unique_id = comp_feat_vec.getUniqueID();
@@ -77,10 +88,10 @@ classdef ComputeTrainTestData < handle
     
     
     methods (Access = private)
-        [ train_filepath ] = produceTrainingData( obj, scene_id, training_ids, comp_feat_vec );
+        [ train_filepath ] = produceTrainingDataFile( obj, scene_id, training_ids, comp_feat_vec );
         
         
-        [ test_filepath ] = produceTestingData( obj, scene_id, comp_feat_vec, calc_flows );
+        [ test_filepath ] = produceTestingDataFile( obj, scene_id, comp_feat_vec, calc_flows );
         
         
         [ extra_info ] = extraFVInfoStruct( obj, im1, im2, calc_flows, no_scales, scale );

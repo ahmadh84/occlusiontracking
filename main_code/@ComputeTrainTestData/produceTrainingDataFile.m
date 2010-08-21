@@ -1,5 +1,5 @@
-function [ train_filename ] = produceTrainingData( obj, scene_id, training_ids, comp_feat_vec )
-%PRODUCETRAININGDATA Summary of this function goes here
+function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_ids, comp_feat_vec )
+%PRODUCETRAININGDATAFILE Summary of this function goes here
 %   Detailed explanation goes here
 
     if ~isfield(obj.settings, 'USE_ONLY_OF')
