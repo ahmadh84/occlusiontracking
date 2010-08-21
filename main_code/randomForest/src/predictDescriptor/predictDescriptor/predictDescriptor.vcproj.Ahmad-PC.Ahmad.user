@@ -11,7 +11,7 @@
 			<DebugSettings
 				Command="$(TargetPath)"
 				WorkingDirectory=""
-				CommandArguments="100 4 30 30 25 1 &quot;C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Code\main_code\..\..\Data\middlebury\out\4_268088_FL_Train.data&quot; &quot;C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Code\main_code\..\..\Data\middlebury\out\4_268088_FL_Test.data&quot; &quot;C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Code\main_code\..\..\Data\middlebury\out\4_268088_FL_prediction.data&quot; -b"
+				CommandArguments="105 11 35 20 25 1  -l &quot;H:\middlebury\texture_comparison_tests\gm\9_42449_class.xml&quot; &quot;H:\middlebury\texture_comparison_tests\gm\9_42449_Train.data&quot; &quot;H:\middlebury\texture_comparison_tests\gm\9_42449_Test.data&quot; &quot;H:\middlebury\texture_comparison_tests\gm\9_42449_prediction.data&quot; -b"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"
@@ -39,7 +39,7 @@
 			<DebugSettings
 				Command="$(TargetPath)"
 				WorkingDirectory=""
-				CommandArguments=""
+				CommandArguments="100 4 30 30 25 1 &quot;C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Code\main_code\..\..\Data\middlebury\out\4_268088_FL_Train.data&quot; &quot;C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Code\main_code\..\..\Data\middlebury\out\4_268088_FL_Test.data&quot; &quot;C:\Users\Ahmad\Documents\UCL\MS Thesis - Tracking powered by Superpixels\Code\main_code\..\..\Data\middlebury\out\4_268088_FL_prediction.data&quot; -b"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"
@@ -50,7 +50,7 @@
 				SQLDebugging=""
 				Environment=""
 				EnvironmentMerge="true"
-				DebuggerFlavor=""
+				DebuggerFlavor="0"
 				MPIRunCommand=""
 				MPIRunArguments=""
 				MPIRunWorkingDirectory=""

@@ -124,6 +124,31 @@ float write_predRTBinary( CvMLData* _data , CvRTrees* _rtrees, char* filename)
     return err;
 }
 
+void printUsage()
+{
+	printf("Usage: \n");
+	printf("Training + Testing:\n> predictDescriptor  t a d s c v  trainfpath testfpath outfpath\n\n");
+	printf("Training + Testing + Saving classifier (XML):\n> predictDescriptor  t a d s c v  -s xmlfpath trainfpath testfpath outfpath\n\n");
+	printf("Training + Testing + Saving classifier (XML) (binary labelling):\n> predictDescriptor  t a d s c v  -s xmlfpath trainfpath testfpath outfpath  -b\n\n");
+	printf("Training + Saving classifier (XML):\n> predictDescriptor  t a d s c v  -s xmlfpath trainfpath\n\n");
+	printf("Testing from saved classifier (XML):\n> predictDescriptor -l xmlfpath testfpath outfpath\n\n");
+	printf("Testing from saved classifier (XML) (binary labelling):\n> predictDescriptor -l xmlfpath testfpath outfpath  -b\n\n");
+
+	printf("t=noTrees, a=noActiveVars, d=maxDepth, s=minSampCount, c=maxCategories, v=computeVarImportance\n\n");
+
+	printf("Flags: \n-s filename: save classifier output as XML\n");
+	printf("-l filename: load XML classifier\n");
+	printf("-b: indicate (at testing) that the labelling was binary\n");
+
+	printf("\n\ne.g.\n(1) Train, Test, Save XML in one go\n> predictDescriptor 100 4 30 30 25 0 -s class.xml train.data tst.data pred.data\n");
+	printf("\n(2) Train and Save XML; then Test using XML (binary labelling)\n> predictDescriptor 100 4 30 30 25 0 -s class.xml train.data\n");
+	printf("> predictDescriptor  -l class.xml test.data prediction.data  -b\n");
+
+	printf("\n\nNote:\n(1) All input *.data files given as CSVs with a row for each data point; 1st value is the label; all the rest are feature values.\n");
+	printf("(2) If any filepath contains spaces, enclose the path in \"\".\n");
+}
+
+
 int main(int argc, char *argv[])
 {
 	CvRTrees rtrees;
@@ -132,11 +157,17 @@ int main(int argc, char *argv[])
     CvMLData traindata;
 	CvMLData testdata;
 
-	char* trainfilename = "";
-	char* testfilename = "";
-	char* opfilename = "";
+	char* trainfilename = 0;
+	char* testfilename = 0;
+	char* opfilename = 0;
 	char* filename_to_save = 0;
     char* filename_to_load = 0;
+
+	bool testing = false;
+	bool training = false;
+	bool labelling_binary = false;
+	float test_error = -1.0;
+	float train_error = -1.0;
 
 	int nTrees = 100;
 	int nActiveVars = 4;
@@ -146,44 +177,70 @@ int main(int argc, char *argv[])
 	bool printImportance = false;
 
 	//load params
-	int noArgs = 12;
-	int i = 7;
+	int i = 1;
 
-	nTrees = atoi(argv[1]);
-	nActiveVars = atoi(argv[2]);
-	maxDepth = atoi(argv[3]);
-	minSampCount = atoi(argv[4]);
-	maxCategories = atoi(argv[5]);		
-	printImportance = bool(atoi(argv[6]));
-		
-	if( strcmp(argv[7],"-l") == 0 ) {
-		filename_to_load = argv[8];
-		i = i+2;
+	// Parsing arguments
+	try
+	{
+		if( strcmp(argv[i],"-l") == 0 ) {
+			i++;
+			filename_to_load = argv[i++];
+
+			testfilename = argv[i++];
+			opfilename = argv[i++];
+		}
+		else
+		{
+			nTrees = atoi(argv[i++]);
+			nActiveVars = atoi(argv[i++]);
+			maxDepth = atoi(argv[i++]);
+			minSampCount = atoi(argv[i++]);
+			maxCategories = atoi(argv[i++]);		
+			printImportance = bool(atoi(argv[i++]));
+
+			if( strcmp(argv[i],"-s") == 0 ) {
+				i++;
+				filename_to_save = argv[i++];
+			}
+			else if(strcmp(argv[i],"-l") == 0) {
+				throw("Can't load XML while training!");
+			}
+
+			trainfilename = argv[i++];
+
+			if(argc-1 >= i && strcmp(argv[i],"-b") != 0)
+				testfilename = argv[i++];
+			if(argc-1 >= i && strcmp(argv[i],"-b") != 0)
+				opfilename = argv[i++];
+		}
+
+		labelling_binary = argc-1 >= i && strcmp(argv[i],"-b") == 0;
 	}
-	else if( strcmp(argv[7],"-s") == 0 ) {
-		filename_to_save = argv[8];
-		i = i+2;
+	catch(char* err_str)
+	{
+		cerr<<"Error while parsing arguments: "<<err_str<<endl<<endl<<endl;
+		printUsage();
+		return 2;
 	}
-	
-	trainfilename = argv[i];
-	testfilename = argv[i+1];
-	opfilename = argv[i+2];
-	
+
+	int train_out = 1;
+	int test_out = 1;
+
+	if( trainfilename )
+		train_out = traindata.read_csv( trainfilename );
+	if( testfilename )
+		test_out = testdata.read_csv( testfilename );
+
+	// (1) Train OR load XML
+	// (2)
+
 	// do training
-    if ( traindata.read_csv( trainfilename ) == 0 | testdata.read_csv( testfilename ) == 0)
-    {			
-		traindata.set_response_idx( 0 );     
-		traindata.change_var_type( 0 , CV_VAR_CATEGORICAL );
-
-		// parameters
-		CvMat sample;
-		cvGetRow( traindata.get_values(), &sample, 1 ); 			
-		if (nActiveVars > sample.cols)
-			nActiveVars = (int)sample.cols-1;
-	
-		//Load Random Trees classifier
+    if(train_out == 0 || test_out == 0)
+    {
 		if( filename_to_load )
 		{
+			// Load Random Trees classifier
+
 			// load classifier from the specified file
 			rtrees.load( filename_to_load );
 			if( rtrees.get_tree_count() == 0 )
@@ -194,24 +251,38 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
+			// Use the data for Training the Random Forest
+
+			traindata.set_response_idx( 0 );
+			traindata.change_var_type( 0 , CV_VAR_CATEGORICAL );
+
+			// parameters
+			CvMat sample;
+			cvGetRow( traindata.get_values(), &sample, 1 );
+			if (nActiveVars > (int)sample.cols-2)
+				nActiveVars = (int)sample.cols-2;
+
 			rtrees.train( &traindata, CvRTParams(maxDepth,minSampCount,0,false,maxCategories,0,printImportance,nActiveVars,nTrees,0.0001f,CV_TERMCRIT_ITER));
 			//Prams: maxdepth, min sample count, regression acc, use surrogates, max categories, priors, calc var importance, nactive vars, 
 			//max no trees, forest accuracy, termcrit type
+
+			train_error = rtrees.calc_error(&traindata, CV_TRAIN_ERROR);
 		}
 
-		testdata.set_response_idx( 0 );     
-		testdata.change_var_type( 0 , CV_VAR_CATEGORICAL );
+		// if there is data to test on
+		if( opfilename )
+		{
+			testdata.set_response_idx( 0 );
+			testdata.change_var_type( 0 , CV_VAR_CATEGORICAL );
+			
+			// Binary op or not
+			if( labelling_binary )
+				test_error = write_predRTBinary( &testdata , &rtrees, opfilename);
+			else
+				test_error = write_predRT( &testdata , &rtrees, opfilename);
+		}
 		
-		// Binary op or not
-		float test_error;
-		if( argc-1 >= i+3 && strcmp(argv[i+3],"-b") == 0 )
-			test_error = write_predRTBinary( &testdata , &rtrees, opfilename);
-		else
-			test_error = write_predRT( &testdata , &rtrees, opfilename);
-		
-
-
-		print_result( rtrees.calc_error( &traindata, CV_TRAIN_ERROR), test_error, rtrees.get_var_importance());
+		print_result(train_error, test_error, rtrees.get_var_importance());
 
 		// Save Random Trees classifier to file if needed
 		if( filename_to_save )
@@ -219,11 +290,9 @@ int main(int argc, char *argv[])
         
     }
 	else {
-        printf("One of the files cannot be read or not enough arguments\n\n");
-		printf("predictDescriptor noTrees noActiveVars maxDepth  minSampCount maxCategories printVarImportance trainfilename testfilename\n\n");
-		printf("save classififer with -s filename flag, -l for loading\n");
-		printf("e.g. predictDescriptor 100 4 30 30 25 0 -s class.xml train.data test.data prediction.data\n");
-
+		cerr<<"OpenCV doesn't like one of yours files!"<<endl<<endl<<endl;
+		printUsage();
+		return 3;
 	}
 
     return 0;
