@@ -8,7 +8,7 @@ testing_seq = [4 9 18];
 
 
 % changing no. of features per node
-for rf_nactive_vars = 2:3:17
+for rf_nactive_vars = [1 2:3:17 40]
     close all;
     
     override_settings = struct;
@@ -37,7 +37,7 @@ for max_catg = 10:5:40
 end
 
 % max number of random trees
-for max_trees = 30:30:200
+for max_trees = [1 5 10 30:30:200]
     close all;
     
     override_settings = struct;
@@ -51,7 +51,7 @@ for max_trees = 30:30:200
 end
 
 
-for max_depth = 10:10:50
+for max_depth = [1 5 10:10:50]
     close all;
     
     override_settings = struct;
@@ -65,7 +65,7 @@ for max_depth = 10:10:50
 end
  
 
-for sample_count = 10:10:50
+for sample_count = [10:10:50 100 200 300]
     close all;
     
     override_settings = struct;
