@@ -155,7 +155,7 @@ classdef ComputeFeatureVectors < handle
             % get the scene id
             [d sceneID] = fileparts(obj.scene_dir);
             if isempty(sceneID)
-                [~, sceneID] = fileparts(d);
+                [temp, sceneID] = fileparts(d);
             end
             
             filename = [sceneID '_' sprintf('%d', obj.getUniqueID()) '_FV.mat'];

@@ -198,7 +198,7 @@ classdef OFLengthVarianceFeature < AbstractFeature
                         temp_idxs_outside = idxs_outside(:,curr_idxs);
 
                         % sort and delete the nhood pixels which are outside
-                        [~, remaining_idxs_rs] = sort(temp_idxs_outside, 1);
+                        [temp, remaining_idxs_rs] = sort(temp_idxs_outside, 1);
                         remaining_idxs_rs(end-s+1:end,:) = [];
 
                         % adjust temp_r and temp_c with the indxs found which are not outside the image
