@@ -4,7 +4,7 @@ function [ output_args ] = store_st( input_args )
 
     addpath('main_code\algorithms\Sparse Set Texture Features');
     
-    sequences = 6:25;
+    sequences = 7:25;
     main_dir = '../Data/oisin+middlebury';
     store_texture = 'sparsetextures.mat';
     
