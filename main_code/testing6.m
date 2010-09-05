@@ -4,40 +4,40 @@ function [ output_args ] = testing6( input_args )
 
     main_dir = '../../Data/oisin+middlebury';
     
-    out_dir = 'H:/middlebury/features_comparison_tests2';
+    out_dir = 'D:/ahumayun/Results/features_comparison_tests2';
 
     training_seq = [4 5 9 10 11 12 13 14 18 19];
-    testing_seq = [4 5 9 10 11 12 13 14 18 19];
+    testing_seq = [10 11 12 13 14 18 19];
     
     
     %%%%%%%%%%%%%%%% AV LV CS %%%%%%%%%%%%%%%%%%%%%%%%
-    close all;
-    
-    override_settings = struct;
-    uv_ftrs2_ss_info = [ 4              0.8 ];
-    
-    nhood_size = 1;
-    [c r] = meshgrid(-nhood_size:nhood_size, -nhood_size:nhood_size);
-    nhood = cat(3, r(:), c(:));
-    nhood_cs = nhood;
-    nhood_cs(nhood_cs(:,:,1)==0 & nhood_cs(:,:,2)==0,:,:) = [];
-    
-    override_settings.cell_flows = { BlackAnandanOF, ...
-                                     TVL1OF, ...
-                                     HornSchunckOF, ...
-                                     HuberL1OF, ...
-                                     ClassicNLOF, ...
-                                     LargeDisplacementOF };
-    override_settings.cell_features = { OFAngleVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
-                                        OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
-                                        OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info) };
-
-    temp_out_dir = fullfile(out_dir, 'av_lv_cs');
-
-    [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
-    
-    deleteTrainTestData(temp_out_dir);
-    deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+%     close all;
+%     
+%     override_settings = struct;
+%     uv_ftrs2_ss_info = [ 4              0.8 ];
+%     
+%     nhood_size = 1;
+%     [c r] = meshgrid(-nhood_size:nhood_size, -nhood_size:nhood_size);
+%     nhood = cat(3, r(:), c(:));
+%     nhood_cs = nhood;
+%     nhood_cs(nhood_cs(:,:,1)==0 & nhood_cs(:,:,2)==0,:,:) = [];
+%     
+%     override_settings.cell_flows = { BlackAnandanOF, ...
+%                                      TVL1OF, ...
+%                                      HornSchunckOF, ...
+%                                      HuberL1OF, ...
+%                                      ClassicNLOF, ...
+%                                      LargeDisplacementOF };
+%     override_settings.cell_features = { OFAngleVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
+%                                         OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
+%                                         OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info) };
+% 
+%     temp_out_dir = fullfile(out_dir, 'av_lv_cs');
+% 
+%     [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+%     
+%     deleteTrainTestData(temp_out_dir);
+%     deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
     
     
     %%%%%%%%%%%%%%%% AV LV CS PC %%%%%%%%%%%%%%%%%%%%%%%%
