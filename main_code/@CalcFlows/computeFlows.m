@@ -28,6 +28,11 @@ function computeFlows( obj )
             if obj.compute_reverse
                 obj.uv_flows_reverse(:,:,:,algo_idx) = uv_ld_r;
             end
+        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'GT Flow')
+            % Just need to give the directory
+            warning('CalcFlows:computeFlows', 'using GT flow');
+            
+            obj.uv_flows(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.scene_dir);
         else
             obj.uv_flows(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2);
             
@@ -60,7 +65,11 @@ function computeFlows( obj )
 
         % find the distance between first and second best score
         [vals ind] = sort(obj.uv_epe, 3);
-        obj.epe_dist_btwfirstsec = vals(:,:,2) - vals(:,:,1);
+        if size(obj.uv_epe,3) > 1
+            obj.epe_dist_btwfirstsec = vals(:,:,2) - vals(:,:,1);
+        else
+            obj.epe_dist_btwfirstsec = vals;
+        end
 
         % GT mask
         obj.gt_mask = obj.loadGTMask( 0 );

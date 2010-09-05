@@ -79,7 +79,7 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
     traintest_data = ComputeTrainTestData( main_dir, out_dir, settings, 0, COMPUTE_REFRESH );
     
     
-    % do cross-validation for each of scenes (using all the remaining sequences)
+    % do K-fold cross-validation for each of scenes (using all the remaining sequences)
     for scenes_idx = 1:length(testing_seq)
         scene_id = testing_seq(scenes_idx);
         
