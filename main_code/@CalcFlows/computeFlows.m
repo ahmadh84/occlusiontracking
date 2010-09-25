@@ -31,8 +31,21 @@ function computeFlows( obj )
         elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'GT Flow')
             % Just need to give the directory
             warning('CalcFlows:computeFlows', 'using GT flow');
-            
+        
             obj.uv_flows(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.scene_dir);
+            
+            assert(~obj.compute_reverse, 'Can''t get reverse flow with GT flow');
+            
+        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Huber-L1')
+            % DON'T HAVE CUDA FOR machine
+            warning('CalcFlows:computeFlows', 'loading directly from file');
+            load(fullfile(obj.scene_dir, 'huberl1.mat'));
+            obj.uv_flows(:,:,:,algo_idx) = uv_fl;
+            
+            % if we need to compute the flow in reverse
+            if obj.compute_reverse
+                obj.uv_flows_reverse(:,:,:,algo_idx) = uv_fl_r;
+            end
         else
             obj.uv_flows(:,:,:,algo_idx) = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2);
             

@@ -19,7 +19,7 @@ function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_ve
     end
     
     % write test data to file - left to right (row major order)
-    if ~obj.force_no_gt
+    if ~obj.force_no_gt && ~isempty(calc_flows.gt_mask) 
         
         % the structure that will be sent to the label data
         extra_label_info.calc_flows = calc_flows;

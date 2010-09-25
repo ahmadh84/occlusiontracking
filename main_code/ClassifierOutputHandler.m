@@ -84,13 +84,15 @@ classdef ClassifierOutputHandler < handle
             plot(obj.fpr, obj.tpr);
             hold on;
             
-            for i=0.1:0.1:0.9
-                plot(obj.fpr(obj.thresholds==i), obj.tpr(obj.thresholds==i), 'bo');
+            if ~isempty(obj.fpr)
+                for i=0.1:0.1:0.9
+                    plot(obj.fpr(obj.thresholds==i), obj.tpr(obj.thresholds==i), 'bo');
+                end
+
+                text(obj.fpr(obj.thresholds==0.8)+0.02, obj.tpr(obj.thresholds==0.8), '0.8', 'Color',[0 0 1]);
+                text(obj.fpr(obj.thresholds==0.5)+0.02, obj.tpr(obj.thresholds==0.5), '0.5', 'Color',[0 0 1]);
+                text(obj.fpr(obj.thresholds==0.2)+0.02, obj.tpr(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
             end
-            
-            text(obj.fpr(obj.thresholds==0.8)+0.02, obj.tpr(obj.thresholds==0.8), '0.8', 'Color',[0 0 1]);
-            text(obj.fpr(obj.thresholds==0.5)+0.02, obj.tpr(obj.thresholds==0.5), '0.5', 'Color',[0 0 1]);
-            text(obj.fpr(obj.thresholds==0.2)+0.02, obj.tpr(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
             
             title(sprintf('ROC of Occlusion Region detection - Area under ROC %.4f', obj.area_under_roc));
             line([0;1], [0;1], 'Color', [0.7 0.7 0.7], 'LineStyle','--', 'LineWidth', 1.5);     % draw the line of no-discrimination
@@ -204,6 +206,10 @@ classdef ClassifierOutputHandler < handle
             
             extra_label_info.calc_flows = obj.calc_flows;
             [ labels ignore_labels ] = obj.settings.label_obj.calcLabelWhole( obj.comp_feat_vec, extra_label_info );
+            
+            if isempty(labels)
+                return;
+            end
             
             % remove labels which we are unsure about
             labels(ignore_labels) = [];

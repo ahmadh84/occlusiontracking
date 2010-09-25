@@ -14,7 +14,6 @@ classdef CalcFlows < handle
         im1;
         im2;
         compute_refresh = 0;
-        compute_reverse = 1;
     end
     
     
@@ -36,6 +35,7 @@ classdef CalcFlows < handle
         gt_ignore_mask = [];
         algo_avg_epe = [];
         opt_avg_epe = 0.0;
+        compute_reverse = 1;
     end
     
     
