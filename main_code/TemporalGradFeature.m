@@ -84,7 +84,7 @@ classdef TemporalGradFeature < AbstractFeature
                     
                     % get the median flow (make 2 dim matrix - quicker! :s)
                     sz_temp = size(uv_resized);
-                    uv_resized = reshape(uv_resized, [sz_temp(1)*sz_temp(2)*sz_temp(3) sz_temp(4)]);
+                    uv_resized = reshape(uv_resized, [sz_temp(1)*sz_temp(2)*sz_temp(3) size(uv_resized,4)]);
                     median_flow = median(uv_resized(:,algos_to_use), 2);
                     median_flow = reshape(median_flow, [sz_temp(1) sz_temp(2) sz_temp(3)]);
                     
@@ -108,7 +108,7 @@ classdef TemporalGradFeature < AbstractFeature
                 
                 % get the median flow (make 2 dim matrix - quicker! :s)
                 sz_temp = size(uv_flow);
-                uv_flow = reshape(uv_flow, [sz_temp(1)*sz_temp(2)*sz_temp(3) sz_temp(4)]);
+                uv_flow = reshape(uv_flow, [sz_temp(1)*sz_temp(2)*sz_temp(3) size(uv_resized,4)]);
                 median_flow = median(uv_flow, 2);
                 median_flow = reshape(median_flow, [sz_temp(1) sz_temp(2) sz_temp(3)]);
 

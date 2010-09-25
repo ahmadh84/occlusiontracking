@@ -215,6 +215,7 @@ classdef OFAngleVarianceFeature < AbstractFeature
 
                     %%% The main feature computation
                     ang = atan(temp_v ./ temp_u);
+                    ang(isnan(ang)) = 0;
                     avg_ang = anglesUnwrappedMean( ang, 'rad', 1 );
                     avg_ang = repmat(avg_ang, [size(ang,1) 1]);
                     avg_ang = anglesUnwrappedDiff(ang, avg_ang);
