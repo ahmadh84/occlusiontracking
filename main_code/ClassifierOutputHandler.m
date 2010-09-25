@@ -126,10 +126,15 @@ classdef ClassifierOutputHandler < handle
         end
         
 
-        function [ optimal_th ] = getOptimalThreshold( obj )
+        function [ optimal_th optimal_th2 ] = getOptimalThreshold( obj )
         % gets the threshold which gives the closest point to the (0,1)
         % point on the ROC
         
+            dist_perfect = obj.fpr.^2 + (obj.tpr-1).^2;
+            [val idx] = min(dist_perfect);
+            mean_idx = round(mean(find(dist_perfect == val)));
+            optimal_th2 = obj.thresholds(mean_idx);
+            
             % min||(0,1)-(FPR,TPR)||
             % FPR dFPR/dT = (TPR-1) dTPR/dT
             tmp1 = obj.fpr.*gradient(obj.fpr, obj.thresholds);
