@@ -1,4 +1,4 @@
-function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_ids, comp_feat_vec )
+function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_ids, unique_id )
 %PRODUCETRAININGDATAFILE Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,20 +6,26 @@ function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_i
         obj.settings.USE_ONLY_OF = '';
     end
     
-    fprintf(1, 'Creating training data for %d\n', scene_id);
+    if ~obj.silent_mode
+        fprintf(1, 'Creating training data for %d\n', scene_id);
+    end
     
     % get the filename to which all the data will be output
-    train_filename = obj.getTrainingDataFilename(scene_id, comp_feat_vec.getUniqueID(), obj.settings.USE_ONLY_OF);
+    train_filename = obj.getTrainingDataFilename(scene_id, unique_id, obj.settings.USE_ONLY_OF);
     
     % if the file already exists delete it
     if exist(train_filename, 'file') == 2
-        fprintf(1, 'Deleting old training file %s\n', train_filename);
+        if ~obj.silent_mode
+            fprintf(1, 'Deleting old training file %s\n', train_filename);
+        end
         delete(train_filename);
     end
     
     for training_id = training_ids
         
-        fprintf(1, '\t... using data from sequence %d\n', training_id);
+        if ~obj.silent_mode
+            fprintf(1, '\t... using data from sequence %d\n', training_id);
+        end
         
         [train_comp_feat_vec train_calc_flows] = obj.getFeatureVecAndFlow(training_id);
         

@@ -7,14 +7,18 @@ function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_ve
     end
     
     % test data
-    fprintf(1, 'Creating test data for %d\n', scene_id);
-
+    if ~obj.silent_mode
+        fprintf(1, 'Creating test data for %d\n', scene_id);
+    end
+    
     % get the filename to which all the data will be output
     test_filename = obj.getTestingDataFilename(scene_id, comp_feat_vec.getUniqueID(), obj.settings.USE_ONLY_OF);
     
     % if the file already exists delete it
     if exist(test_filename, 'file') == 2
-        fprintf(1, 'Deleting old testing file %s\n', test_filename);
+        if ~obj.silent_mode
+            fprintf(1, 'Deleting old testing file %s\n', test_filename);
+        end
         delete(test_filename);
     end
     

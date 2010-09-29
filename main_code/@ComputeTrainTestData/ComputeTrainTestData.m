@@ -13,6 +13,7 @@ classdef ComputeTrainTestData < handle
         main_dir;
         out_dir;
         settings;
+        silent_mode = 0;
     end
     
     
@@ -25,9 +26,18 @@ classdef ComputeTrainTestData < handle
     
     methods
         function obj = ComputeTrainTestData( main_dir, out_dir, settings, varargin )
-            fprintf('Creating ComputeTrainTestData\n');
+            
+            % if user wants silent mode
+            if nargin > 5 && isscalar(varargin{3})
+                obj.silent_mode = varargin{3};
+            end
+            
+            if ~obj.silent_mode
+                fprintf('Creating ComputeTrainTestData\n');
+            end
             
             assert(isdir(main_dir), 'Cannot locate the directory path provided');
+            
             % if the output directory doesn't exist, create it
             if ~isdir(out_dir)
                 mkdir(out_dir);
@@ -39,12 +49,12 @@ classdef ComputeTrainTestData < handle
             obj.settings = settings;
             
             % if user wants to force that there is no GT
-            if nargin > 5 && isscalar(varargin{1})
+            if nargin > 3 && isscalar(varargin{1})
                 obj.force_no_gt = varargin{1};
             end
             
             % if user wants to recompute everything and not pick up from file
-            if nargin > 6 && isscalar(varargin{2})
+            if nargin > 4 && isscalar(varargin{2})
                 obj.compute_refresh = varargin{2};
             end
             
@@ -58,28 +68,41 @@ classdef ComputeTrainTestData < handle
             
             [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(scene_id);
             
+            % send the unique id used for appending to filenames
+            unique_id = comp_feat_vec.getUniqueID();
+            
             % produce the training data
             if ~obj.force_no_gt
-                [ train_filepath ] = obj.produceTrainingDataFile( scene_id, training_ids, comp_feat_vec );
+                [ train_filepath ] = obj.produceTrainingDataFile( scene_id, training_ids, unique_id );
             end
             
             % produce the testing data
             [ test_filepath ] = obj.produceTestingDataFile( scene_id, comp_feat_vec, calc_flows );
-            
-            
-            % send the unique id used for appending to filenames
-            unique_id = comp_feat_vec.getUniqueID();
         end
         
         
         function [ test_filepath unique_id ] = produceTestingData( obj, scene_id )
             [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(scene_id);
             
-            % produce the testing data
-            [ test_filepath ] = obj.produceTestingDataFile( scene_id, comp_feat_vec, calc_flows );
-            
             % send the unique id used for appending to filenames
             unique_id = comp_feat_vec.getUniqueID();
+            
+            % produce the testing data
+            [ test_filepath ] = obj.produceTestingDataFile( scene_id, comp_feat_vec, calc_flows );
+        end
+        
+        
+        function [ train_filepath unique_id ] = produceTrainingData( obj, scene_id, training_ids, unique_id )
+            % if unique_id not passed by the user, get it by loading a feature vector
+            if ~exist('unique_id', 'var') == 1
+                [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(training_ids(1));
+
+                % send the unique id used for appending to filenames
+                unique_id = comp_feat_vec.getUniqueID();
+            end
+            
+            % produce the training data
+            [ train_filepath ] = obj.produceTrainingDataFile( scene_id, training_ids, unique_id );
         end
         
         

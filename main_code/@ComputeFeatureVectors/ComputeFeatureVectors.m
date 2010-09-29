@@ -27,6 +27,8 @@ classdef ComputeFeatureVectors < handle
         feature_types = {};
         
         extra_id = 0;
+        
+        silent_mode = 0;
     end
     
     
@@ -83,6 +85,11 @@ classdef ComputeFeatureVectors < handle
             % if user wants to recompute everything and not pick up from file
             if nargin > 5 && isscalar(varargin{4})
                 obj.compute_refresh = varargin{4};
+            end
+            
+            % if user wants silent mode
+            if nargin > 6 && isscalar(varargin{5})
+                obj.silent_mode = varargin{5};
             end
             
             % finally, compute the features

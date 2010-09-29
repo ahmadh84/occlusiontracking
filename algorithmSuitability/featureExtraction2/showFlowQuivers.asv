@@ -1,8 +1,0 @@
-function [ output_args ] = showFlowQuivers( uv )
-%SHOWFLOWQUIVERS Summary of this function goes here
-%   Detailed explanation goes here
-
-    x = flowToColor(uvFL);
-
-end
-

@@ -36,6 +36,8 @@ classdef CalcFlows < handle
         algo_avg_epe = [];
         opt_avg_epe = 0.0;
         compute_reverse = 1;
+        
+        silent_mode = 0;
     end
     
     
@@ -47,7 +49,14 @@ classdef CalcFlows < handle
     
     methods
         function obj = CalcFlows( scene_dir, cell_flows, varargin )
-            fprintf('Creating CalcFlows\n');
+            % if user wants silent mode
+            if nargin > 5 && isscalar(varargin{4})
+                obj.silent_mode = varargin{4};
+            end
+            
+            if ~obj.silent_mode
+                fprintf('Creating CalcFlows\n');
+            end
     
             obj.scene_dir = scene_dir;
             

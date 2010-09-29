@@ -12,7 +12,7 @@ function [comp_feat_vec calc_flows] = getFeatureVecAndFlow(obj, scene_id)
     scene_dir = obj.sceneId2SceneDir(scene_id);
 
     % compute/load the flow
-    calc_flows = CalcFlows( scene_dir, obj.settings.cell_flows, obj.force_no_gt, refresh );
+    calc_flows = CalcFlows( scene_dir, obj.settings.cell_flows, obj.force_no_gt, refresh, 1, obj.silent_mode );
 
     % read in the images
     im1 = imread(fullfile(scene_dir, ComputeTrainTestData.IM1_PNG));
@@ -22,7 +22,7 @@ function [comp_feat_vec calc_flows] = getFeatureVecAndFlow(obj, scene_id)
     extra_info = obj.extraFVInfoStruct( im1, im2, calc_flows );
 
     % compute/load all the features
-    comp_feat_vec = ComputeFeatureVectors( scene_dir, obj.settings.cell_features, extra_info, obj.settings.ss_info_im1, obj.settings.ss_info_im2, refresh );
+    comp_feat_vec = ComputeFeatureVectors( scene_dir, obj.settings.cell_features, extra_info, obj.settings.ss_info_im1, obj.settings.ss_info_im2, refresh, obj.silent_mode );
     
     
     % add to the set of IDs already computed

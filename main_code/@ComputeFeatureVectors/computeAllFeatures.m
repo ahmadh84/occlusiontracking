@@ -5,7 +5,9 @@ function computeAllFeatures( obj )
 
     % if the object is already stored, simply load it
     if obj.checkStoredObjAvailable()
-        fprintf('--> Loading object from %s\n', mat_filepath);
+        if ~obj.silent_mode
+            fprintf('--> Loading object from %s\n', mat_filepath);
+        end
         load(mat_filepath);
         eval(['obj.deepCopy(' ComputeFeatureVectors.SAVE_OBJ_NAME ');']);
         return;
@@ -27,7 +29,9 @@ function computeAllFeatures( obj )
     obj.features = reshape(obj.features, [obj.image_sz(1)*obj.image_sz(2) sum(obj.feature_depths)]);
 
     % save the object to the mat file
-    fprintf('--> Saving object to %s\n', mat_filepath);
+    if ~obj.silent_mode
+        fprintf('--> Saving object to %s\n', mat_filepath);
+    end
     eval([ComputeFeatureVectors.SAVE_OBJ_NAME ' = obj;']);
     save(mat_filepath, ComputeFeatureVectors.SAVE_OBJ_NAME);
 end

@@ -6,7 +6,9 @@ function computeFlows( obj )
 
     % if the object is already stored, simply load it
     if obj.checkStoredObjAvailable()
-        fprintf('--> Loading object from %s\n', mat_filepath);
+        if ~obj.silent_mode
+            fprintf('--> Loading object from %s\n', mat_filepath);
+        end
         load(mat_filepath);
         eval(['obj.deepCopy(' CalcFlows.SAVE_OBJ_NAME ');']);
         return;
@@ -102,7 +104,9 @@ function computeFlows( obj )
     end
 
     % save the object to the mat file
-    fprintf('--> Saving object to %s\n', mat_filepath);
+    if ~obj.silent_mode
+        fprintf('--> Saving object to %s\n', mat_filepath);
+    end
     eval([CalcFlows.SAVE_OBJ_NAME ' = obj;']);
     save(mat_filepath, CalcFlows.SAVE_OBJ_NAME);
 end
