@@ -74,10 +74,10 @@ classdef FlowConfidenceFeature < AbstractFeature
             assert(length(algos_to_use)==length(obj.flow_short_types), ['Can''t find matching flow algorithm(s) used in computation of ' class(obj)]);
             assert(isfield(calc_feature_vec.extra_info, 'calc_flows'), 'The CalcFlows object has not been defined in the passed ComputeFeatureVectors');
 
-            precompute_filename = sprintf(obj.PRECOMPUTED_FC_FILE, num2str(obj.returnNoID()));
+            precompute_fc_filename = sprintf(obj.PRECOMPUTED_FC_FILE, num2str(obj.returnNoID()));
             
-            if exist(fullfile(calc_feature_vec.scene_dir, precompute_filename), 'file') == 2
-                load(fullfile(calc_feature_vec.scene_dir, precompute_filename));
+            if exist(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename), 'file') == 2
+                load(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename));
             else
                 tic;
                 
@@ -94,6 +94,9 @@ classdef FlowConfidenceFeature < AbstractFeature
                         remove_seqs(training_idx) = 1;
                     end
                 end
+                
+                [scene_main_dir scene_id] = fileparts(calc_feature_vec.scene_dir);
+                scene_id = str2double(scene_id);
                 
                 % labels to compute on
                 labels_to_use = {FlowEPEConfidenceLabel(obj.confidence_epe_th), FlowAEConfidenceLabel(obj.confidence_ae_th)};
@@ -122,10 +125,7 @@ classdef FlowConfidenceFeature < AbstractFeature
 
                             % create the main object, which creates the test and training data
                             traintest_data = ComputeTrainTestData( obj.training_dir, fullfile(obj.training_dir, obj.TEMP_SUBDIR), settings, 0, COMPUTE_REFRESH, 1 );
-
-                            [temp scene_id] = fileparts(calc_feature_vec.scene_dir);
-                            scene_id = str2double(scene_id);
-
+                            
                             % produce the training and testing data
                             [ TRAIN_PATH TEST_PATH unique_id ] = traintest_data.produceTrainingTestingData(scene_id, training_s);
 
@@ -175,9 +175,6 @@ classdef FlowConfidenceFeature < AbstractFeature
 
                                 % create the main object, which creates the test and training data
                                 traintest_data = ComputeTrainTestData( obj.training_dir, fullfile(obj.training_dir, obj.TEMP_SUBDIR), settings, 0, COMPUTE_REFRESH, 1 );
-
-                                [temp scene_id] = fileparts(calc_feature_vec.scene_dir);
-                                scene_id = str2double(scene_id);
                                 
                                 % produce the training and testing data
                                 if unique_id == -1
@@ -196,9 +193,6 @@ classdef FlowConfidenceFeature < AbstractFeature
                             end
                             
                             % once the classifier is ready
-
-                            [scene_main_dir scene_id] = fileparts(calc_feature_vec.scene_dir);
-                            scene_id = str2double(scene_id);
                             
                             % create the main object, which creates the training data
                             traintest_data = ComputeTrainTestData( scene_main_dir, fullfile(obj.training_dir, obj.TEMP_SUBDIR), settings, 0, COMPUTE_REFRESH, 1 );
@@ -227,12 +221,12 @@ classdef FlowConfidenceFeature < AbstractFeature
                     end
                 end
                 
-                obj.deleteFVData(calc_feature_vec.scene_dir, obj.training_seqs, unique_id);
+                obj.deleteFVData(calc_feature_vec.scene_dir, scene_id, obj.training_seqs, unique_id);
                 
                 fprintf(1, '//> FlowConfidenceFeature took %f secs to compute\n', toc);
                 
                 % save the classifier's output
-                save(fullfile(calc_feature_vec.scene_dir, precompute_filename), 'featconf');
+                save(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename), 'featconf');
             end
             
             feature_depth = size(featconf,3);
@@ -320,7 +314,7 @@ classdef FlowConfidenceFeature < AbstractFeature
         end
 
 
-        function deleteFVData( obj, scene_dir, training_seqs, unique_id )
+        function deleteFVData( obj, main_scene_dir, main_scene_id, training_seqs, unique_id )
             % delete feature vectors from training sequences
             for scene_id = training_seqs
                 fv_filename = fullfile(obj.training_dir, num2str(scene_id), sprintf('%d_%d_FV.mat', scene_id, unique_id));
@@ -330,7 +324,7 @@ classdef FlowConfidenceFeature < AbstractFeature
             end
             
             % delete feature vectors from scene_dir
-            fv_filename = fullfile(scene_dir, sprintf('%d_%d_FV.mat', scene_id, unique_id));
+            fv_filename = fullfile(main_scene_dir, sprintf('%d_%d_FV.mat', main_scene_id, unique_id));
             if exist(fv_filename, 'file') == 2
                 delete(fv_filename);
             end
