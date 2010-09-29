@@ -46,4 +46,7 @@ function [ extra_info ] = extraFVInfoStruct( obj, im1, im2, calc_flows )
     
     % store the CalcFlow object containing all the candidate flow algorithms
     extra_info.calc_flows = calc_flows;
+    
+    % store the settings structure
+    extra_info.settings = obj.settings;
 end

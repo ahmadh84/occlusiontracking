@@ -1,0 +1,376 @@
+classdef FlowConfidenceFeature < AbstractFeature
+    %FLOWCONFIDENCEFEATURE computes the variance of the flow vector angles 
+    %   in a small window (defined by nhood) around each pixel. The 
+    %   constructor takes a cell array of Flow objects which will be used 
+    %   for computing this feature. Second argument is of the nhood (a 5x5 
+    %   window [c r] = meshgrid(-2:2, -2:2); nhood = cat(3, r(:), c(:));).
+    %   The constructor also optionally takes a size 2 vector for computing 
+    %   the feature on scalespace (first value: number of scales, second 
+    %   value: resizing factor). If using scalespace, ComputeFeatureVectors 
+    %   object passed to calcFeatures should have 
+    %   extra_info.flow_scalespace (the scalespace structure), apart from 
+    %   image_sz. Note that it is the responsibility of the user to provide 
+    %   enough number of scales in all scalespace structure. If not 
+    %   using scalespace, extra_info.calc_flows.uv_flows is required for 
+    %   computing this feature. If using the scalespace, usually, the 
+    %   output features go up in the scalespace (increasing gaussian 
+    %   std-dev) with increasing depth.
+    %
+    %   The features are first ordered by algorithms and then with their
+    %   respective scale
+    
+    
+    properties
+        training_seqs = [];
+        training_dir;
+        confidence_epe_th = -1;
+        confidence_ae_th = -1;
+        
+        extra_id = [];
+        flow_ids = [];
+        flow_short_types = {};
+    end
+    
+    
+    properties (Constant)
+        PRECOMPUTED_FC_FILE = 'fc_%s.mat';
+        CLASSIFIER_XML_FILE = 'fc_%s_%s_%s.xml';
+        TEMP_SUBDIR = 'temp_delete_if_found'
+        
+        FEATURE_TYPE = 'Flow Confidence';
+        FEATURE_SHORT_TYPE = 'FC';
+    end
+    
+    
+    methods
+        function obj = FlowConfidenceFeature( cell_flows, training_seqs, training_dir, confidence_epe_th, confidence_ae_th )
+            assert(~isempty(cell_flows), ['There should be atleast 1 flow algorithm to compute ' class(obj)]);
+            
+            % store the flow algorithms to be used and their ids
+            for algo_idx = 1:length(cell_flows)
+                obj.flow_short_types{end+1} = cell_flows{algo_idx}.OF_SHORT_TYPE;
+                obj.flow_ids(end+1) = cell_flows{algo_idx}.returnNoID();
+            end
+            
+            obj.confidence_epe_th = confidence_epe_th;
+            obj.confidence_ae_th = confidence_ae_th;
+            obj.training_seqs = training_seqs;
+            obj.training_dir = training_dir;
+            
+            obj.extra_id = obj.getExtraID();
+        end
+        
+        
+        function [ featconf feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        % this function outputs the feature for this class, and the depth 
+        %   of this feature (number of unique features associated with this
+        %   class). The size of featconf is the same as the input image, 
+        %   with a depth equivalent to the number of flow algos times the 
+        %   number of scales
+        
+            % find which algos to use
+            algos_to_use = cellfun(@(x) find(strcmp(x, calc_feature_vec.extra_info.calc_flows.algo_ids)), obj.flow_short_types);
+
+            assert(length(algos_to_use)==length(obj.flow_short_types), ['Can''t find matching flow algorithm(s) used in computation of ' class(obj)]);
+            assert(isfield(calc_feature_vec.extra_info, 'calc_flows'), 'The CalcFlows object has not been defined in the passed ComputeFeatureVectors');
+
+            precompute_filename = sprintf(obj.PRECOMPUTED_FC_FILE, num2str(obj.returnNoID()));
+            
+            if exist(fullfile(calc_feature_vec.scene_dir, precompute_filename), 'file') == 2
+                load(fullfile(calc_feature_vec.scene_dir, precompute_filename));
+            else
+                tic;
+                
+                % make feature vector which will be used for training
+                [ settings ] = obj.prepareSettings(calc_feature_vec);
+                COMPUTE_REFRESH = 0;
+                
+                training_s = obj.training_seqs;
+                remove_seqs = false(size(training_s));
+                
+                % see if the seq. we want to test is in the training seq.s
+                for training_idx = 1:length(training_s)
+                    if strcmp(fullfile(obj.training_dir, num2str(training_s(training_idx))), calc_feature_vec.scene_dir)
+                        remove_seqs(training_idx) = 1;
+                    end
+                end
+                
+                % labels to compute on
+                labels_to_use = {FlowEPEConfidenceLabel(obj.confidence_epe_th), FlowAEConfidenceLabel(obj.confidence_ae_th)};
+                
+                % initialize the feature vector
+                featconf = zeros(calc_feature_vec.image_sz(1), calc_feature_vec.image_sz(2), length(labels_to_use)*length(obj.flow_short_types));
+                
+                % if the sequences contain the sequence we want to test
+                if any(remove_seqs)
+                    % test with a classifier which doesn't have the testing seq.
+                    %   (throw away the classifier)
+                    training_s(remove_seqs) = [];
+                    
+                    % get feature for each flow algo.
+                    for algo_idx = 1:length(obj.flow_short_types)
+                        % we want to build Photoconstancy feature for all 
+                        %   algo.s but only use one at a time in 
+                        %   training/testing
+                        settings.USE_ONLY_OF = obj.flow_short_types{algo_idx};
+                        
+                        for label_idx = 1:length(labels_to_use)
+                            no_test = ((algo_idx-1)*length(labels_to_use))+label_idx;
+                            
+                            % the labelling class used for the classifier
+                            settings.label_obj = labels_to_use{label_idx};    
+
+                            % create the main object, which creates the test and training data
+                            traintest_data = ComputeTrainTestData( obj.training_dir, fullfile(obj.training_dir, obj.TEMP_SUBDIR), settings, 0, COMPUTE_REFRESH, 1 );
+
+                            [temp scene_id] = fileparts(calc_feature_vec.scene_dir);
+                            scene_id = str2double(scene_id);
+
+                            % produce the training and testing data
+                            [ TRAIN_PATH TEST_PATH unique_id ] = traintest_data.produceTrainingTestingData(scene_id, training_s);
+
+                            PREDICTION_DATA_PATH = obj.getPredictionDataFilename(fullfile(obj.training_dir, obj.TEMP_SUBDIR), scene_id, unique_id, settings.USE_ONLY_OF);
+
+                            randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
+                                    settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
+                                    settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' "' TRAIN_PATH '" "' ...
+                                    TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+
+                            fprintf(1, '//> Running %d/%d Random Forest classifier (for FlowConfidenceFeature)\n', no_test, length(labels_to_use)*length(obj.flow_short_types));
+                            [ ret_val out ] = system(randomforest_cmd);
+
+                            % read in predicted file
+                            classifier_out = textread(PREDICTION_DATA_PATH, '%f');
+                            classifier_out = reshape(classifier_out, calc_feature_vec.image_sz(2), calc_feature_vec.image_sz(1))';   % need the transpose to read correctly
+
+                            % store the classifier output as the feature
+                            featconf(:,:,no_test) = classifier_out;
+                            
+                            % delete all the data used to build the classifier
+                            obj.deleteTrainTestData();
+                        end
+                    end
+                else
+                    unique_id = -1;
+                    
+                    % get feature for each flow algo.
+                    for algo_idx = 1:length(obj.flow_short_types)
+                        % we want to build Photoconstancy feature for all 
+                        %   algo.s but only use one at a time in 
+                        %   training/testing
+                        settings.USE_ONLY_OF = obj.flow_short_types{algo_idx};
+                        
+                        for label_idx = 1:length(labels_to_use)
+                            no_test = ((algo_idx-1)*length(labels_to_use))+label_idx;
+                            
+                            % the labelling class used for the classifier
+                            settings.label_obj = labels_to_use{label_idx};
+                            
+                            % if not then check if the classifier class file is there
+                            precompute_filename = sprintf(obj.CLASSIFIER_XML_FILE, num2str(obj.returnNoID()), settings.USE_ONLY_OF, settings.label_obj.LABEL_SHORT_TYPE);
+                            CLASS_XML_PATH = fullfile(obj.training_dir, precompute_filename);
+                            
+                            if exist(CLASS_XML_PATH, 'file') ~= 2
+                                % if not, train with the training seq. and test with the classifier built
+
+                                % create the main object, which creates the test and training data
+                                traintest_data = ComputeTrainTestData( obj.training_dir, fullfile(obj.training_dir, obj.TEMP_SUBDIR), settings, 0, COMPUTE_REFRESH, 1 );
+
+                                [temp scene_id] = fileparts(calc_feature_vec.scene_dir);
+                                scene_id = str2double(scene_id);
+                                
+                                % produce the training and testing data
+                                if unique_id == -1
+                                    [ TRAIN_PATH unique_id ] = traintest_data.produceTrainingData(scene_id, training_s);
+                                else
+                                    [ TRAIN_PATH unique_id ] = traintest_data.produceTrainingData(scene_id, training_s, unique_id);
+                                end
+
+                                randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
+                                    settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
+                                    settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' -s "' CLASS_XML_PATH '" "' ...
+                                    TRAIN_PATH '" -b'];
+                                
+                                fprintf(1, '//> Running Random Forest for building XML classifier (for FlowConfidenceFeature) - %s %s\n', settings.USE_ONLY_OF, settings.label_obj.LABEL_SHORT_TYPE);
+                                [ ret_val out ] = system(randomforest_cmd);
+                            end
+                            
+                            % once the classifier is ready
+
+                            [scene_main_dir scene_id] = fileparts(calc_feature_vec.scene_dir);
+                            scene_id = str2double(scene_id);
+                            
+                            % create the main object, which creates the training data
+                            traintest_data = ComputeTrainTestData( scene_main_dir, fullfile(obj.training_dir, obj.TEMP_SUBDIR), settings, 0, COMPUTE_REFRESH, 1 );
+                            
+                            % produce the testing data
+                            [ TEST_PATH unique_id ] = traintest_data.produceTestingData( scene_id );
+                            
+                            PREDICTION_DATA_PATH = obj.getPredictionDataFilename(fullfile(obj.training_dir, obj.TEMP_SUBDIR), scene_id, unique_id, settings.USE_ONLY_OF);
+
+                            randomforest_cmd = [settings.RANDOM_FOREST_RUN ' -l "' CLASS_XML_PATH '" "' ...
+                                    TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+
+                            fprintf(1, '//> Running %d/%d Random Forest classifier (for FlowConfidenceFeature)\n', no_test, length(labels_to_use)*length(obj.flow_short_types));
+                            [ ret_val out ] = system(randomforest_cmd);
+                            
+                            % read in predicted file
+                            classifier_out = textread(PREDICTION_DATA_PATH, '%f');
+                            classifier_out = reshape(classifier_out, calc_feature_vec.image_sz(2), calc_feature_vec.image_sz(1))';   % need the transpose to read correctly
+
+                            % store the classifier output as the feature
+                            featconf(:,:,no_test) = classifier_out;
+                            
+                            % delete all the data used to build the classifier
+                            obj.deleteTrainTestData();
+                        end
+                    end
+                end
+                
+                obj.deleteFVData(calc_feature_vec.scene_dir, obj.training_seqs, unique_id);
+                
+                fprintf(1, '//> FlowConfidenceFeature took %f secs to compute\n', toc);
+                
+                % save the classifier's output
+                save(fullfile(calc_feature_vec.scene_dir, precompute_filename), 'featconf');
+            end
+            
+            feature_depth = size(featconf,3);
+        end
+        
+        
+        function feature_no_id = returnNoID(obj)
+        % creates unique feature number, good for storing with the file
+        % name
+        
+            % create unique ID
+            nos = returnNoID@AbstractFeature(obj);
+            
+            temp = sum((obj.confidence_epe_th + obj.confidence_ae_th)*10 + obj.training_seqs.^2);
+            % get first 2 decimal digits
+            temp = mod(round(temp), 100);
+            feature_no_id = (nos*100) + temp;
+            
+            feature_no_id = feature_no_id + sum(obj.flow_ids) + obj.extra_id;
+        end
+        
+        
+        function return_feature_list = returnFeatureList(obj)
+        % creates a cell vector where each item contains a string of the
+        % feature type (in the order the will be spit out by calcFeatures)
+            
+            return_feature_list = cell(2*length(obj.flow_short_types),1);
+            
+            for flow_id = 1:length(obj.flow_short_types)
+                return_feature_list{((flow_id-1)*2)+1} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], 'End Point Error (EPE)'};
+                return_feature_list{((flow_id-1)*2)+2} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], 'Angular Error (AE)'};
+            end
+        end
+    end
+    
+    
+    methods (Access = private)
+        function [ settings ] = prepareSettings(obj, calc_feature_vec)
+            % number of examples used in training for each class
+            settings.MAX_MARKINGS_PER_LABEL = 7000;
+
+            % if you want to build Photoconstancy feature for all algo.s 
+            %   but only use one in training/testing
+            settings.USE_ONLY_OF = '';      % HuberL1OF.OF_SHORT_TYPE;
+
+            % OpenCV Random Forest parameters
+            settings.RF_MAX_DEPTH = '30';           % maximum levels in a tree
+            settings.RF_MIN_SAMPLE_COUNT = '25';    % don't split a node if less
+            settings.RF_MAX_CATEGORIES = '30';      % limits the no. of categorical values before the decision tree preclusters those categories so that it will have to test no more than 2^max_categories–2 possible value subsets. Low values reduces computation at the cost of accuracy
+            settings.RF_NO_ACTIVE_VARS = '4';       % size of randomly selected subset of features to be tested at any given node (typically the sqrt of total no. of features)
+            settings.RF_MAX_TREE_COUNT = '100';
+            settings.RF_GET_VAR_IMP = '0';          % calculate the variable importance of each feature during training (at cost of additional computation time)
+
+            % create the structure of OF algos to use and Features to compute
+            settings.cell_flows = { BlackAnandanOF, ...
+                                    TVL1OF, ...
+                                    HornSchunckOF, ...
+                                    HuberL1OF, ...
+                                    ClassicNLOF, ...
+                                    LargeDisplacementOF };
+                                
+            % no_scales     % scale
+            settings.ss_info_im1 =  [ 10             0.8 ];                                 % image pyramid to be built for im1
+            settings.ss_info_im2 =  [ 1              1 ];                                   % image pyramid to be built for im2
+            settings.uv_ss_info =   [ 10             0.8 ];
+            
+            settings.cell_features = { GradientMagFeature(settings.ss_info_im1), ....
+                                       EdgeDistFeature(settings.ss_info_im1), ...
+                                       TemporalGradFeature(settings.cell_flows, settings.uv_ss_info), ...
+                                       PhotoConstancyFeature(settings.cell_flows) };
+            
+            % store the random forest command to run
+            if exist('calc_feature_vec', 'var') == 1
+                settings.RANDOM_FOREST_RUN = calc_feature_vec.extra_info.settings.RANDOM_FOREST_RUN;
+            else
+                settings.RANDOM_FOREST_RUN = '';
+            end 
+        end
+        
+        
+        function deleteTrainTestData( obj )
+            delete(fullfile(fullfile(obj.training_dir, obj.TEMP_SUBDIR), '*_Test.data'));
+            delete(fullfile(fullfile(obj.training_dir, obj.TEMP_SUBDIR), '*_Train.data'));
+            delete(fullfile(fullfile(obj.training_dir, obj.TEMP_SUBDIR), '*_prediction.data'));
+        end
+
+
+        function deleteFVData( obj, scene_dir, training_seqs, unique_id )
+            % delete feature vectors from training sequences
+            for scene_id = training_seqs
+                fv_filename = fullfile(obj.training_dir, num2str(scene_id), sprintf('%d_%d_FV.mat', scene_id, unique_id));
+                if exist(fv_filename, 'file') == 2
+                    delete(fv_filename);
+                end
+            end
+            
+            % delete feature vectors from scene_dir
+            fv_filename = fullfile(scene_dir, sprintf('%d_%d_FV.mat', scene_id, unique_id));
+            if exist(fv_filename, 'file') == 2
+                delete(fv_filename);
+            end
+        end
+        
+        
+        function filename = getPredictionDataFilename(obj, out_dir, scene_id, comp_feat_vec_id, only_of)
+            if isnumeric(scene_id)
+                scene_id = num2str(scene_id);
+            end
+            if isnumeric(comp_feat_vec_id)
+                comp_feat_vec_id = num2str(comp_feat_vec_id);
+            end
+
+            if exist('only_of', 'var') && ~isempty(only_of)
+                filename = fullfile(out_dir, [scene_id '_' comp_feat_vec_id '_' only_of '_prediction.data']);
+            else
+                filename = fullfile(out_dir, [scene_id '_' comp_feat_vec_id '_prediction.data']);
+            end
+        end
+        
+        
+        function [ extra_id ] = getExtraID( obj )
+            settings = obj.prepareSettings();
+            
+            % calculate the id's using the settings
+            unique_id = [];
+            
+            for feature_idx = 1:length(settings.cell_features)
+                unique_id = [unique_id settings.cell_features{feature_idx}.returnNoID()];
+            end
+            
+            for algo_idx = 1:length(settings.cell_flows)
+                unique_id = [unique_id settings.cell_flows{algo_idx}.returnNoID()];
+            end
+            
+            % sum them since order doesn't matter
+            extra_id = sum(unique_id);
+        end
+    end
+    
+end
+

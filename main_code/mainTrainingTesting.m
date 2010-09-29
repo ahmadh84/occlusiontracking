@@ -8,7 +8,7 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
     end
     
     COMPUTE_REFRESH = 0;
-    RANDOM_FOREST_RUN = 'randomForest\src\predictDescriptor\Release\predictDescriptor.exe ';
+    settings.RANDOM_FOREST_RUN = 'randomForest\src\predictDescriptor\Release\predictDescriptor.exe ';
     
     
     uv_ftrs1_ss_info =            [ 10             0.8 ];   % this and the var below are there, because Temporal gradient and other features need different UV SS
@@ -33,8 +33,8 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
     % number of examples used in training for each class
     settings.MAX_MARKINGS_PER_LABEL = 7000;
     
-    % if you want to build Photoconstancy feature for all classes but only
-    % use one in training/esting
+    % if you want to build Photoconstancy feature for all algo.s but only
+    % use one in training/testing
     settings.USE_ONLY_OF = '';  % HuberL1OF.OF_SHORT_TYPE;
     
     % OpenCV Random Forest parameters
@@ -97,7 +97,7 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
             if produce_rf_xml_out == 0
                 % if you dont want to produce the xml classifier from the% RF
                 
-                randomforest_cmd = [RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
+                randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
                     settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
                     settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' "' TRAIN_PATH '" "' ...
                     TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
@@ -105,7 +105,7 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
                 % if you want to produce the xml classifier from the RF
                 CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF);
                 
-                randomforest_cmd = [RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
+                randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
                     settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
                     settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' -s "' CLASS_XML_PATH '" "' ...
                     TRAIN_PATH '" "' TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
@@ -119,7 +119,7 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
             PREDICTION_DATA_PATH = getPredictionDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
             CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF);
 
-            randomforest_cmd = [RANDOM_FOREST_RUN ' -l "' CLASS_XML_PATH '" "' ...
+            randomforest_cmd = [settings.RANDOM_FOREST_RUN ' -l "' CLASS_XML_PATH '" "' ...
                 TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
         end
         
