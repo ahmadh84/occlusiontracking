@@ -32,6 +32,8 @@ classdef OFCollidingSpeedFeature < AbstractFeature
         
         flow_ids = [];
         flow_short_types = {};
+        
+        FEATURES_PER_PIXEL_TYPES = {'MAX', 'MIN', 'VAR'};
     end
     
     
@@ -48,9 +50,6 @@ classdef OFCollidingSpeedFeature < AbstractFeature
     properties (Constant)
         FEATURE_TYPE = 'Colliding Speed';
         FEATURE_SHORT_TYPE = 'CS';
-        
-        FEATURES_PER_PIXEL = 3;
-        FEATURES_PER_PIXEL_TYPES = {'MAX', 'MIN', 'VAR'};
     end
     
     
@@ -76,6 +75,11 @@ classdef OFCollidingSpeedFeature < AbstractFeature
             if nargin > 2 && isvector(varargin{1}) && length(varargin{1}) == 2
                 obj.no_scales = varargin{1}(1);
                 obj.scale = varargin{1}(2);
+            end
+            
+            % if want to change the feature sub-types used
+            if nargin > 3 && iscell(varargin{2}) && ~isempty(varargin{2})
+                obj.FEATURES_PER_PIXEL_TYPES = varargin{2};
             end
         end
         
@@ -105,7 +109,7 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                 no_flow_algos = length(obj.flow_short_types);
                 
                 % initialize the output feature
-                colspd = zeros(calc_feature_vec.image_sz(1), calc_feature_vec.image_sz(2), no_flow_algos*obj.FEATURES_PER_PIXEL*obj.no_scales);
+                colspd = zeros(calc_feature_vec.image_sz(1), calc_feature_vec.image_sz(2), no_flow_algos*length(obj.FEATURES_PER_PIXEL_TYPES)*obj.no_scales);
 
                 % iterate for multiple scales
                 for scale_idx = 1:obj.no_scales
@@ -160,11 +164,11 @@ classdef OFCollidingSpeedFeature < AbstractFeature
         % feature type (in the order the will be spit out by calcFeatures)
             
             window_size = num2str(max((max(obj.nhood_2,[],1) - min(obj.nhood_1,[],1))+1));
-            return_feature_list = cell(obj.no_scales * obj.FEATURES_PER_PIXEL * length(obj.flow_short_types),1);
+            return_feature_list = cell(obj.no_scales * length(obj.FEATURES_PER_PIXEL_TYPES) * length(obj.flow_short_types),1);
             
             for flow_id = 1:length(obj.flow_short_types)
-                for feature_id = 1:obj.FEATURES_PER_PIXEL
-                    starting_no = ((flow_id-1)*obj.no_scales*obj.FEATURES_PER_PIXEL) + ((feature_id-1)*obj.no_scales);
+                for feature_id = 1:length(obj.FEATURES_PER_PIXEL_TYPES)
+                    starting_no = ((flow_id-1)*obj.no_scales*length(obj.FEATURES_PER_PIXEL_TYPES)) + ((feature_id-1)*obj.no_scales);
                     
                     return_feature_list{starting_no+1} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], ...
                                                           [obj.FEATURES_PER_PIXEL_TYPES{feature_id} ' feature'], ...
@@ -188,7 +192,7 @@ classdef OFCollidingSpeedFeature < AbstractFeature
             no_flow_algos = size(uv_flows, 4);
             
             % initialize the output feature
-            colspd = zeros(image_sz(1), image_sz(2), no_flow_algos*obj.FEATURES_PER_PIXEL);
+            colspd = zeros(image_sz(1), image_sz(2), no_flow_algos*length(obj.FEATURES_PER_PIXEL_TYPES));
 
             % get the nhood r and c's (each col given a neighborhood 
             %  around a pixel - nhood_r is row ind, nhood_c is col ind)
@@ -219,7 +223,7 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                 yfl = uv_flows(:,:,2,algo_idx);
 
                 % initialize the feature to return
-                features = zeros(numel(xfl), obj.FEATURES_PER_PIXEL);
+                features = zeros(numel(xfl), length(obj.FEATURES_PER_PIXEL_TYPES));
 
                 % iterate over all unique no. of pixels outside
                 for s = unique_sums
@@ -301,15 +305,22 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                     t = curr_pinv_d_u.*curr_proj_a1 + curr_pinv_d_v.*curr_proj_a2;
                     
                     if ~isempty(t)
-                        features(curr_idxs, 1) = max(t, [], 1);
-                        features(curr_idxs, 2) = min(t, [], 1);
-                        features(curr_idxs, 3) = var(t, 1, 1);
+                        % store features accordingly
+                        for feat_idx = 1:length(obj.FEATURES_PER_PIXEL_TYPES)
+                            if strcmp(obj.FEATURES_PER_PIXEL_TYPES{feat_idx}, 'MAX')
+                                features(curr_idxs, feat_idx) = max(t, [], 1);
+                            elseif strcmp(obj.FEATURES_PER_PIXEL_TYPES{feat_idx}, 'MIN')
+                                features(curr_idxs, feat_idx) = min(t, [], 1);
+                            elseif strcmp(obj.FEATURES_PER_PIXEL_TYPES{feat_idx}, 'VAR')
+                                features(curr_idxs, feat_idx) = var(t, 1, 1);
+                            end
+                        end
                     end
                 end
 
                 % store
-                for feat_idx = 1:obj.FEATURES_PER_PIXEL
-                    colspd(:,:,((algo_idx-1)*obj.FEATURES_PER_PIXEL)+feat_idx) = reshape(features(:,feat_idx), image_sz);
+                for feat_idx = 1:length(obj.FEATURES_PER_PIXEL_TYPES)
+                    colspd(:,:,((algo_idx-1)*length(obj.FEATURES_PER_PIXEL_TYPES))+feat_idx) = reshape(features(:,feat_idx), image_sz);
                 end
             end
         end
