@@ -16,8 +16,8 @@ classdef FlowConfidenceFeature < AbstractFeature
     %   output features go up in the scalespace (increasing gaussian 
     %   std-dev) with increasing depth.
     %
-    %   The features are first ordered by algorithms and then with their
-    %   respective scale
+    %   The features are first ordered by algorithms and then with End 
+    %   Point Error (EPE) and Angular Error (AE)
     
     
     properties
@@ -228,6 +228,9 @@ classdef FlowConfidenceFeature < AbstractFeature
                 % save the classifier's output
                 save(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename), 'featconf');
             end
+            
+            % remove the temporary folder if present and empty
+            rmdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR));
             
             feature_depth = size(featconf,3);
         end

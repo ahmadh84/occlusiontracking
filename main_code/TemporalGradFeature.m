@@ -80,7 +80,7 @@ classdef TemporalGradFeature < AbstractFeature
                 % iterate for multiple scales
                 for scale_idx = 1:obj.no_scales
                     % get the scale space of candidate flow algorithms
-                    uv_resized = calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx};
+                    uv_resized = calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algos_to_use);
                     
                     % get the median flow (make 2 dim matrix - quicker! :s)
                     sz_temp = size(uv_resized);
