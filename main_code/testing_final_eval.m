@@ -3,10 +3,10 @@ function [ output_args ] = testing_final_eval( input_args )
 %   Detailed explanation goes here
 
 main_dir = '../../Data/oisin+middlebury';
-out_dir = 'D:/ahumayun/Results/features_comparison_tests2';
+out_dir = 'H:/TEMP/';
 
 training_seq = [4 5 9 10 11 12 13 14 18 19];
-testing_seq = [4 5 9 10 11 12 13 14 18 19];
+testing_seq = [1];
     
 override_settings = struct;
 uv_ftrs1_ss_info =               [ 10             0.8 ];   % this and the var below are there, because Temporal gradient and other features need different UV SS
@@ -41,7 +41,7 @@ override_settings.cell_features = { EdgeDistFeature(override_settings.ss_info_im
                                     ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                     ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
 
-[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings, 1 );
 
 deleteTrainTestData(temp_out_dir);
 deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);

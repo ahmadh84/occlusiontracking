@@ -4,8 +4,8 @@ function [ output_args ] = store_st( input_args )
 
     addpath('main_code\algorithms\Sparse Set Texture Features');
     
-    sequences = 7:25;
-    main_dir = '../Data/oisin+middlebury';
+    sequences = [12  13  16  23  24  27  28  29  3  30  7  8];
+    main_dir = 'H:/evaluation_data/walking_legs/';
     store_texture = 'sparsetextures.mat';
     
     for sequence_no = sequences
