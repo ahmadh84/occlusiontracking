@@ -14,9 +14,11 @@ classdef ClassicNLOF < AbstractOF
     
     
     methods (Static)
-        function uv_cn = calcFlow(im1, im2)
+        function [ uv_cn cn_compute_time ] = calcFlow(im1, im2)
             % calculates the Sun's Classic NL flow
             fprintf('--> Computing Classic NL flow\n');
+            
+            tic;
             
             % add paths for all the flow algorithms
             CalcFlows.addPaths();
@@ -28,6 +30,8 @@ classdef ClassicNLOF < AbstractOF
             
             % remove the algo sub-directories after computation
             rmpath(sub_dirs);
+            
+            cn_compute_time = toc;
         end
     end
     

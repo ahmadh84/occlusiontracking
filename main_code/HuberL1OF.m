@@ -11,9 +11,11 @@ classdef HuberL1OF < AbstractOF
     
     
     methods (Static)
-        function uv_fl = calcFlow( im1, im2 )
+        function [ uv_fl fl_compute_time ] = calcFlow( im1, im2 )
             % calculates the anisotropic Huber-L1 flow
             fprintf('--> Computing Huber-L1 flow\n');
+            
+            tic;
             
             % add paths for all the flow algorithms
             CalcFlows.addPaths();
@@ -38,6 +40,8 @@ classdef HuberL1OF < AbstractOF
             cd(curr_path);
             delete(curr_path_im1);
             delete(curr_path_im2);
+            
+            fl_compute_time = toc;
         end
     end
     

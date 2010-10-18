@@ -8,7 +8,7 @@ classdef AbstractOF
     
     
     methods (Abstract, Static)
-        uv_of = calcFlow( im1, im2 )
+        [ uv_of compute_time ] = calcFlow( im1, im2 )
     end
     
     

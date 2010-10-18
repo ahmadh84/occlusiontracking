@@ -11,14 +11,18 @@ classdef TVL1OF < AbstractOF
     
     
     methods (Static)
-        function uv_tv = calcFlow(im1, im2)
+        function [ uv_tv tv_compute_time ] = calcFlow(im1, im2)
             % calculates the TV-L1 flow
             fprintf('--> Computing TV-L1 flow\n');
+            
+            tic;
             
             % add paths for all the flow algorithms
             CalcFlows.addPaths();
             
             uv_tv = tvl1of(im1, im2);
+            
+            tv_compute_time = toc;
         end
     end
     

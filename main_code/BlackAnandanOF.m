@@ -13,9 +13,11 @@ classdef BlackAnandanOF < AbstractOF
     
 
     methods (Static)
-        function uv_ba = calcFlow(im1, im2)
+        function [ uv_ba ba_compute_time ] = calcFlow(im1, im2)
             % calculates the Black Anandan flow
             fprintf('--> Computing Black Anandan flow\n');
+            
+            tic;
             
             % add paths for all the flow algorithms
             CalcFlows.addPaths();
@@ -27,6 +29,8 @@ classdef BlackAnandanOF < AbstractOF
             
             % remove the algo sub-directories after computation
             rmpath(sub_dirs);
+            
+            ba_compute_time = toc;
         end
     end
 end
