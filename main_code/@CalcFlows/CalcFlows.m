@@ -36,6 +36,8 @@ classdef CalcFlows < handle
         algo_avg_epe = [];
         opt_avg_epe = 0.0;
         compute_reverse = 1;
+        flow_compute_times = [];
+        flow_extra_time = 0.0;
         
         silent_mode = 0;
     end
@@ -63,6 +65,8 @@ classdef CalcFlows < handle
             % store all flow algo objects
             obj.cell_flow_algos = cell_flows;
             obj.no_algos = length(obj.cell_flow_algos);
+            
+            obj.flow_compute_times = zeros(1, length(obj.cell_flow_algos));
             
             % load images
             obj.im1 = imread(fullfile(obj.scene_dir, ComputeTrainTestData.IM1_PNG));

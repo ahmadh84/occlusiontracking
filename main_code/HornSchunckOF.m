@@ -12,9 +12,11 @@ classdef HornSchunckOF < AbstractOF
     
     
     methods (Static)
-        function uv_hs = calcFlow(im1, im2)
+        function [ uv_hs hs_compute_time ] = calcFlow(im1, im2)
             % calculates the Horn Schunk flow
             fprintf('--> Computing Horn Schunk flow\n');
+            
+            tic;
             
             % add paths for all the flow algorithms
             CalcFlows.addPaths();
@@ -26,6 +28,8 @@ classdef HornSchunckOF < AbstractOF
             
             % remove the algo sub-directories after computation
             rmpath(sub_dirs);
+            
+            hs_compute_time = toc;
         end
     end
 end

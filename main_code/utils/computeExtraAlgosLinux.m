@@ -9,6 +9,7 @@ function computeExtraAlgosLinux( sequences )
     flowsave_filenames = { 'largedispof.mat' };
     flowsave_varnames = { 'uv_ld' };
     flowsave_r_varnames = { 'uv_ld_r' };
+    flowsave_time_varnames = { 'ld_compute_time' };
     
     cell_flows = { LargeDisplacementOF };
     
@@ -26,14 +27,17 @@ function computeExtraAlgosLinux( sequences )
         end
         
         for algo_idx = 1:length(cell_flows)
-            temp = cell_flows{algo_idx}.calcFlow(im1, im2);
+            [ temp time1 ] = cell_flows{algo_idx}.calcFlow(im1, im2);
             eval([flowsave_varnames{algo_idx} ' = temp;']);
             
-            temp = cell_flows{algo_idx}.calcFlow(im2, im1);
+            [ temp time2 ] = cell_flows{algo_idx}.calcFlow(im2, im1);
             eval([flowsave_r_varnames{algo_idx} ' = temp;']);
             
+            time1 = time1 + time2;
+            eval([flowsave_time_varnames{algo_idx} ' = time1;']);
+            
             mat_filepath = fullfile(scene_dir, flowsave_filenames{algo_idx});
-            save(mat_filepath, flowsave_varnames{algo_idx}, flowsave_r_varnames{algo_idx});
+            save(mat_filepath, flowsave_varnames{algo_idx}, flowsave_r_varnames{algo_idx}, flowsave_time_varnames{algo_idx});
         end
     end
 
