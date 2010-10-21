@@ -25,7 +25,7 @@ classdef ComputeFeatureVectors < handle
         features = [];
         feature_depths = [];
         feature_types = {};
-        
+        feature_compute_times = [];
         extra_id = 0;
         
         silent_mode = 0;
@@ -45,6 +45,8 @@ classdef ComputeFeatureVectors < handle
             % store all feature objects
             obj.cell_features = cell_features;
             obj.no_feature_types = length(obj.cell_features);
+            
+            obj.feature_compute_times = zeros(1, length(obj.cell_features));
             
             % load images
             obj.im1 = imread(fullfile(obj.scene_dir, ComputeTrainTestData.IM1_PNG));

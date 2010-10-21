@@ -32,12 +32,14 @@ classdef EdgeDistFeature < AbstractFeature
         end
         
         
-        function [ dist feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        function [ dist feature_depth compute_time ] = calcFeatures( obj, calc_feature_vec )
         % this function outputs the feature for this class, and the depth 
         %   of this feature (number of unique features associated with this
         %   class). The size of dist is the same as the input image, with a
         %   depth equivalent to the number of scales
         
+            t_start_main = tic;
+            
             if obj.no_scales > 1
                 assert(~isempty(fields(calc_feature_vec.im1_scalespace)), 'The scale space for im 1 has not been defined in the passed ComputeFeatureVectors');
                 
@@ -67,6 +69,8 @@ classdef EdgeDistFeature < AbstractFeature
             end
             
             feature_depth = size(dist,3);
+            
+            compute_time = toc(t_start_main);
         end
         
         

@@ -21,6 +21,10 @@ classdef ClassifierOutputHandler < handle
         classifier_train_err;
         classifier_test_err;
         
+        feature_compute_times = [];
+        flow_compute_times = [];
+        extra_compute_times = {};
+        
         tpr = [];
         fpr = [];
         thresholds = 0:0.001:1;
@@ -36,7 +40,7 @@ classdef ClassifierOutputHandler < handle
     
     
     methods
-        function obj = ClassifierOutputHandler( out_dir, scene_id, prediction_out_filepath, traintest_data, classifier_console_out, settings )
+        function obj = ClassifierOutputHandler( out_dir, scene_id, prediction_out_filepath, traintest_data, classifier_info, settings )
             obj.out_dir = out_dir;
             obj.scene_id = scene_id;
             [ obj.comp_feat_vec obj.calc_flows ] = traintest_data.getFeatureVecAndFlow(scene_id);
@@ -46,12 +50,17 @@ classdef ClassifierOutputHandler < handle
             obj.feature_depths = obj.comp_feat_vec.feature_depths;
             obj.feature_types = obj.comp_feat_vec.feature_types;
             
+            obj.feature_compute_times = obj.comp_feat_vec.feature_compute_times;
+            obj.flow_compute_times = obj.calc_flows.flow_compute_times;
+            obj.extra_compute_times = [obj.extra_compute_times; {'extra_calcflows_time', obj.calc_flows.flow_extra_time}];
+            obj.extra_compute_times = [obj.extra_compute_times; {'classifier_compute_time', classifier_info.classifier_time}];
+            
             % read in predicted file
             obj.classifier_out = textread(prediction_out_filepath, '%f');
             obj.classifier_out = reshape(obj.classifier_out, obj.comp_feat_vec.image_sz(2), obj.comp_feat_vec.image_sz(1))';   % need the transpose to read correctly
             
             % get all the info. from the console output of the classifier
-            obj.manageConsoleOutput( classifier_console_out );
+            obj.manageConsoleOutput( classifier_info.classifier_console_out );
             
             % get the ROC statistics
             obj.computeROC();

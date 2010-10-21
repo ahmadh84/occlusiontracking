@@ -193,6 +193,8 @@ classdef CalcFlows < handle
                     addpath(fullfile(CalcFlows.ALGOS_PATH, d(idx).name));
                 end
             end
+            
+            addpath(fullfile(CalcFlows.ALGOS_PATH, 'segbench/lib/matlab'));
         end
     end
 end

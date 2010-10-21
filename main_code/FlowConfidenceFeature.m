@@ -61,13 +61,16 @@ classdef FlowConfidenceFeature < AbstractFeature
         end
         
         
-        function [ featconf feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        function [ featconf feature_depth compute_time ] = calcFeatures( obj, calc_feature_vec )
         % this function outputs the feature for this class, and the depth 
         %   of this feature (number of unique features associated with this
         %   class). The size of featconf is the same as the input image, 
         %   with a depth equivalent to the number of flow algos times the 
         %   number of scales
         
+            t_start_main = tic;
+            compute_time = {'totaltime', 0.0; 'fc_confidence', 0.0};
+            
             % find which algos to use
             algos_to_use = cellfun(@(x) find(strcmp(x, calc_feature_vec.extra_info.calc_flows.algo_ids)), obj.flow_short_types);
 
@@ -78,8 +81,11 @@ classdef FlowConfidenceFeature < AbstractFeature
             
             if exist(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename), 'file') == 2
                 load(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename));
+
+                compute_time{2,2} = fc_compute_time;
+                compute_time{1,2} = compute_time{1,2} + compute_time{2,2};
             else
-                tic;
+                t_start_fc = tic;
                 
                 % make feature vector which will be used for training
                 [ settings ] = obj.prepareSettings(calc_feature_vec);
@@ -223,16 +229,23 @@ classdef FlowConfidenceFeature < AbstractFeature
                 
                 obj.deleteFVData(calc_feature_vec.scene_dir, scene_id, obj.training_seqs, unique_id);
                 
-                fprintf(1, '//> FlowConfidenceFeature took %f secs to compute\n', toc);
+                fc_compute_time = toc(t_start_fc);
+                fprintf(1, '//> FlowConfidenceFeature took %f secs to compute\n', fc_compute_time);
                 
                 % save the classifier's output
-                save(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename), 'featconf');
+                save(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename), 'featconf', 'fc_compute_time');
+                
+                compute_time{2,2} = fc_compute_time;
             end
             
             % remove the temporary folder if present and empty
-            rmdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR));
+            if isdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR))
+                rmdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR));
+            end
             
             feature_depth = size(featconf,3);
+            
+            compute_time{1,2} = compute_time{1,2} + toc(t_start_main);
         end
         
         

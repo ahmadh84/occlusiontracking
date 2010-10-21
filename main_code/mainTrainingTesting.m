@@ -126,12 +126,16 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
         fprintf(1, '\nRunning Random Forest classifier (get some coffee - this will take time!)\n');
         tic;
         [ ret_val out ] = system(randomforest_cmd);
-        fprintf(1, 'Random Forest classifier took %f secs\n', toc);
+        classification_time = toc;
+        fprintf(1, 'Random Forest classifier took %f secs\n', classification_time);
+        
+        classifier_info.classifier_console_out = out;
+        classifier_info.classifier_time = classification_time;
         
         if ret_val == 0
             fprintf(1, 'Done - Success!\n');
 
-            output_handler = ClassifierOutputHandler( out_dir, scene_id, PREDICTION_DATA_PATH, traintest_data, out, settings );
+            output_handler = ClassifierOutputHandler( out_dir, scene_id, PREDICTION_DATA_PATH, traintest_data, classifier_info, settings );
             output_handler.printPosteriorImage();
             output_handler.printROCCurve();
             output_handler.printRFFeatureImp();

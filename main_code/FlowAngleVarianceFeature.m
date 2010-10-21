@@ -53,12 +53,14 @@ classdef FlowAngleVarianceFeature < AbstractFeature
         end
         
         
-        function [ flowangvar feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        function [ flowangvar feature_depth compute_time ] = calcFeatures( obj, calc_feature_vec )
         % this function outputs the feature for this class, and the depth 
         %   of this feature (number of unique features associated with this
         %   class). The size of flowangvar is the same as the input image, 
         %   with a depth equivalent to the number of scales
 
+            t_start_main = tic;
+            
             % find which algos to use
             algos_to_use = cellfun(@(x) find(strcmp(x, calc_feature_vec.extra_info.calc_flows.algo_ids)), obj.flow_short_types);
 
@@ -112,6 +114,8 @@ classdef FlowAngleVarianceFeature < AbstractFeature
             end
             
             feature_depth = size(flowangvar,3);
+            
+            compute_time = toc(t_start_main);
         end
         
         
