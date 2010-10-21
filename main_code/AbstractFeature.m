@@ -8,7 +8,7 @@ classdef AbstractFeature
     
     
     methods (Abstract)
-        [ grad feature_depth ] = calcFeatures( obj, calc_feature_vec );
+        [ grad feature_depth compute_time ] = calcFeatures( obj, calc_feature_vec );
     end
     
     

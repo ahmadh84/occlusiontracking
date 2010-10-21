@@ -57,13 +57,15 @@ classdef OFLengthVarianceFeature < AbstractFeature
         end
         
         
-        function [ lenvar feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        function [ lenvar feature_depth compute_time ] = calcFeatures( obj, calc_feature_vec )
         % this function outputs the feature for this class, and the depth 
         %   of this feature (number of unique features associated with this
         %   class). The size of lenvar is the same as the input image, 
         %   with a depth equivalent to the number of flow algos times the 
         %   number of scales
         
+            t_start_main = tic;
+            
             % find which algos to use
             algos_to_use = cellfun(@(x) find(strcmp(x, calc_feature_vec.extra_info.calc_flows.algo_ids)), obj.flow_short_types);
 
@@ -107,6 +109,8 @@ classdef OFLengthVarianceFeature < AbstractFeature
             end
             
             feature_depth = size(lenvar,3);
+            
+            compute_time = toc(t_start_main);
         end
             
         

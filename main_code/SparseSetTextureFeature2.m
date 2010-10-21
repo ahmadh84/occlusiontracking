@@ -64,13 +64,16 @@ classdef SparseSetTextureFeature2 < AbstractFeature
         end
         
         
-        function [ texturediff feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        function [ texturediff feature_depth compute_time ] = calcFeatures( obj, calc_feature_vec )
         % this function outputs the feature for this class, and the depth 
         %   of this feature (number of unique features associated with this
         %   class). The size of texturediff is the same as the input image, 
         %   with a depth equivalent to the number of flow algos times the 
         %   number of scales
         
+            t_start_main = tic;
+            compute_time = {'totaltime', 0.0; 'st_texture', 0.0};
+            
             if obj.no_scales > 1
                 error('SparseSetTextureFeature2:NoScale', 'Scale code hasn''t been implemented');
                 
@@ -155,13 +158,20 @@ classdef SparseSetTextureFeature2 < AbstractFeature
                     load(fullfile(calc_feature_vec.scene_dir, obj.PRECOMPUTED_ST_FILE));
                     sparsesettext1 = T1;
                     sparsesettext2 = T2;
+                    
+                    compute_time{2,2} = st_compute_time;
+                    compute_time{1,2} = compute_time{1,2} + compute_time{2,2};
                 else
                     % compute sparse set of texture features for both images
+                    t_start_texture = tic;
                     sparsesettext1 = obj.computeSparseSetTexture( calc_feature_vec.im1 );
                     sparsesettext2 = obj.computeSparseSetTexture( calc_feature_vec.im2 );
                     T1 = sparsesettext1;
                     T2 = sparsesettext2;
-                    save(fullfile(calc_feature_vec.scene_dir, obj.PRECOMPUTED_ST_FILE), 'T1', 'T2');
+                    st_compute_time = toc(t_start_texture);
+                    save(fullfile(calc_feature_vec.scene_dir, obj.PRECOMPUTED_ST_FILE), 'T1', 'T2', 'st_compute_time');
+                    
+                    compute_time{2,2} = st_compute_time;
                 end
                 
                 [ W1 ] = obj.window_texture( sparsesettext1 );
@@ -205,6 +215,8 @@ classdef SparseSetTextureFeature2 < AbstractFeature
             end
             
             feature_depth = size(texturediff,3);
+            
+            compute_time{1,2} = compute_time{1,2} + toc(t_start_main);
         end
             
         

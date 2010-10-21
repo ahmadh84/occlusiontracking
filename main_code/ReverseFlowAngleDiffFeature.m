@@ -59,13 +59,15 @@ classdef ReverseFlowAngleDiffFeature < AbstractFeature
         end
         
         
-        function [ revangdiff feature_depth ] = calcFeatures( obj, calc_feature_vec )
+        function [ revangdiff feature_depth compute_time ] = calcFeatures( obj, calc_feature_vec )
         % this function outputs the feature for this class, and the depth 
         %   of this feature (number of unique features associated with this
         %   class). The size of revangdiff is the same as the input image, 
         %   with a depth equivalent to the number of flow algos times the 
         %   number of scales
         
+            t_start_main = tic;
+            
             if obj.no_scales > 1
                 assert(isfield(calc_feature_vec.extra_info, 'flow_scalespace') && ...
                     ~isempty(fields(calc_feature_vec.extra_info.flow_scalespace)) && ...
@@ -193,6 +195,8 @@ classdef ReverseFlowAngleDiffFeature < AbstractFeature
             end
             
             feature_depth = size(revangdiff,3);
+            
+            compute_time = toc(t_start_main);
         end
             
         
