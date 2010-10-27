@@ -1,5 +1,6 @@
-classdef FlowConfidenceFeature < AbstractFeature
-    %FLOWCONFIDENCEFEATURE computes the variance of the flow vector angles 
+classdef FlowConfidenceSingleFrameFeature < AbstractFeature
+    %FLOWCONFIDENCESINGLEFRAMEFEATURE computes the variance of the flow 
+    %   vector angles 
     %   in a small window (defined by nhood) around each pixel. The 
     %   constructor takes a cell array of Flow objects which will be used 
     %   for computing this feature. Second argument is of the nhood (a 5x5 
@@ -37,13 +38,13 @@ classdef FlowConfidenceFeature < AbstractFeature
         CLASSIFIER_XML_FILE = 'fc_%s_%s_%s.xml';
         TEMP_SUBDIR = 'temp_delete_if_found'
         
-        FEATURE_TYPE = 'Flow Confidence';
-        FEATURE_SHORT_TYPE = 'FC';
+        FEATURE_TYPE = 'Flow Confidence Single Frame';
+        FEATURE_SHORT_TYPE = 'FCsf';
     end
     
     
     methods
-        function obj = FlowConfidenceFeature( cell_flows, training_seqs, training_dir, confidence_epe_th, confidence_ae_th )
+        function obj = FlowConfidenceSingleFrameFeature( cell_flows, training_seqs, training_dir, confidence_epe_th, confidence_ae_th )
             assert(~isempty(cell_flows), ['There should be atleast 1 flow algorithm to compute ' class(obj)]);
             
             % store the flow algorithms to be used and their ids
@@ -142,7 +143,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                                     settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' "' TRAIN_PATH '" "' ...
                                     TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
 
-                            fprintf(1, '//> Running %d/%d Random Forest classifier (for FlowConfidenceFeature)\n', no_test, length(labels_to_use)*length(obj.flow_short_types));
+                            fprintf(1, '//> Running %d/%d Random Forest classifier (for FlowConfidenceSingleFrameFeature)\n', no_test, length(labels_to_use)*length(obj.flow_short_types));
                             [ ret_val out ] = system(randomforest_cmd);
 
                             % read in predicted file
@@ -194,7 +195,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                                     settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' -s "' CLASS_XML_PATH '" "' ...
                                     TRAIN_PATH '" -b'];
                                 
-                                fprintf(1, '//> Running Random Forest for building XML classifier (for FlowConfidenceFeature) - %s %s\n', settings.USE_ONLY_OF, settings.label_obj.LABEL_SHORT_TYPE);
+                                fprintf(1, '//> Running Random Forest for building XML classifier (for FlowConfidenceSingleFrameFeature) - %s %s\n', settings.USE_ONLY_OF, settings.label_obj.LABEL_SHORT_TYPE);
                                 [ ret_val out ] = system(randomforest_cmd);
                             end
                             
@@ -211,7 +212,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                             randomforest_cmd = [settings.RANDOM_FOREST_RUN ' -l "' CLASS_XML_PATH '" "' ...
                                     TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
 
-                            fprintf(1, '//> Running %d/%d Random Forest classifier (for FlowConfidenceFeature)\n', no_test, length(labels_to_use)*length(obj.flow_short_types));
+                            fprintf(1, '//> Running %d/%d Random Forest classifier (for FlowConfidenceSingleFrameFeature)\n', no_test, length(labels_to_use)*length(obj.flow_short_types));
                             [ ret_val out ] = system(randomforest_cmd);
                             
                             % read in predicted file
@@ -230,7 +231,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                 obj.deleteFVData(calc_feature_vec.scene_dir, scene_id, obj.training_seqs, unique_id);
                 
                 fc_compute_time = toc(t_start_fc);
-                fprintf(1, '//> FlowConfidenceFeature took %f secs to compute\n', fc_compute_time);
+                fprintf(1, '//> FlowConfidenceSingleFrameFeature took %f secs to compute\n', fc_compute_time);
                 
                 % save the classifier's output
                 save(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename), 'featconf', 'fc_compute_time');
@@ -305,9 +306,7 @@ classdef FlowConfidenceFeature < AbstractFeature
             settings.uv_ss_info =   [ 10             0.8 ];
             
             settings.cell_features = { GradientMagFeature(settings.ss_info_im1), ....
-                                       EdgeDistFeature(settings.ss_info_im1), ...
-                                       TemporalGradFeature(settings.cell_flows, settings.uv_ss_info), ...
-                                       PhotoConstancyFeature(settings.cell_flows) };
+                                       EdgeDistFeature(settings.ss_info_im1) };
             
             % store the random forest command to run
             if exist('calc_feature_vec', 'var') == 1

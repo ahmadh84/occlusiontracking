@@ -8,12 +8,12 @@ function store_pb()
     main_dir = '../Data/oisin+middlebury';
     pbedgeStore(main_dir, sequences);
     
-    sequences = 1:24;
-    main_dir = '../Data/evaluation_data';
-    pbedgeStore(main_dir, sequences);
-    
     sequences = 1:30;
     main_dir = '../Data/evaluation_data/stein';
+    pbedgeStore(main_dir, sequences);
+    
+    sequences = 1:24;
+    main_dir = '../Data/evaluation_data';
     pbedgeStore(main_dir, sequences);
     
     sequences = 1:36;
