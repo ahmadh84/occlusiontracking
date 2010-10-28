@@ -61,7 +61,7 @@ classdef PbEdgeStrengthFeature < AbstractFeature
                     pbedge(:,:,scale_idx) = imresize(pbedge_temp, calc_feature_vec.image_sz);
                 end
             else
-                [ pbedge compute_time ] = obj.getPbFromFile(calc_feature_vec, compute_time);
+                [ pbedge pbtheta compute_time ] = PbEdgeStrengthFeature.getPbFromFile(calc_feature_vec, compute_time);
                 
                 % compute distance transform and resize it to the original image size
                 pbedge = imresize(double(bwdist(pbedge > obj.threshold_pb)), calc_feature_vec.image_sz);
@@ -91,11 +91,11 @@ classdef PbEdgeStrengthFeature < AbstractFeature
     end
     
     
-    methods (Access = private)
-        function [ pbedge compute_time ] = getPbFromFile(obj, calc_feature_vec, compute_time)
+    methods (Static)
+        function [ pbedge pbtheta compute_time ] = getPbFromFile(calc_feature_vec, compute_time)
             % if precomputed pb exists
-            if exist(fullfile(calc_feature_vec.scene_dir, obj.PRECOMPUTED_PB_FILE), 'file') == 2
-                load(fullfile(calc_feature_vec.scene_dir, obj.PRECOMPUTED_PB_FILE));
+            if exist(fullfile(calc_feature_vec.scene_dir, PbEdgeStrengthFeature.PRECOMPUTED_PB_FILE), 'file') == 2
+                load(fullfile(calc_feature_vec.scene_dir, PbEdgeStrengthFeature.PRECOMPUTED_PB_FILE));
 
                 compute_time{2,2} = pbedge_compute_time;
                 compute_time{1,2} = compute_time{1,2} + compute_time{2,2};
@@ -103,18 +103,20 @@ classdef PbEdgeStrengthFeature < AbstractFeature
                 % compute the probability of boundary
                 t_start_pb = tic;
                 if size(calc_feature_vec.im1,3) == 1
-                    [ pbedge ] = pbBGTG(im2double(calc_feature_vec.im1));
+                    [ pbedge, pbtheta ] = pbBGTG(im2double(calc_feature_vec.im1));
                 else
-                    [ pbedge ] = pbCGTG(im2double(calc_feature_vec.im1));
+                    [ pbedge, pbtheta ] = pbCGTG(im2double(calc_feature_vec.im1));
                 end
                 pbedge_compute_time = toc(t_start_pb);
-                save(fullfile(calc_feature_vec.scene_dir, obj.PRECOMPUTED_PB_FILE), 'pbedge', 'pbedge_compute_time');
+                save(fullfile(calc_feature_vec.scene_dir, PbEdgeStrengthFeature.PRECOMPUTED_PB_FILE), 'pbedge', 'pbtheta', 'pbedge_compute_time');
 
                 compute_time{2,2} = pbedge_compute_time;
             end
         end
-        
-        
+    end
+    
+    
+    methods (Access = private)    
         function [ pbedge_ss compute_time ] = getSSPbFromFile(obj, calc_feature_vec, compute_time)
             ss_pb_file = sprintf(obj.PRECOMPUTED_SS_PB_FILE, num2str(obj.no_scales), num2str(obj.scale));
             
@@ -127,7 +129,7 @@ classdef PbEdgeStrengthFeature < AbstractFeature
             else
                 % compute the probability of boundary
                 pbedge_ss = {};
-                [ pbedge compute_time ] = obj.getPbFromFile(calc_feature_vec, compute_time);
+                [ pbedge pbtheta compute_time ] = PbEdgeStrengthFeature.getPbFromFile(calc_feature_vec, compute_time);
                 pbedge_ss = [pbedge_ss; {pbedge}];
                 
                 t_start_pb = tic;
