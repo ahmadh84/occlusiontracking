@@ -72,7 +72,7 @@ classdef SPFlowBoundaryFeature < AbstractFeature
         %   depth equivalent to the number of scales
         
             t_start_main = tic;
-            compute_time = {'totaltime', 0.0; 'pb_edge', 0.0, 'pb_sp', 0.0};
+            compute_time = {'totaltime', 0.0; 'pb_edge', 0.0; 'pb_sp', 0.0};
             
             % find which algos to use
             algos_to_use = cellfun(@(x) find(strcmp(x, calc_feature_vec.extra_info.calc_flows.algo_ids)), obj.flow_short_types);
@@ -87,7 +87,7 @@ classdef SPFlowBoundaryFeature < AbstractFeature
             
             feature_depth = size(flowdisct,3);
             
-            compute_time = toc(t_start_main);
+            compute_time{1,2} = compute_time{1,2} + toc(t_start_main);
         end
         
         
@@ -100,7 +100,7 @@ classdef SPFlowBoundaryFeature < AbstractFeature
             
             temp = obj.N_sp + obj.N_sp2;
             % get first 2 decimal digits
-            temp = mod(round(temp*10000), 10000) + obj.N_ev.^2;
+            temp = mod(temp, 10000) + obj.N_ev.^2;
             feature_no_id = (nos*100) + temp + sum(obj.flow_ids) + obj.std_smooth;
         end
         
@@ -158,10 +158,10 @@ classdef SPFlowBoundaryFeature < AbstractFeature
                 par.pb_ephase = ephase;
                 clear emag ephase;
                 
-                fprintf(1, 'Ncutting...');
+                fprintf(1, 'Ncutting...\n');
                 [Sp,Seg] = imncut_sp(calc_feature_vec.im1, par);
                 
-                fprintf(1, 'Fine scale superpixel computation...');
+                fprintf(1, 'Fine scale superpixel computation...\n');
                 Sp2 = clusterLocations(Sp,ceil(N*M/obj.N_sp2));
                 
                 sp_compute_time = toc(t_start_sp);
@@ -178,7 +178,7 @@ classdef SPFlowBoundaryFeature < AbstractFeature
 
             % get the median flow (make 2 dim matrix - quicker! :s)
             sz_temp = size(uv_flow);
-            uv_flow = reshape(uv_flow, [sz_temp(1)*sz_temp(2)*sz_temp(3) size(uv_resized,4)]);
+            uv_flow = reshape(uv_flow, [sz_temp(1)*sz_temp(2)*sz_temp(3) sz_temp(4)]);
             median_flow = median(uv_flow, 2);
             median_flow = reshape(median_flow, [sz_temp(1) sz_temp(2) sz_temp(3)]);
 
@@ -196,23 +196,23 @@ classdef SPFlowBoundaryFeature < AbstractFeature
             avF(:,:,2) = fy;
 
             % original gradient magnitude
-            figure;imagesc(flowToColor(median_flow));colorbar
+%             figure;imagesc(flowToColor(median_flow));colorbar
             [xdx, xdy] = gradient(median_flow(:,:,1));
             [ydx, ydy] = gradient(median_flow(:,:,2));
             gm = sqrt(xdx.^2+xdy.^2+ydx.^2+ydy.^2);
-            figure;imagesc(gm./max(gm(:)));colorbar
+%             figure;imagesc(gm./max(gm(:)));colorbar
 
             % sp flow
-            figure;imagesc(flowToColor(avF));colorbar
+%             figure;imagesc(flowToColor(avF));colorbar
             [xdx, xdy] = gradient(avF(:,:,1));
             [ydx, ydy] = gradient(avF(:,:,2));
             gmSP = sqrt(xdx.^2+xdy.^2+ydx.^2+ydy.^2);
-            figure;imagesc(gmSP./max(gmSP(:)));colorbar
+%             figure;imagesc(gmSP./max(gmSP(:)));colorbar
 
             % gauss blur
             G = fspecial('gaussian', (obj.std_smooth*3*2)+1, obj.std_smooth);
             feature = imfilter(gmSP./max(gmSP(:)),G,'replicate');
-            figure;imagesc(gmSpBl./max(feature(:)));colorbar
+%             figure;imagesc(feature./max(feature(:)));colorbar
         end
     end
 end
