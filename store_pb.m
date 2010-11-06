@@ -4,13 +4,6 @@ function store_pb()
 
     addpath('main_code\algorithms\segbench\lib\matlab');
     
-    sequences = 1:29;
-    main_dir = '../Data/oisin+middlebury';
-    pbedgeStore(main_dir, sequences);
-    
-    sequences = 1:30;
-    main_dir = '../Data/evaluation_data/stein';
-    pbedgeStore(main_dir, sequences);
     
     sequences = 1:24;
     main_dir = '../Data/evaluation_data';
@@ -36,13 +29,13 @@ function pbedgeStore(main_dir, sequences)
         tic;
         % compute the probability of boundary
         if size(i1,3) == 1
-            [ pbedge ] = pbBGTG(im2double(i1));
+            [ pbedge, pbtheta ] = pbBGTG(im2double(i1));
         else
-            [ pbedge ] = pbCGTG(im2double(i1));
+            [ pbedge, pbtheta ] = pbCGTG(im2double(i1));
         end
         pbedge_compute_time = toc;
         
-        save(fullfile(main_dir, num2str(sequence_no), store_texture), 'pbedge', 'pbedge_compute_time');
+        save(fullfile(main_dir, num2str(sequence_no), store_texture), 'pbedge', 'pbtheta', 'pbedge_compute_time');
     end
 end
 

@@ -14,7 +14,7 @@ function computeAllFeatures( obj )
     end
 
     % to keep track times from repeat computations (loaded from disk)
-    compute_time_ticked = {};
+    compute_time_ticked = cell(0,2);
     
     % iterate and compute all the features provided
     for feature_idx = 1:obj.no_feature_types
@@ -34,7 +34,7 @@ function computeAllFeatures( obj )
             remove_list = [];
             for time_idx = 1:size(feature_compute_time,1)
                 % if already timed - remove from total time
-                if any(strcmpi(compute_time_ticked, feature_compute_time{time_idx,1}))
+                if any(strcmpi(compute_time_ticked(:,1), feature_compute_time{time_idx,1}))
                     total_time = total_time - feature_compute_time{time_idx,2};
                     remove_list = [remove_list time_idx];
                 end

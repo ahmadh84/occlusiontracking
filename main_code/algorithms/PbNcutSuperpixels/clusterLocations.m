@@ -14,7 +14,9 @@ for k_i=1:K
   l_this = ceil(length(xx)/p_max);
   
   if l_this > 1
-    idx = kmeans([xx yy],l_this,'Start','sample','Replicates',10,'EmptyAction','singleton');
+%     idx = kmeansK([xx yy],l_this,'Start','sample','Replicates',10,'EmptyAction','singleton');
+    idx = kmeansK([xx yy],l_this);
+    idx = double(idx);
   else
     idx = ones(size(xx));
   end

@@ -158,7 +158,9 @@ for c_i=cc
   N_this = max(1,round(N_clusters * length(inds_use)/np));
 
   if N_this>1
-    Sp_this = kmeans(V_use,N_this,'Start','sample','Replicates',5,'EmptyAction','singleton');  
+%       Sp_this = kmeans(V_use,N_this,'Start','sample','Replicates',5,'EmptyAction','singleton');  
+    Sp_this = kmeansK(V_use,N_this);  
+    Sp_this = double(Sp_this);
   else
     Sp_this = ones(size(V_use,1),1);
   end

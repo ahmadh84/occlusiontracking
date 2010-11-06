@@ -1,4 +1,4 @@
-function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, out_dir, override_settings, produce_rf_xml_out )
+function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, out_dir, override_settings, produce_rf_xml_out )
 %MAINTRAININGTESTING Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -44,6 +44,8 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
     settings.RF_NO_ACTIVE_VARS = '11';      % size of randomly selected subset of features to be tested at any given node (typically the sqrt of total no. of features)
     settings.RF_MAX_TREE_COUNT = '105';
     settings.RF_GET_VAR_IMP = '1';          % calculate the variable importance of each feature during training (at cost of additional computation time)
+
+    settings.NO_OCCL_CLUSTERS = 1;          % the number of clusters to create out of features
     
     % create the structure of OF algos to use and Features to compute
     settings.cell_flows = { BlackAnandanOF, ...
@@ -87,7 +89,7 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_di
             % if need to train and test both
             
             % bootstrap
-            training_ids = setdiff(training_seq, scene_id);
+            training_ids = trainingSequencesUtils('getTrainingSequences', training_seq, scene_id, seq_conflicts);
 
             % produce the training and testing data
             [ TRAIN_PATH TEST_PATH unique_id ] = traintest_data.produceTrainingTestingData(scene_id, training_ids);
