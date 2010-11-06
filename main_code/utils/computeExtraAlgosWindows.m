@@ -2,7 +2,7 @@ function computeExtraAlgosWindows( sequences )
 %COMPUTEEXTRAALGOSLINUX script to compute flow from algorithms which only
 %   run on linux
 
-    main_dir = '../../Data/evaluation_data/';
+    main_dir = 'H:/temp/evaluation_data/mit_human_2';
 %     addpath(genpath('algorithms/Classic NL'));
 %     addpath(genpath('algorithms/Large Disp OF'));
     

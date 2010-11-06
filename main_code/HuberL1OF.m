@@ -29,8 +29,11 @@ classdef HuberL1OF < AbstractOF
             imwrite(im2, curr_path_im2);
             
             % move to executable files dir, execute and read flow file
-            cd(HuberL1OF.ALGO_HUBER_L1_PATH);
-            system(['flow_win_demo -v --flo flow.flo --texture_rescale -l 40 --diffusion --str_tex "' curr_path_im1 '" "'  curr_path_im2 '"']);
+            status = 3;
+            while status ~= 1
+                cd(HuberL1OF.ALGO_HUBER_L1_PATH);
+                [status, result] = system(['flow_win_demo -v --flo flow.flo --texture_rescale -l 40 --diffusion --str_tex "' curr_path_im1 '" "'  curr_path_im2 '"']);
+            end
             uv_fl = readFlowFile('flow.flo');
             
             % delete the flow file
