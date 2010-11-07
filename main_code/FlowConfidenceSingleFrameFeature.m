@@ -70,7 +70,7 @@ classdef FlowConfidenceSingleFrameFeature < AbstractFeature
         %   number of scales
         
             t_start_main = tic;
-            compute_time = {'totaltime', 0.0; 'fc_confidence', 0.0};
+            compute_time = {'totaltime', 0.0; sprintf('fc_confidence_sf_%s', num2str(obj.getExtraID())), 0.0};
             
             % find which algos to use
             algos_to_use = cellfun(@(x) find(strcmp(x, calc_feature_vec.extra_info.calc_flows.algo_ids)), obj.flow_short_types);
