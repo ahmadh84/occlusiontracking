@@ -27,26 +27,32 @@ function [ training_seqs ] = getTrainingSequences( all_training_seqs, testing_se
 end
 
 
-
-function [ testing_seqs ] = getNoConflictTestingSequences( all_training_seqs, all_testing_seq, seq_conflicts )
-%GETTRAININGSEQUENCES gives training seqs, given the complete set of
-%   training seqs, the testing seq and conflicts between each sequence
+function [ testing_seq_groups full_training_seq ] = groupTestingSeqs( all_training_seqs, all_testing_seq, seq_conflicts )
 
    assert(iscell(seq_conflicts), 'The set of conflicts should be a cell array');
+   testing_seq_groups = cell(0,2);
+   full_training_seq = false(0,1);
    
-   % take out testing seq from training
-   testing_seqs = setdiff(all_testing_seq, all_training_seqs);
-   
-   % iterate over conflicts and keep those which match with training seq
-   remove = false(size(testing_seqs));
-   for idx = 1:length(testing_seqs)
-       valid_conflicts = seq_conflicts(cellfun(@(x) any(x == testing_seqs(idx)), seq_conflicts));
-       seq_to_check = horzcat(valid_conflicts{:});
-       if any(ismember(all_training_seqs, seq_to_check))
-           remove(idx) = 1;
+   for idx = 1:length(all_testing_seq)
+       testing_seq = all_testing_seq(idx);
+       
+       curr_training_seqs = getTrainingSequences( all_training_seqs, testing_seq, seq_conflicts );
+       group_match = cellfun(@(x) all(ismember(curr_training_seqs,x)) && length(x)==length(curr_training_seqs), testing_seq_groups(:,2));
+       assert(nnz(group_match) <= 1, 'The number of training set group matches can only be 0 or 1');
+       
+       if nnz(group_match) == 0
+           testing_seq_groups{end+1,1} = testing_seq;
+           testing_seq_groups{end,2} = curr_training_seqs;
+           if all(ismember(all_training_seqs, curr_training_seqs))
+               full_training_seq(end+1) = 1;
+           else
+               full_training_seq(end+1) = 0;
+           end
+       else
+           testing_seq_groups{group_match,1} = [testing_seq_groups{group_match,1} testing_seq];
        end
    end
    
-   testing_seqs = testing_seqs(~remove);
+   assert(nnz(full_training_seq) <= 2, 'Something wrong in groupTestingSeqs()');
+   testing_seq_groups = testing_seq_groups(:,1);
 end
-

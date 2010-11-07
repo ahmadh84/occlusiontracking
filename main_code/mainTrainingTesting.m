@@ -1,4 +1,4 @@
-function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, out_dir, override_settings, produce_rf_xml_out )
+function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, out_dir, override_settings, produce_rf_xml_out, xml_name_append )
 %MAINTRAININGTESTING Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -6,6 +6,10 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, seq_con
     if ~exist('produce_rf_xml_out', 'var')
         produce_rf_xml_out = 0;
     end
+    if ~exist('xml_name_append', 'var')
+        xml_name_append = '';
+    end
+    CLASS_XML_PATH = '';
     
     COMPUTE_REFRESH = 0;
     settings.RANDOM_FOREST_RUN = 'randomForest\src\predictDescriptor\Release\predictDescriptor.exe ';
@@ -85,19 +89,23 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, seq_con
     for scenes_idx = 1:length(testing_seq)
         scene_id = testing_seq(scenes_idx);
         
-        if ~isempty(training_seq)
+        if ~isempty(training_seq) && ~ischar(training_seq)
             % if need to train and test both
             
             % bootstrap
             training_ids = trainingSequencesUtils('getTrainingSequences', training_seq, scene_id, seq_conflicts);
 
+            fd_training_set = fopen(fullfile(out_dir, ['training_' num2str(scene_id) '.txt']), 'w+');
+            fprintf(fd_training_set, '%d, ', training_ids);
+            fclose(fd_training_set);
+            
             % produce the training and testing data
             [ TRAIN_PATH TEST_PATH unique_id ] = traintest_data.produceTrainingTestingData(scene_id, training_ids);
             
             PREDICTION_DATA_PATH = getPredictionDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
             
             if produce_rf_xml_out == 0
-                % if you dont want to produce the xml classifier from the% RF
+                % if you dont want to produce the xml classifier from RF
                 
                 randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
                     settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
@@ -105,7 +113,7 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, seq_con
                     TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
             else
                 % if you want to produce the xml classifier from the RF
-                CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF);
+                CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF, xml_name_append);
                 
                 randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
                     settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
@@ -119,7 +127,13 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, seq_con
             [ TEST_PATH unique_id ] = traintest_data.produceTestingData( scene_id );
             
             PREDICTION_DATA_PATH = getPredictionDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
-            CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF);
+            
+            % if XML path provided directly
+            if ischar(training_seq)
+                CLASS_XML_PATH = taining_seq;
+            else
+                CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF, xml_name_append);
+            end
 
             randomforest_cmd = [settings.RANDOM_FOREST_RUN ' -l "' CLASS_XML_PATH '" "' ...
                 TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
@@ -150,15 +164,15 @@ function [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, seq_con
 end
 
 
-function filename = getXMLDataFilename(out_dir, comp_feat_vec_id, only_of)
+function filename = getXMLDataFilename(out_dir, comp_feat_vec_id, only_of, xml_name_append)
     if isnumeric(comp_feat_vec_id)
         comp_feat_vec_id = num2str(comp_feat_vec_id);
     end
 
     if exist('only_of', 'var') && ~isempty(only_of)
-        filename = fullfile(out_dir, [comp_feat_vec_id '_' only_of '_class.xml']);
+        filename = fullfile(out_dir, [comp_feat_vec_id '_' only_of '_class' xml_name_append '.xml']);
     else
-        filename = fullfile(out_dir, [comp_feat_vec_id '_class.xml']);
+        filename = fullfile(out_dir, [comp_feat_vec_id '_class' xml_name_append '.xml']);
     end
 end
 
