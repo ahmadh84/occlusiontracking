@@ -23,6 +23,14 @@ function computeFlows( obj )
         if strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Large Displacement OF')
             % DON'T HAVE 64BIT MEX FOR LDOF
             warning('CalcFlows:computeFlows', 'loading directly from file');
+            
+            % if file doesn't exist, attempt to compute it on a remote linux machine
+            if ~exist(fullfile(obj.scene_dir, 'largedispof.mat'), 'file')
+                addpath('remoteexec');
+                status = remote_ldof(fullfile(obj.scene_dir, ComputeTrainTestData.IM1_PNG), fullfile(obj.scene_dir, ComputeTrainTestData.IM2_PNG));
+                assert(status == 0, 'Something went wrong while computing LDOF remotely');
+            end
+            
             load(fullfile(obj.scene_dir, 'largedispof.mat'));
             obj.uv_flows(:,:,:,algo_idx) = uv_ld;
             
