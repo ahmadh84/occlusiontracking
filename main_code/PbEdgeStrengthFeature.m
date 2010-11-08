@@ -88,6 +88,20 @@ classdef PbEdgeStrengthFeature < AbstractFeature
             % incorporate the threshold
             feature_no_id = round(obj.threshold_pb * feature_no_id);
         end
+        
+        
+        function return_feature_list = returnFeatureList(obj)
+        % creates a cell vector where each item contains a string of the
+        % feature type (in the order the will be spit out by calcFeatures)
+            
+            return_feature_list = cell(obj.no_scales,1);
+            
+            return_feature_list{1} = {obj.FEATURE_TYPE, 'no scaling', sprintf('Threshold %.3f', obj.threshold_pb)};
+            
+            for scale_id = 2:obj.no_scales
+                return_feature_list{scale_id} = {obj.FEATURE_TYPE, ['scale ' num2str(scale_id)], ['size ' sprintf('%.1f%%', (obj.scale^(scale_id-1))*100)], sprintf('Threshold %.3f', obj.threshold_pb)};
+            end
+        end
     end
     
     

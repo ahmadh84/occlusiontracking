@@ -109,8 +109,6 @@ classdef SPFlowBoundaryFeature < AbstractFeature
         % creates a cell vector where each item contains a string of the
         % feature type (in the order the will be spit out by calcFeatures)
             
-            return_feature_list = cell(obj.no_scales,1);
-            
             return_feature_list{1} = {obj.FEATURE_TYPE, ['N_sp ' num2str(obj.N_sp)], ['N_sp2 ' num2str(obj.N_sp2)], ['N_ev ' num2str(obj.N_ev)]};
         end
     end

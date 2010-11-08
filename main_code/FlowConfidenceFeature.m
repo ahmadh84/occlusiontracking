@@ -267,8 +267,8 @@ classdef FlowConfidenceFeature < AbstractFeature
             return_feature_list = cell(2*length(obj.flow_short_types),1);
             
             for flow_id = 1:length(obj.flow_short_types)
-                return_feature_list{((flow_id-1)*2)+1} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], 'End Point Error (EPE)'};
-                return_feature_list{((flow_id-1)*2)+2} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], 'Angular Error (AE)'};
+                return_feature_list{((flow_id-1)*2)+1} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], 'End Point Error (EPE)', sprintf('Threshold %.3f', obj.confidence_epe_th)};
+                return_feature_list{((flow_id-1)*2)+2} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], 'Angular Error (AE)', sprintf('Threshold %.3f', obj.confidence_ae_th)};
             end
         end
     end
