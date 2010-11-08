@@ -130,7 +130,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
             
             % if XML path provided directly
             if ischar(training_seq)
-                CLASS_XML_PATH = taining_seq;
+                CLASS_XML_PATH = training_seq;
             else
                 CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF, xml_name_append);
             end

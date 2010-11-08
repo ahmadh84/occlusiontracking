@@ -4,9 +4,32 @@ function store_pb()
 
     addpath('main_code\algorithms\segbench\lib\matlab');
     
+    sequences = 40:48;
+    main_dir = '../Data/oisin+middlebury';
+    pbedgeStore(main_dir, sequences);
     
-    sequences = 1:24;
+    sequences = 15:17;
     main_dir = '../Data/evaluation_data';
+    pbedgeStore(main_dir, sequences);
+    
+    sequences = 1:29;
+    main_dir = '../Data/evaluation_data/flowerGarden';
+    pbedgeStore(main_dir, sequences);
+    
+    sequences = 1:9;
+    main_dir = '../Data/evaluation_data/oisin/angleChange';
+    pbedgeStore(main_dir, sequences);
+    
+    sequences = 1:11;
+    main_dir = '../Data/evaluation_data/oisin/pebbles';
+    pbedgeStore(main_dir, sequences);
+    
+    sequences = 1:3;
+    main_dir = '../Data/evaluation_data/oisin/plant';
+    pbedgeStore(main_dir, sequences);
+    
+    sequences = 1:3;
+    main_dir = '../Data/evaluation_data/oisin/trunk';
     pbedgeStore(main_dir, sequences);
     
     sequences = 1:36;
@@ -23,7 +46,7 @@ function pbedgeStore(main_dir, sequences)
     store_texture = 'pb.mat';
     
     for sequence_no = sequences
-        fprintf(1, 'Computing textures for %d\n', sequence_no);
+        fprintf(1, 'Computing Pb for %d\n', sequence_no);
         i1 = imread(fullfile(main_dir, num2str(sequence_no), '1.png'));
         
         tic;
