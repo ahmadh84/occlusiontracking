@@ -11,11 +11,11 @@ function testing_script
     temp_out_dir = fullfile(out_dir, 'FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp');
 
     training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50];
-    testing_seq = [1:6 9:14 17:19 26:29 30 39 40:48 49 50];
+    testing_seq = [1:6 9:14 17:19 22 24 26:29 30 39 40:48 49 50];
     seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50]};
     
-    [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
-    
+%     [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+    MAIN_CLASS_XML_PATH = 'D:\ahumayun\Results\features_comparison_tests5\FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp\1006490_class.xml';
     
     % check if the classifier exist before proceedings
     assert(exist(MAIN_CLASS_XML_PATH, 'file'), 'Main classifier XML doesn''t exist');
@@ -23,45 +23,80 @@ function testing_script
     seq_conflicts = {};
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%% Test stein sequences %%%
-    main_dir = '../../Data/evaluation_data/stein';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'stein');
-    testing_seq = [1 2 3 4 7 8 10 12 13 15 16 18 19 21 26 28 29 30];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     main_dir = '../../Data/evaluation_data/stein';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'stein');
+%     testing_seq = [17];%[1 2 3 4 7 8 10 12 13 15 16 18 19 21 26 28 29 30];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Test flowergarden sequences %
-    main_dir = '../../Data/evaluation_data/flowerGarden';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'flowerGarden');
-    testing_seq = [1 2 3 4];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     main_dir = '../../Data/evaluation_data/flowerGarden';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'flowerGarden');
+%     testing_seq = [1 2 3 4];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Test evaluation sequences %
-    main_dir = '../../Data/evaluation_data';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'evaluation_data');
-    testing_seq = [13:17];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     main_dir = '../../Data/evaluation_data';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'evaluation_data');
+%     testing_seq = 18 %[13:18];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% Test oisin's sequences %%
-    main_dir = '../../Data/evaluation_data/oisin/trunk';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'trunk');
-    testing_seq = [1:3];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     %%% Test oisin's sequences %%
+%     main_dir = '../../Data/evaluation_data/oisin/trunk';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'trunk');
+%     testing_seq = [1:3];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
     
-    main_dir = '../../Data/evaluation_data/oisin/plant';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'plant');
-    testing_seq = [1:3];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     main_dir = '../../Data/evaluation_data/oisin/plant';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'plant');
+%     testing_seq = 3;%[1:3];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
     
-    main_dir = '../../Data/evaluation_data/oisin/pebbles';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'pebbles');
-    testing_seq = [1:5];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     main_dir = '../../Data/evaluation_data/oisin/pebbles';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'pebbles');
+%     testing_seq = [1:5];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/oisin/pebbles_gap3';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'pebbles_gap3');
+%     testing_seq = [1:3];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/oisin/angleChange';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'angleChange');
+%     testing_seq = [1:9];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+% 
+%     main_dir = '../../Data/evaluation_data/gabriel/Sigal_Seq02';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel', 'Sigal_Seq02');
+%     testing_seq = [1:2];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/gabriel/Sigal_Seq07';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel', 'Sigal_Seq07');
+%     testing_seq = [1];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/gabriel/Sigal_Seq09';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel', 'Sigal_Seq09');
+%     testing_seq = [1:10];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/gabriel/Sigal_Seq13';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel', 'Sigal_Seq13');
+%     testing_seq = [1:2];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/gabriel/Sigal_Seq15';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel', 'Sigal_Seq15');
+%     testing_seq = [1:3];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
     
-    main_dir = '../../Data/evaluation_data/oisin/angleChange';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'angleChange');
-    testing_seq = [1:9];
+    main_dir = '../../Data/evaluation_data/gabriel/LobatonPersonWalkingECCV2010_2';
+    eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel', 'LobatonPersonWalkingECCV2010_2');
+    testing_seq = [5:10];
     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
 end
 
@@ -96,7 +131,7 @@ function [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, se
             else
                 % if only one sequence, only produce XML in the case that
                 % it has the full training set
-                [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, ismepty(xml_filename_append) );
+                [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, isempty(xml_filename_append) );
             end
             
             % delete the classifier only in the case that it is not of the
@@ -106,7 +141,8 @@ function [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, se
             else
                 MAIN_CLASS_XML_PATH = CLASS_XML_PATH;
             end
-            
+
+            deleteTrainTestData(temp_out_dir);
             close all;
         end
     end

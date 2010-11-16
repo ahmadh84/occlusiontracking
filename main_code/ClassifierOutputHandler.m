@@ -27,6 +27,7 @@ classdef ClassifierOutputHandler < handle
         
         tpr = [];
         fpr = [];
+        precision = [];
         thresholds = 0:0.001:1;
         
         settings;
@@ -113,31 +114,29 @@ classdef ClassifierOutputHandler < handle
         end
         
         
-        function printPRCurve( obj, pr_filepath )
+        function printPRCurve( obj )
             recall = obj.tpr;
-            
-            
             
             % print to new figure
             figure
-            plot(obj.fpr, obj.tpr);
+            plot(recall, obj.precision);
             hold on;
             
-            if ~isempty(obj.fpr)
+            if ~isempty(obj.precision)
                 for i=0.1:0.1:0.9
-                    plot(obj.fpr(obj.thresholds==i), obj.tpr(obj.thresholds==i), 'bo');
+                    plot(recall(obj.thresholds==i), obj.precision(obj.thresholds==i), 'bo');
                 end
 
-                text(obj.fpr(obj.thresholds==0.8)+0.02, obj.tpr(obj.thresholds==0.8), '0.8', 'Color',[0 0 1]);
-                text(obj.fpr(obj.thresholds==0.5)+0.02, obj.tpr(obj.thresholds==0.5), '0.5', 'Color',[0 0 1]);
-                text(obj.fpr(obj.thresholds==0.2)+0.02, obj.tpr(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
+                text(recall(obj.thresholds==0.8)+0.02, obj.precision(obj.thresholds==0.8), '0.8', 'Color',[0 0 1]);
+                text(recall(obj.thresholds==0.5)+0.02, obj.precision(obj.thresholds==0.5), '0.5', 'Color',[0 0 1]);
+                text(recall(obj.thresholds==0.2)+0.02, obj.precision(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
             end
             
-%             title(sprintf('ROC of Occlusion Region detection - Area under ROC %.4f', obj.area_under_roc));
-            line([0;1], [1;0], 'Color', [0.7 0.7 0.7], 'LineStyle','--', 'LineWidth', 1.5);     % draw the line of no-discrimination
+            title(sprintf('PR of Occlusion Region detection'));
             
-            xlabel('FPR');
-            ylabel('TPR');
+            xlabel('Recall');
+            ylabel('Precision');
+            pr_filepath = obj.getPRPlotFilename();
             print('-depsc', '-r0', pr_filepath);
         end
         
@@ -193,6 +192,12 @@ classdef ClassifierOutputHandler < handle
 
         function filename = getROCPlotFilename( obj )
             filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'roc');
+            filename = regexprep(filename, '/', '\');
+        end
+        
+
+        function filename = getPRPlotFilename( obj )
+            filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'pr');
             filename = regexprep(filename, '/', '\');
         end
         
@@ -259,8 +264,9 @@ classdef ClassifierOutputHandler < handle
             N = nnz(~labels);
             
             obj.fpr = zeros(length(obj.thresholds),1);
-            obj.tpr = zeros(length(obj.thresholds),1);
-            
+            obj.tpr = zeros(length(obj.thresholds),1);      % recall
+            obj.precision = zeros(length(obj.thresholds),1);
+    
             temp_classifier_out = obj.classifier_out';
             temp_classifier_out = temp_classifier_out(:);
             
@@ -282,6 +288,7 @@ classdef ClassifierOutputHandler < handle
 
                 obj.fpr(idx) = fp / (fp+tn);
                 obj.tpr(idx) = tp / (tp+fn);
+                obj.precision(idx) = tp / (tp+fp);
             end
             
             % compute the area under the curve
