@@ -113,6 +113,35 @@ classdef ClassifierOutputHandler < handle
         end
         
         
+        function printPRCurve( obj, pr_filepath )
+            recall = obj.tpr;
+            
+            
+            
+            % print to new figure
+            figure
+            plot(obj.fpr, obj.tpr);
+            hold on;
+            
+            if ~isempty(obj.fpr)
+                for i=0.1:0.1:0.9
+                    plot(obj.fpr(obj.thresholds==i), obj.tpr(obj.thresholds==i), 'bo');
+                end
+
+                text(obj.fpr(obj.thresholds==0.8)+0.02, obj.tpr(obj.thresholds==0.8), '0.8', 'Color',[0 0 1]);
+                text(obj.fpr(obj.thresholds==0.5)+0.02, obj.tpr(obj.thresholds==0.5), '0.5', 'Color',[0 0 1]);
+                text(obj.fpr(obj.thresholds==0.2)+0.02, obj.tpr(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
+            end
+            
+%             title(sprintf('ROC of Occlusion Region detection - Area under ROC %.4f', obj.area_under_roc));
+            line([0;1], [1;0], 'Color', [0.7 0.7 0.7], 'LineStyle','--', 'LineWidth', 1.5);     % draw the line of no-discrimination
+            
+            xlabel('FPR');
+            ylabel('TPR');
+            print('-depsc', '-r0', pr_filepath);
+        end
+        
+        
         function printRFFeatureImp( obj )
             figure, plot(obj.feature_importance);
             h = get(gca);
