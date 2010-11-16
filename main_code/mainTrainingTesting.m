@@ -155,6 +155,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
             output_handler.printPosteriorImage();
             output_handler.printROCCurve();
             output_handler.printRFFeatureImp();
+            output_handler.printPRCurve();
             output_handler.saveObject();
         else
             fprintf(2, 'Classifier Failed!\n');

@@ -27,6 +27,7 @@ classdef ClassifierOutputHandler < handle
         
         tpr = [];
         fpr = [];
+        precision = [];
         thresholds = 0:0.001:1;
         
         settings;
@@ -113,6 +114,33 @@ classdef ClassifierOutputHandler < handle
         end
         
         
+        function printPRCurve( obj )
+            recall = obj.tpr;
+            
+            % print to new figure
+            figure
+            plot(recall, obj.precision);
+            hold on;
+            
+            if ~isempty(obj.precision)
+                for i=0.1:0.1:0.9
+                    plot(recall(obj.thresholds==i), obj.precision(obj.thresholds==i), 'bo');
+                end
+
+                text(recall(obj.thresholds==0.8)+0.02, obj.precision(obj.thresholds==0.8), '0.8', 'Color',[0 0 1]);
+                text(recall(obj.thresholds==0.5)+0.02, obj.precision(obj.thresholds==0.5), '0.5', 'Color',[0 0 1]);
+                text(recall(obj.thresholds==0.2)+0.02, obj.precision(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
+            end
+            
+            title(sprintf('PR of Occlusion Region detection'));
+            
+            xlabel('Recall');
+            ylabel('Precision');
+            pr_filepath = obj.getPRPlotFilename();
+            print('-depsc', '-r0', pr_filepath);
+        end
+        
+        
         function printRFFeatureImp( obj )
             figure, plot(obj.feature_importance);
             h = get(gca);
@@ -164,6 +192,12 @@ classdef ClassifierOutputHandler < handle
 
         function filename = getROCPlotFilename( obj )
             filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'roc');
+            filename = regexprep(filename, '/', '\');
+        end
+        
+
+        function filename = getPRPlotFilename( obj )
+            filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'pr');
             filename = regexprep(filename, '/', '\');
         end
         
@@ -230,8 +264,9 @@ classdef ClassifierOutputHandler < handle
             N = nnz(~labels);
             
             obj.fpr = zeros(length(obj.thresholds),1);
-            obj.tpr = zeros(length(obj.thresholds),1);
-            
+            obj.tpr = zeros(length(obj.thresholds),1);      % recall
+            obj.precision = zeros(length(obj.thresholds),1);
+    
             temp_classifier_out = obj.classifier_out';
             temp_classifier_out = temp_classifier_out(:);
             
@@ -253,6 +288,7 @@ classdef ClassifierOutputHandler < handle
 
                 obj.fpr(idx) = fp / (fp+tn);
                 obj.tpr(idx) = tp / (tp+fn);
+                obj.precision(idx) = tp / (tp+fp);
             end
             
             % compute the area under the curve
