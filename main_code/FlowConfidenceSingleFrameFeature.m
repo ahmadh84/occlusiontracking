@@ -30,13 +30,14 @@ classdef FlowConfidenceSingleFrameFeature < AbstractFeature
         extra_id = [];
         flow_ids = [];
         flow_short_types = {};
+        
+        TEMP_SUBDIR = 'temp_delete_if_found_%s';
     end
     
     
     properties (Constant)
         PRECOMPUTED_FC_FILE = 'fc_%s.mat';
         CLASSIFIER_XML_FILE = 'fc_%s_%s_%s.xml';
-        TEMP_SUBDIR = 'temp_delete_if_found'
         
         FEATURE_TYPE = 'Flow Confidence Single Frame';
         FEATURE_SHORT_TYPE = 'FCsf';
@@ -59,6 +60,9 @@ classdef FlowConfidenceSingleFrameFeature < AbstractFeature
             obj.training_dir = training_dir;
             
             obj.extra_id = obj.getExtraID();
+            
+            t = clock;
+            obj.TEMP_SUBDIR = sprintf(obj.TEMP_SUBDIR, sprintf('%04d%02d%02d_%02d%02d%02d_%03d', t(1), t(2), t(3), t(4), t(5), uint16(t(6)), mod(t(6)*1000,1000)));
         end
         
         
@@ -87,6 +91,9 @@ classdef FlowConfidenceSingleFrameFeature < AbstractFeature
                 compute_time{1,2} = compute_time{1,2} + compute_time{2,2};
             else
                 t_start_fc = tic;
+                
+                assert(~(exist(fullfile(obj.training_dir, obj.TEMP_SUBDIR),'dir')==7), ['The temp directory to be used by ' class(obj) ' already exists']);
+                mkdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR));
                 
                 % make feature vector which will be used for training
                 [ settings ] = obj.prepareSettings(calc_feature_vec);
@@ -237,12 +244,12 @@ classdef FlowConfidenceSingleFrameFeature < AbstractFeature
                 save(fullfile(calc_feature_vec.scene_dir, precompute_fc_filename), 'featconf', 'fc_compute_time');
                 
                 compute_time{2,2} = fc_compute_time;
+
+                % remove the temporary folder if present and empty
+                if isdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR))
+                    rmdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR));
+                end
             end
-            
-            % remove the temporary folder if present and empty
-%             if isdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR))
-%                 rmdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR));
-%             end
             
             feature_depth = size(featconf,3);
             
