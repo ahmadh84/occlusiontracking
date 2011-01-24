@@ -1,0 +1,2 @@
+LIBRARY	NSSD.mexw32
+EXPORTS mexFunction
