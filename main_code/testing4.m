@@ -57,10 +57,22 @@ nhood_cs(nhood_cs(:,:,1)==0 & nhood_cs(:,:,2)==0,:,:) = [];
 % temp_out_dir = fullfile(out_dir, 'lv');
 % override_settings.cell_features = { OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info) };
 % trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-% 
+
 % %%% CS %%%
-% temp_out_dir = fullfile(out_dir, 'cs');
-% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info) };
+% temp_out_dir = fullfile(out_dir, 'cs_max-min');
+% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MAX','MIN'}) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% temp_out_dir = fullfile(out_dir, 'cs_max');
+% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MAX'}) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% temp_out_dir = fullfile(out_dir, 'cs_min');
+% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MIN'}) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% temp_out_dir = fullfile(out_dir, 'cs_var');
+% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'VAR'}) };
 % trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
 % 
 % %%% RC %%%
@@ -78,26 +90,20 @@ nhood_cs(nhood_cs(:,:,1)==0 & nhood_cs(:,:,2)==0,:,:) = [];
 % override_settings.cell_features = { SparseSetTextureFeature(override_settings.cell_flows) };
 % trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
 %
-
-
-temp_out_dir = fullfile(out_dir, 'fc');
-override_settings.cell_features = { FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19], '../../Data/oisin+middlebury', 50, 60) };
-trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-
-training_seq = [];
-testing_seq = [1];
-
-main_dir = 'H:/evaluation_data/hand3/';
-temp_out_dir = fullfile(out_dir, 'fc', 'mit_human_1');
-override_settings.cell_features = { FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 18 19], '../../Data/oisin+middlebury', 50, 60) };
-trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-
-
 % %%% FC %%%
 % temp_out_dir = fullfile(out_dir, 'fc');
-% override_settings.cell_features = { FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 18 19], '../../Data/oisin+middlebury', 50, 60) };
+% override_settings.cell_features = { FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19], '../../Data/oisin+middlebury', 50, 60) };
 % trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-% 
+
+training_seq = [];
+testing_seq = [1 2 10 15 21 26];
+
+main_dir = 'D:/ahumayun/Data/evaluation_data/stein';
+temp_out_dir = fullfile(out_dir, 'fc2', 'stein');
+override_settings.cell_features = { FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19], '../../Data/oisin+middlebury', 50, 60), ...
+                                    FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19], '../../Data/oisin+middlebury', 1, 1) };
+trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+
 % %%% All features %%%
 % temp_out_dir = fullfile(out_dir, 'gm_ed_tg_pc_av_lv_cs_rc_ra_st');
 % override_settings.cell_features = { GradientMagFeature(override_settings.ss_info_im1), ...
@@ -115,7 +121,7 @@ trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_sett
 
 
 function trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings)
-[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings, 1 );
 
 deleteTrainTestData(temp_out_dir);
 deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
