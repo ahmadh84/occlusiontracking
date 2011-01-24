@@ -3,7 +3,7 @@ function testing4
 %   Detailed explanation goes here
 
 main_dir = '../../Data/oisin+middlebury';
-out_dir = 'H:/middlebury/features_comparison_tests2';
+out_dir = 'D:/ahumayun/Results/features_comparison_tests3';
 
 training_seq = [4 5 9 10 11 12 13 14 18 19];
 testing_seq = [4 5 9 10 11 12 13 14 18 19];
@@ -33,16 +33,16 @@ nhood_cs(nhood_cs(:,:,1)==0 & nhood_cs(:,:,2)==0,:,:) = [];
 % override_settings.cell_features = { GradientMagFeature(override_settings.ss_info_im1) };
 % trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
 
-%%% ED %%%
-temp_out_dir = fullfile(out_dir, 'ed');
-override_settings.cell_features = { EdgeDistFeature(override_settings.ss_info_im1) };
-trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-
-%%% TG %%%
-temp_out_dir = fullfile(out_dir, 'tg');
-override_settings.cell_features = { TemporalGradFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
-trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-
+% %%% ED %%%
+% temp_out_dir = fullfile(out_dir, 'ed');
+% override_settings.cell_features = { EdgeDistFeature(override_settings.ss_info_im1) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% %%% TG %%%
+% temp_out_dir = fullfile(out_dir, 'tg');
+% override_settings.cell_features = { TemporalGradFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
 % %%% PC %%%
 % temp_out_dir = fullfile(out_dir, 'pc');
 % override_settings.cell_features = { PhotoConstancyFeature(override_settings.cell_flows, uv_ftrs2_ss_info) };
@@ -57,45 +57,71 @@ trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_sett
 % temp_out_dir = fullfile(out_dir, 'lv');
 % override_settings.cell_features = { OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info) };
 % trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-% 
+
 % %%% CS %%%
-% temp_out_dir = fullfile(out_dir, 'cs');
-% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info) };
+% temp_out_dir = fullfile(out_dir, 'cs_max-min');
+% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MAX','MIN'}) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% temp_out_dir = fullfile(out_dir, 'cs_max');
+% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MAX'}) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% temp_out_dir = fullfile(out_dir, 'cs_min');
+% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MIN'}) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% temp_out_dir = fullfile(out_dir, 'cs_var');
+% override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'VAR'}) };
 % trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
 
-%%% RC %%%
-temp_out_dir = fullfile(out_dir, 'rc');
-override_settings.cell_features = { ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
+% temp_out_dir = fullfile(out_dir, 'fc');
+% override_settings.cell_features = { FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19], '../../Data/oisin+middlebury', 50, 60) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+
+
+training_seq = [];
+testing_seq = [1 2 10 15 21 26];
+
+main_dir = 'D:/ahumayun/Data/evaluation_data/stein';
+temp_out_dir = fullfile(out_dir, 'fc2', 'stein');
+override_settings.cell_features = { FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19], '../../Data/oisin+middlebury', 50, 60), ...
+                                    FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19], '../../Data/oisin+middlebury', 1, 1) };
 trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
 
-%%% RA %%%
-temp_out_dir = fullfile(out_dir, 'ra');
-override_settings.cell_features = { ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
-trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-
-%%% ST %%%
-temp_out_dir = fullfile(out_dir, 'st');
-override_settings.cell_features = { SparseSetTextureFeature(override_settings.cell_flows) };
-trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
-
-%%% All features %%%
-temp_out_dir = fullfile(out_dir, 'gm_ed_tg_pc_av_lv_cs_rc_ra_st');
-override_settings.cell_features = { GradientMagFeature(override_settings.ss_info_im1), ...
-                                    EdgeDistFeature(override_settings.ss_info_im1), ...
-                                    TemporalGradFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
-                                    PhotoConstancyFeature(override_settings.cell_flows, uv_ftrs2_ss_info), ...
-                                    OFAngleVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
-                                    OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
-                                    OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info), ...
-                                    ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
-                                    ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
-                                    SparseSetTextureFeature(override_settings.cell_flows) };
-trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% %%% RC %%%
+% temp_out_dir = fullfile(out_dir, 'rc');
+% override_settings.cell_features = { ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% %%% RA %%%
+% temp_out_dir = fullfile(out_dir, 'ra');
+% override_settings.cell_features = { ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% %%% ST %%%
+% temp_out_dir = fullfile(out_dir, 'st');
+% override_settings.cell_features = { SparseSetTextureFeature(override_settings.cell_flows) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% 
+% %%% All features %%%
+% temp_out_dir = fullfile(out_dir, 'gm_ed_tg_pc_av_lv_cs_rc_ra_st');
+% override_settings.cell_features = { GradientMagFeature(override_settings.ss_info_im1), ...
+%                                     EdgeDistFeature(override_settings.ss_info_im1), ...
+%                                     TemporalGradFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
+%                                     PhotoConstancyFeature(override_settings.cell_flows, uv_ftrs2_ss_info), ...
+%                                     OFAngleVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
+%                                     OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
+%                                     OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info), ...
+%                                     ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
+%                                     ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
+%                                     SparseSetTextureFeature(override_settings.cell_flows) };
+% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
 
 
 
 function trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings)
-[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings, 1 );
 
 deleteTrainTestData(temp_out_dir);
 deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);

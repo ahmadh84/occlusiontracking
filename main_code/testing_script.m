@@ -94,10 +94,50 @@ function testing_script
 %     testing_seq = [1:3];
 %     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
     
-    main_dir = '../../Data/evaluation_data/gabriel/LobatonPersonWalkingECCV2010_2';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel', 'LobatonPersonWalkingECCV2010_2');
-    testing_seq = [5:10];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     main_dir = '../../Data/evaluation_data/gabriel/LobatonPersonWalkingECCV2010_2';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel', 'LobatonPersonWalkingECCV2010_2');
+%     testing_seq = [13];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+    
+%     main_dir = '../../Data/evaluation_data/stein-supplementary/7';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'stein-supplementary', '7');
+%     testing_seq = [1 3];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/stein-supplementary/10';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'stein-supplementary', '10');
+%     testing_seq = [1 3 5];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/stein-supplementary/18';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'stein-supplementary', '18');
+%     testing_seq = [1 3 5];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/stein-supplementary/26';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'stein-supplementary', '26');
+%     testing_seq = [1 3 5];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/stein-supplementary/28';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'stein-supplementary', '28');
+%     testing_seq = [1 3];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+
+%     main_dir = '../../Data/evaluation_data/oisin-supplementary/plant';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin-supplementary', 'plant');
+%     testing_seq = [4:6];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/oisin-supplementary/trunk';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin-supplementary', 'trunk');
+%     testing_seq = [4:6];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+
+    main_dir = '../../Data/evaluation_data/gabriel-supplementary/Sigal_Seq15';
+    eval_temp_out_dir = fullfile(temp_out_dir, 'gabriel-supplementary', 'Sigal_Seq15');
+    testing_seq = [1];
+    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts,  main_dir, eval_temp_out_dir, override_settings);
 end
 
 
