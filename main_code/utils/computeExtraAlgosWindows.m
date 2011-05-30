@@ -1,17 +1,16 @@
-function computeExtraAlgosWindows( sequences )
-%COMPUTEEXTRAALGOSLINUX script to compute flow from algorithms which only
+function computeExtraAlgosWindows( main_dir, sequences )
+%COMPUTEEXTRAALGOSWINDOWS script to compute flow from algorithms which only
 %   run on linux
 
-    main_dir = 'H:/temp/evaluation_data/mit_human_2';
 %     addpath(genpath('algorithms/Classic NL'));
 %     addpath(genpath('algorithms/Large Disp OF'));
     
-    flowsave_filenames = { 'huberl1.mat' };
-    flowsave_varnames = { 'uv_fl' };
-    flowsave_r_varnames = { 'uv_fl_r' };
-    flowsave_time_varnames = { 'fl_compute_time' };
+    flowsave_filenames = { 'huberl1.mat', 'occlconvex.mat', 'classicnl.mat' };
+    flowsave_varnames = { 'uv_fl', 'uv_oc', 'uv_cn' };
+    flowsave_r_varnames = { 'uv_fl_r', 'uv_oc_r', 'uv_cn_r' };
+    flowsave_time_varnames = { 'fl_compute_time', 'oc_compute_time', 'cn_compute_time' };
     
-    cell_flows = { HuberL1OF };
+    cell_flows = { HuberL1OF, OcclusionsConvexOF, ClassicNLOF };
     
     for scene_id = sequences
         scene_dir = fullfile(main_dir, num2str(scene_id));
