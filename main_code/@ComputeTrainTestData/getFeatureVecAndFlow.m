@@ -10,9 +10,18 @@ function [comp_feat_vec calc_flows] = getFeatureVecAndFlow(obj, scene_id)
     end
 
     scene_dir = obj.sceneId2SceneDir(scene_id);
-
+    
+    % check if any feature needs reverse flow
+    COMPUTE_REVERSE_FLOW = 0;
+    for idx = 1:length(obj.settings.cell_features)
+        if obj.settings.cell_features{idx}.NEED_REV_FLOW
+            COMPUTE_REVERSE_FLOW = 1;
+            break;
+        end
+    end
+    
     % compute/load the flow
-    calc_flows = CalcFlows( scene_dir, obj.settings.cell_flows, obj.force_no_gt, refresh, 1, obj.silent_mode );
+    calc_flows = CalcFlows( scene_dir, obj.settings.cell_flows, obj.force_no_gt, refresh, COMPUTE_REVERSE_FLOW, obj.silent_mode );
 
     % read in the images
     im1 = imread(fullfile(scene_dir, ComputeTrainTestData.IM1_PNG));

@@ -110,7 +110,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
                 randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
                     settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
                     settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' "' TRAIN_PATH '" "' ...
-                    TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+                    TEST_PATH '" "' PREDICTION_DATA_PATH '"'];
             else
                 % if you want to produce the xml classifier from the RF
                 CLASS_XML_PATH = getXMLDataFilename(out_dir, unique_id, settings.USE_ONLY_OF, xml_name_append);
@@ -118,7 +118,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
                 randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
                     settings.RF_NO_ACTIVE_VARS ' ' settings.RF_MAX_DEPTH ' ' settings.RF_MIN_SAMPLE_COUNT ' ' ...
                     settings.RF_MAX_CATEGORIES ' ' settings.RF_GET_VAR_IMP ' -s "' CLASS_XML_PATH '" "' ...
-                    TRAIN_PATH '" "' TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+                    TRAIN_PATH '" "' TEST_PATH '" "' PREDICTION_DATA_PATH '"'];
             end
         else
             % if need to test only
@@ -136,7 +136,11 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
             end
 
             randomforest_cmd = [settings.RANDOM_FOREST_RUN ' -l "' CLASS_XML_PATH '" "' ...
-                TEST_PATH '" "' PREDICTION_DATA_PATH '" -b'];
+                TEST_PATH '" "' PREDICTION_DATA_PATH '"'];
+        end
+        
+        if settings.label_obj.LABEL_IS_BINARY == 1
+            randomforest_cmd = [randomforest_cmd ' -b'];
         end
         
         fprintf(1, '\nRunning Random Forest classifier (get some coffee - this will take time!)\n');

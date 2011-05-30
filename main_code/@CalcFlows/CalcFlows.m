@@ -102,8 +102,10 @@ classdef CalcFlows < handle
         %   optional argument <border_gap> gives the number of pixels to ignore at
         %   the border
 
-            mask = ~(obj.uv_gt(:,:,1)>200 | obj.uv_gt(:,:,2)>200);
-
+%             mask = ~(obj.uv_gt(:,:,1)>200 | obj.uv_gt(:,:,2)>200);
+            mask = abs(obj.uv_gt)>1e9 | isnan(obj.uv_gt);
+            mask = ~(mask(:,:,1) | mask(:,:,2));
+            
             if ~exist('border_gap', 'var')
                 border_gap = 0;
             end
@@ -195,6 +197,9 @@ classdef CalcFlows < handle
             end
             
             addpath(fullfile(CalcFlows.ALGOS_PATH, 'segbench/lib/matlab'));
+            
+            % initialize vlfeat
+            run(fullfile(CalcFlows.ALGOS_PATH, 'vlfeat-0.9.9/toolbox/vl_setup'));
         end
     end
 end

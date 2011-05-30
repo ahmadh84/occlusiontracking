@@ -78,8 +78,29 @@ classdef ClassifierOutputHandler < handle
         
         
         function printPosteriorImage( obj )
-            figure, imshow(obj.classifier_out);
-            colormap summer;
+            figure
+            
+            % if the label is binary, than we will have a posterior
+            if obj.settings.label_obj.LABEL_IS_BINARY
+                imshow(obj.classifier_out);
+                colormap summer;
+            else
+                imagesc(obj.classifier_out);
+                
+                % find number of labels
+                mc = metaclass(obj.settings.label_obj);
+                if any(cellfun(@(x) strcmp(x.Name, 'label_names'), mc.Properties))
+                    no_labels = length(obj.settings.label_obj.label_names);
+                else
+                    no_labels = max(max(obj.classifier_out));
+                end
+                
+                % create colormap
+                colormap(jet(no_labels));
+                clrb_h = colorbar('location','east', 'YTick',linspace(1 + ((no_labels-1)/no_labels)/2, no_labels - ((no_labels-1)/no_labels)/2, no_labels), 'YLim',[1 no_labels], 'YTickLabel',obj.settings.label_obj.label_names);
+                pos = get(clrb_h, 'Position');
+                set(clrb_h, 'Position',[0.9 0.65 0.05 0.3], 'YColor',[0 0 0], 'FontWeight','bold');
+            end
             set(gcf, 'units', 'pixels', 'position', [100 100 obj.comp_feat_vec.image_sz(2) obj.comp_feat_vec.image_sz(1)], 'paperpositionmode', 'auto');
             set(gca, 'position', [0 0 1 1], 'visible', 'off');
             
@@ -89,6 +110,11 @@ classdef ClassifierOutputHandler < handle
         
         
         function printROCCurve( obj )
+            % if the label wasnt binary, skip this
+            if ~obj.settings.label_obj.LABEL_IS_BINARY
+                return;
+            end
+            
             % print to new figure
             figure
             plot(obj.fpr, obj.tpr);
@@ -104,7 +130,7 @@ classdef ClassifierOutputHandler < handle
                 text(obj.fpr(obj.thresholds==0.2)+0.02, obj.tpr(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
             end
             
-            title(sprintf('ROC of Occlusion Region detection - Area under ROC %.4f', obj.area_under_roc));
+            title(sprintf('ROC of %s - Area under ROC %.4f', obj.settings.label_obj.LABEL_PURPOSE, obj.area_under_roc));
             line([0;1], [0;1], 'Color', [0.7 0.7 0.7], 'LineStyle','--', 'LineWidth', 1.5);     % draw the line of no-discrimination
             
             xlabel('FPR');
@@ -115,6 +141,11 @@ classdef ClassifierOutputHandler < handle
         
         
         function printPRCurve( obj )
+            % if the label wasnt binary, skip this
+            if ~obj.settings.label_obj.LABEL_IS_BINARY
+                return;
+            end
+            
             recall = obj.tpr;
             
             % print to new figure
@@ -132,7 +163,9 @@ classdef ClassifierOutputHandler < handle
                 text(recall(obj.thresholds==0.2)+0.02, obj.precision(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
             end
             
-            title(sprintf('PR of Occlusion Region detection'));
+            set(gca, 'XLim',[0 1], 'YLim',[0 1]);
+            
+            title(sprintf('PR of %s', obj.settings.label_obj.LABEL_PURPOSE));
             
             xlabel('Recall');
             ylabel('Precision');
@@ -142,6 +175,11 @@ classdef ClassifierOutputHandler < handle
         
         
         function printRFFeatureImp( obj )
+            % in case the feature imp wasn't computed
+            if isempty(obj.feature_importance) || ~str2num(obj.settings.RF_GET_VAR_IMP)
+                return;
+            end
+            
             figure, plot(obj.feature_importance);
             h = get(gca);
             hold on;
@@ -247,7 +285,15 @@ classdef ClassifierOutputHandler < handle
             % obj.thresholds). Also computes the Area under the curve for
             % ROC
             
+            % if the label wasnt binary, skip this
+            if ~obj.settings.label_obj.LABEL_IS_BINARY
+                return;
+            end
+            
+            % get and adjust extra info and feature vector
             extra_label_info.calc_flows = obj.calc_flows;
+            [ obj.comp_feat_vec extra_label_info ] = ComputeTrainTestData.adjustFeaturesInfo(obj.comp_feat_vec, obj.calc_flows, extra_label_info, obj.settings, isempty(obj.calc_flows.gt_mask));
+            
             [ labels ignore_labels ] = obj.settings.label_obj.calcLabelWhole( obj.comp_feat_vec, extra_label_info );
             
             if isempty(labels)

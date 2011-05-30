@@ -4,6 +4,8 @@ classdef OcclusionLabel < AbstractLabel
     properties (Constant)
         LABEL_TYPE = 'Occlusion GT Label';
         LABEL_SHORT_TYPE = 'OGT';
+        LABEL_IS_BINARY = 1;
+        LABEL_PURPOSE = 'Occlusion Region detection';
     end
     
     

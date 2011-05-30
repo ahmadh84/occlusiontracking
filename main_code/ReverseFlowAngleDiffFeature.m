@@ -43,6 +43,9 @@ classdef ReverseFlowAngleDiffFeature < AbstractFeature
     
     methods
         function obj = ReverseFlowAngleDiffFeature( cell_flows, varargin )
+            % set this class to require reverse flow
+            obj.NEED_REV_FLOW = 1;
+            
             assert(~isempty(cell_flows), ['There should be atleast 1 flow algorithm to compute ' class(obj)]);
             
             % store the flow algorithms to be used and their ids

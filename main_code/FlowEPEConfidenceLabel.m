@@ -9,6 +9,8 @@ classdef FlowEPEConfidenceLabel < AbstractLabel
     properties (Constant)
         LABEL_TYPE = 'Flow EPE Confidence Label';
         LABEL_SHORT_TYPE = 'FECL';
+        LABEL_IS_BINARY = 1;
+        LABEL_PURPOSE = 'choosing Flow with EPE under a threshold';
     end
     
     

@@ -1,0 +1,27 @@
+This release provides the MATLAB code for Ayvaci, Raptis, Soatto, "Occlusion Detection and 
+Motion Estimation with Convex Optimization", NIPS, 2010. Two functions have been provided 
+for a quick start: 
+
+addpath([pwd '/utils/']);
+I0 = imread('./data/Venus/frame10.png'); 
+I1 = imread('./data/Venus/frame11.png');
+[uv e ebar] = estimate_flow_L2_rwL1_wTV_nesterov(I0, I1);
+
+See the 'help' included into the functions for additional parameter information.
+You also NEED to install VLFeat (http://www.vlfeat.org/) and setup the toolbox prior to use this package.
+
+There are two major differences between this release and the paper:
+1- the coefficient of the regularizer is varying in the interval [0.008,0.8] with each warping step at each pyramid level. Relying less on the prior of the flow field at the early warping steps results in more accurate flow estimates. 
+
+2- We also use structure-texture decomposition of the images to reduce the influence of illumination changes to initialize the re-weighting stage with an accurate flow field. However, at re-weighting steps we use the original images since pre-filtering reduces the occlusion detection accuracy.
+
+ACKNOWLEDGMENT 
+This package also includes code from 
+
+Flow estimation package by Deqing Sun
+http://www.cs.brown.edu/~dqsun/research/software.html 
+
+Graph Analysis package by Leo Grady
+http://cns.bu.edu/~lgrady/software.html
+
+NOTE: This package only includes MATLAB implementation of sparse occlusion detection using Nesterov's algorithm. We will provide C++ and CUDA code for the solution of the problem later including another minimization procedure, split-Bregman method.

@@ -306,7 +306,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                                     ClassicNLOF, ...
                                     LargeDisplacementOF };
                                 
-            % no_scales     % scale
+                                     % no_scales     % scale
             settings.ss_info_im1 =  [ 10             0.8 ];                                 % image pyramid to be built for im1
             settings.ss_info_im2 =  [ 1              1 ];                                   % image pyramid to be built for im2
             settings.uv_ss_info =   [ 10             0.8 ];

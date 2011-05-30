@@ -9,6 +9,8 @@ classdef FlowAEConfidenceLabel < AbstractLabel
     properties (Constant)
         LABEL_TYPE = 'Flow AE Confidence Label';
         LABEL_SHORT_TYPE = 'FACL';
+        LABEL_IS_BINARY = 1;
+        LABEL_PURPOSE = 'choosing Flow with AE under a threshold';
     end
     
     

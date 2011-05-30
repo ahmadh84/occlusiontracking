@@ -1,6 +1,10 @@
 classdef AbstractFeature
     %ABSTRACTFEATURE Abstract class for computing a feature
     
+    properties
+        NEED_REV_FLOW = 0;
+    end
+    
     properties (Abstract, Constant)
         FEATURE_TYPE;
         FEATURE_SHORT_TYPE;

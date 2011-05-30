@@ -5,6 +5,8 @@ classdef AbstractLabel
     properties (Abstract, Constant)
         LABEL_TYPE;
         LABEL_SHORT_TYPE;
+        LABEL_IS_BINARY;
+        LABEL_PURPOSE;
     end
     
     

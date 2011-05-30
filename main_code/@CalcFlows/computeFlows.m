@@ -25,7 +25,7 @@ function computeFlows( obj )
             warning('CalcFlows:computeFlows', 'loading directly from file');
             
             % if file doesn't exist, attempt to compute it on a remote linux machine
-            if ~exist(fullfile(obj.scene_dir, 'largedispof.mat'), 'file')
+            if exist(fullfile(obj.scene_dir, 'largedispof.mat'), 'file') ~= 2
                 addpath('remoteexec');
                 status = remote_ldof(fullfile(obj.scene_dir, ComputeTrainTestData.IM1_PNG), fullfile(obj.scene_dir, ComputeTrainTestData.IM2_PNG));
                 assert(status == 0, 'Something went wrong while computing LDOF remotely');
@@ -63,6 +63,34 @@ function computeFlows( obj )
             end
             
             obj.flow_compute_times(algo_idx) = fl_compute_time;
+            
+        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Classic NL') && ...
+            exist(fullfile(obj.scene_dir, 'classicnl.mat'), 'file') == 2
+            
+            warning('CalcFlows:computeFlows', 'loading directly from file');
+            load(fullfile(obj.scene_dir, 'classicnl.mat'));
+            obj.uv_flows(:,:,:,algo_idx) = uv_cn;
+            
+            % if we need to compute the flow in reverse
+            if obj.compute_reverse
+                obj.uv_flows_reverse(:,:,:,algo_idx) = uv_cn_r;
+            end
+            
+            obj.flow_compute_times(algo_idx) = cn_compute_time;
+            
+        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Occlusion-Motion-ConvexOpt') && ...
+            exist(fullfile(obj.scene_dir, 'occlconvex.mat'), 'file') == 2
+            
+            warning('CalcFlows:computeFlows', 'loading directly from file');
+            load(fullfile(obj.scene_dir, 'occlconvex.mat'));
+            obj.uv_flows(:,:,:,algo_idx) = uv_oc;
+            
+            % if we need to compute the flow in reverse
+            if obj.compute_reverse
+                obj.uv_flows_reverse(:,:,:,algo_idx) = uv_oc_r;
+            end
+            
+            obj.flow_compute_times(algo_idx) = oc_compute_time;
             
         else
             [ obj.uv_flows(:,:,:,algo_idx) compute_time ] = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2);

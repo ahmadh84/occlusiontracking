@@ -32,27 +32,8 @@ function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_i
         % the structure that will be sent to the label data
         extra_label_info.calc_flows = train_calc_flows;
         
-        % find the photoconstancy feature
-        pc_feat_idx = find(strcmp(train_comp_feat_vec.feature_types, PhotoConstancyFeature.FEATURE_SHORT_TYPE));
-        feat_depth_idxs = cumsum([0 train_comp_feat_vec.feature_depths]);
-        pc_feat_cols = feat_depth_idxs(pc_feat_idx)+1:feat_depth_idxs(pc_feat_idx+1);
-        
-        % get error - get rid of reprojection error of other algos - be carefull if you change feature vector
-        algo_idx = find(strcmp(train_calc_flows.algo_ids, obj.settings.USE_ONLY_OF));
-        
-        if ~isempty(algo_idx)
-            % pull out both angular error and EPE 
-            extra_label_info.uv_ang_err = train_calc_flows.uv_ang_err(:,:,algo_idx);
-            extra_label_info.uv_epe = train_calc_flows.uv_epe(:,:,algo_idx);
-            
-            % get the cols that need to be deleted
-            needed_pc_cols = pc_feat_cols(algo_idx:length(train_calc_flows.algo_ids):end);
-            delete_pc_cols = setdiff(pc_feat_cols, needed_pc_cols);
-            
-            % remove the cols from the feature vector data
-            train_comp_feat_vec.removeFeatures(delete_pc_cols);
-        end
-        
+        % adjust info (remove any features if necessary)
+        [ train_comp_feat_vec extra_label_info ] = ComputeTrainTestData.adjustFeaturesInfo(train_comp_feat_vec, train_calc_flows, extra_label_info, obj.settings, false);
         
         % call the labelling object, to get the labels
         [ label data_idxs idxs_per_label ] = obj.settings.label_obj.calcLabelTraining(train_comp_feat_vec, obj.settings.MAX_MARKINGS_PER_LABEL, extra_label_info);
@@ -66,6 +47,9 @@ function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_i
         
         % write training data
         dlmwrite(train_filename, data_to_write, '-append');
+        
+        % clear memory heavy variables
+        clearvars data_to_write data_idxs train_calc_flows train_comp_feat_vec extra_label_info;
     end
 end
 

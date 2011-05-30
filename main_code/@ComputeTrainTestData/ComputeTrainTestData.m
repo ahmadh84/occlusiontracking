@@ -180,6 +180,34 @@ classdef ComputeTrainTestData < handle
         % add paths if not already in path
             addpath(genpath(ComputeTrainTestData.UTILS_PATH));
         end
+        
+        
+        function [ comp_feat_vec extra_label_info ] = adjustFeaturesInfo(comp_feat_vec, calc_flows, extra_label_info, settings, NO_GT)
+            % get error - get rid of reprojection error of other algos - be carefull if you change feature vector
+            algo_idx = find(strcmp(calc_flows.algo_ids, settings.USE_ONLY_OF));
+            
+            if ~isempty(algo_idx)
+                if ~NO_GT
+                    % pull out both angular error and EPE and store in
+                    % extra info (this will be extra info passed to the 
+                    % label object)
+                    extra_label_info.uv_ang_err = calc_flows.uv_ang_err(:,:,algo_idx);
+                    extra_label_info.uv_epe = calc_flows.uv_epe(:,:,algo_idx);
+                end
+
+                % find the photoconstancy feature
+                pc_feat_idx = find(strcmp(comp_feat_vec.feature_types, PhotoConstancyFeature.FEATURE_SHORT_TYPE));
+                feat_depth_idxs = cumsum([0 comp_feat_vec.feature_depths]);
+                pc_feat_cols = feat_depth_idxs(pc_feat_idx)+1:feat_depth_idxs(pc_feat_idx+1);
+                
+                % get the cols that need to be deleted
+                needed_pc_cols = pc_feat_cols(algo_idx:length(calc_flows.algo_ids):end);
+                delete_pc_cols = setdiff(pc_feat_cols, needed_pc_cols);
+                
+                % remove the cols from the feature vector data
+                comp_feat_vec.removeFeatures(delete_pc_cols);
+            end
+        end
     end
 end
 
