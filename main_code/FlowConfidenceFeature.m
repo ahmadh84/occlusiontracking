@@ -22,6 +22,7 @@ classdef FlowConfidenceFeature < AbstractFeature
     
     properties
         training_seqs = [];
+        seq_conflicts = {};
         training_dir;
         confidence_epe_th = -1;
         confidence_ae_th = -1;
@@ -44,7 +45,7 @@ classdef FlowConfidenceFeature < AbstractFeature
     
     
     methods
-        function obj = FlowConfidenceFeature( cell_flows, training_seqs, training_dir, confidence_epe_th, confidence_ae_th )
+        function obj = FlowConfidenceFeature( cell_flows, training_seqs, seq_conflicts, training_dir, confidence_epe_th, confidence_ae_th )
             assert(~isempty(cell_flows), ['There should be atleast 1 flow algorithm to compute ' class(obj)]);
             
             % store the flow algorithms to be used and their ids
@@ -56,6 +57,7 @@ classdef FlowConfidenceFeature < AbstractFeature
             obj.confidence_epe_th = confidence_epe_th;
             obj.confidence_ae_th = confidence_ae_th;
             obj.training_seqs = training_seqs;
+            obj.seq_conflicts = seq_conflicts;
             obj.training_dir = training_dir;
             
             obj.extra_id = obj.getExtraID();
@@ -99,13 +101,12 @@ classdef FlowConfidenceFeature < AbstractFeature
                 COMPUTE_REFRESH = 0;
                 
                 training_s = obj.training_seqs;
-                remove_seqs = false(size(training_s));
                 
                 % see if the seq. we want to test is in the training seq.s
-                for training_idx = 1:length(training_s)
-                    if strcmp(fullfile(obj.training_dir, num2str(training_s(training_idx))), calc_feature_vec.scene_dir)
-                        remove_seqs(training_idx) = 1;
-                    end
+                [dir_scene, scene_id] = fileparts(calc_feature_vec.scene_dir);
+                training_ids = training_s;
+                if strcmp(regexprep(obj.training_dir, '/', '\'), regexprep(dir_scene, '/', '\'))
+                    training_ids = trainingSequencesUtils('getTrainingSequences', training_s, str2num(scene_id), obj.seq_conflicts);
                 end
                 
                 [scene_main_dir scene_id] = fileparts(calc_feature_vec.scene_dir);
@@ -118,10 +119,10 @@ classdef FlowConfidenceFeature < AbstractFeature
                 featconf = zeros(calc_feature_vec.image_sz(1), calc_feature_vec.image_sz(2), length(labels_to_use)*length(obj.flow_short_types));
                 
                 % if the sequences contain the sequence we want to test
-                if any(remove_seqs)
+                if ~all(ismember(training_s, training_ids))
                     % test with a classifier which doesn't have the testing seq.
                     %   (throw away the classifier)
-                    training_s(remove_seqs) = [];
+                    training_s = training_ids;
                     
                     % get feature for each flow algo.
                     for algo_idx = 1:length(obj.flow_short_types)
@@ -299,9 +300,7 @@ classdef FlowConfidenceFeature < AbstractFeature
             settings.RF_GET_VAR_IMP = '0';          % calculate the variable importance of each feature during training (at cost of additional computation time)
 
             % create the structure of OF algos to use and Features to compute
-            settings.cell_flows = { BlackAnandanOF, ...
-                                    TVL1OF, ...
-                                    HornSchunckOF, ...
+            settings.cell_flows = { TVL1OF, ...
                                     HuberL1OF, ...
                                     ClassicNLOF, ...
                                     LargeDisplacementOF };

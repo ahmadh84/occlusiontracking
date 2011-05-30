@@ -2,8 +2,9 @@ function testing_script
 %TESTING_SCRIPT Summary of this function goes here
 %   Detailed explanation goes here
     
-    [ override_settings ] = create_override_settings();
-    out_dir = 'D:/ahumayun/Results/features_comparison_tests5';
+    seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50]};
+    [ override_settings ] = create_override_settings( seq_conflicts );
+    out_dir = 'E:/Results/features_comparison_tests5';
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Test middlebury sequences %
@@ -12,8 +13,7 @@ function testing_script
 
     training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50];
     testing_seq = [1:6 9:14 17:19 22 24 26:29 30 39 40:48 49 50];
-    seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50]};
-    
+
 %     [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
     MAIN_CLASS_XML_PATH = 'D:\ahumayun\Results\features_comparison_tests5\FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp\1006490_class.xml';
     
@@ -213,7 +213,7 @@ function deleteFVData( d, sequences, unique_id )
 end
 
 
-function [ override_settings ] = create_override_settings()
+function [ override_settings ] = create_override_settings( seq_conflicts )
     override_settings = struct;
     uv_ftrs1_ss_info =               [ 10             0.8 ];   % this and the var below are there, because Temporal gradient and other features need different UV SS
     uv_ftrs2_ss_info =               [ 4              0.8 ];
@@ -252,8 +252,8 @@ function [ override_settings ] = create_override_settings()
                                         OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MAX'}), ...
                                         ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
-                                        FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19 28], '../../Data/oisin+middlebury', 50, 60), ...
-                                        FlowConfidenceFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19 28], '../../Data/oisin+middlebury', 1, 1), ...
+                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, '../../Data/oisin+middlebury', 50, 60), ...
+                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, '../../Data/oisin+middlebury', 1, 1), ...
                                         FlowAngleVarianceFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         FlowLengthVarianceFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         SPFlowBoundaryFeature(override_settings.cell_flows) };

@@ -2,7 +2,8 @@ function testing_script_sf
 %TESTING_SCRIPT Summary of this function goes here
 %   Detailed explanation goes here
     
-    [ override_settings ] = create_override_settings();
+    seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50]};
+    [ override_settings ] = create_override_settings( seq_conflicts );
     out_dir = 'D:/ahumayun/Results/features_comparison_tests5';
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -12,7 +13,6 @@ function testing_script_sf
 
     training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50];
     testing_seq = [1:6 9:14 17:19 22 24 26:29 30 39 40:48 49 50];
-    seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50]};
     
     [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
     
@@ -168,6 +168,6 @@ function [ override_settings ] = create_override_settings()
     override_settings.cell_features = { EdgeDistFeature(override_settings.ss_info_im1), ...
                                         PbEdgeStrengthFeature(0.1, uv_ftrs2_ss_info), ...
                                         PbEdgeStrengthFeature(0.4, uv_ftrs2_ss_info), ...
-                                        FlowConfidenceSingleFrameFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19 28], '../../Data/oisin+middlebury', 50, 60), ...
-                                        FlowConfidenceSingleFrameFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19 28], '../../Data/oisin+middlebury', 1, 1) };
+                                        FlowConfidenceSingleFrameFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19 28], seq_conflicts, '../../Data/oisin+middlebury', 50, 60), ...
+                                        FlowConfidenceSingleFrameFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19 28], seq_conflicts, '../../Data/oisin+middlebury', 1, 1) };
 end
