@@ -16,10 +16,10 @@ function testing_script_sf
     
     [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
     
-    MAIN_CLASS_XML_PATH = 'D:\ahumayun\Results\features_comparison_tests5\SF-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp\808654_class.xml';
+%     MAIN_CLASS_XML_PATH = 'D:\ahumayun\Results\features_comparison_tests5\SF-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp\808654_class.xml';
     
     % check if the classifier exist before proceedings
-    assert(exist(MAIN_CLASS_XML_PATH, 'file'), 'Main classifier XML doesn''t exist');
+    assert(exist(MAIN_CLASS_XML_PATH, 'file')==2, 'Main classifier XML doesn''t exist');
     
     seq_conflicts = {};
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -49,21 +49,21 @@ function testing_script_sf
 %     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'trunk');
 %     testing_seq = [1:3];
 %     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
-    
-    main_dir = '../../Data/evaluation_data/oisin/plant';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'plant');
-    testing_seq = [3];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
-    
-    main_dir = '../../Data/evaluation_data/oisin/pebbles';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'pebbles');
-    testing_seq = [1:5];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
-    
-    main_dir = '../../Data/evaluation_data/oisin/angleChange';
-    eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'angleChange');
-    testing_seq = [1:9];
-    trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/oisin/plant';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'plant');
+%     testing_seq = [3];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/oisin/pebbles';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'pebbles');
+%     testing_seq = [1:5];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
+%     
+%     main_dir = '../../Data/evaluation_data/oisin/angleChange';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'oisin', 'angleChange');
+%     testing_seq = [1:9];
+%     trainTestDelete(testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
 end
 
 
@@ -168,6 +168,6 @@ function [ override_settings ] = create_override_settings()
     override_settings.cell_features = { EdgeDistFeature(override_settings.ss_info_im1), ...
                                         PbEdgeStrengthFeature(0.1, uv_ftrs2_ss_info), ...
                                         PbEdgeStrengthFeature(0.4, uv_ftrs2_ss_info), ...
-                                        FlowConfidenceSingleFrameFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19 28], seq_conflicts, '../../Data/oisin+middlebury', 50, 60), ...
-                                        FlowConfidenceSingleFrameFeature(override_settings.cell_flows, [4 5 9 10 11 12 13 14 17 18 19 28], seq_conflicts, '../../Data/oisin+middlebury', 1, 1) };
+                                        FlowConfidenceSingleFrameFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, '../../Data/oisin+middlebury', 50, 60), ...
+                                        FlowConfidenceSingleFrameFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, '../../Data/oisin+middlebury', 1, 1) };
 end

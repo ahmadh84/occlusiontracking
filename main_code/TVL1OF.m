@@ -1,7 +1,7 @@
 classdef TVL1OF < AbstractOF
     %TVL1OF 
     % get output for "An improved algorithm for TV-L1 optical flow" (A. 
-    %   Wedel, T. Pock, C. Zach, D. Cremers, H. Bischof. In Proc. of the 
+    %   Wedel, T. Pock, C. Zach, H. Bischof, D. Cremers. In Proc. of the 
     %   Dagstuhl Motion Workshop, LNCS. 2008)
     
     properties (Constant)

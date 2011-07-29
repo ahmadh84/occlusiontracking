@@ -8,17 +8,17 @@ function testing_script
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Test middlebury sequences %
-    main_dir = '../../Data/oisin+middlebury';
+    main_dir = 'E:/Data/oisin+middlebury';
     temp_out_dir = fullfile(out_dir, 'FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp');
 
     training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50];
     testing_seq = [1:6 9:14 17:19 22 24 26:29 30 39 40:48 49 50];
 
-%     [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+    [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
     MAIN_CLASS_XML_PATH = 'D:\ahumayun\Results\features_comparison_tests5\FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp\1006490_class.xml';
     
     % check if the classifier exist before proceedings
-    assert(exist(MAIN_CLASS_XML_PATH, 'file'), 'Main classifier XML doesn''t exist');
+    assert(exist(MAIN_CLASS_XML_PATH, 'file')==2, 'Main classifier XML doesn''t exist');
     
     seq_conflicts = {};
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -252,8 +252,8 @@ function [ override_settings ] = create_override_settings( seq_conflicts )
                                         OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MAX'}), ...
                                         ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
-                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, '../../Data/oisin+middlebury', 50, 60), ...
-                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, '../../Data/oisin+middlebury', 1, 1), ...
+                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, 'E:/Data/oisin+middlebury', 50, 60), ...
+                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, 'E:/Data/oisin+middlebury', 1, 1), ...
                                         FlowAngleVarianceFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         FlowLengthVarianceFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         SPFlowBoundaryFeature(override_settings.cell_flows) };
