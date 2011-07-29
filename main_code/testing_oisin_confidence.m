@@ -1,4 +1,4 @@
-function [ output_args ] = testing_oisin_confidence( input_args )
+function testing_oisin_confidence()
 %TESTING_FINAL_EVAL Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -53,7 +53,7 @@ function [ output_args ] = testing_oisin_confidence( input_args )
     end
     
     % iterate over multiple EPE confidence threshold values
-    for confidence_epe_th = [0.1 0.25 0.5 1 2 10]
+    for confidence_epe_th = [20 30 50]
         override_settings.label_obj = FlowEPEConfidenceLabel(confidence_epe_th);
 
         % get feature for each flow algo.

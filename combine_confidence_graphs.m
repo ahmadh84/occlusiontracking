@@ -19,7 +19,7 @@ function combine_confidence_graphs
     seq_names = horzcat(seq_names, arrayfun(@(x) sprintf('street%dTxtr1*',x), 1:4, 'UniformOutput',false));
     
     
-    out_dir = 'E:/Results/oisin+results_flowconfidence2';
+    out_dir = 'D:/oisin+results_flowconfidence2';
     data_dir = 'E:/Data/oisin+middlebury';
     calc_flows_id = '1529';
     
@@ -172,14 +172,16 @@ function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_s
     image_sz = size(epe_mat);
     epe_vals = epe_mat(gt_mask);
     
-    line_styles = {':', '-.', '--', '-', ':', '-.'};
+    line_styles = {':', '-.', '--', '-', ':', '-.', '-', '-'};
     
-    hs = zeros(length(confidence_epe_ths),1);
-    clr = [0 0 1; 0 0 1; 0 0 0; 0 0 0; 0 0 0; 0 0 0];
+    hs = zeros(length(confidence_epe_ths)+2,1);
+    clr = [0 0 1; 0 0 1; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 1 0 0; 1 0 1];
     thresholds = 0:0.001:1;
     
     no_pixels = zeros(1,length(thresholds));
     avg_epe = zeros(1,length(thresholds));
+    
+    max_conf = -inf(image_sz);
     
     for idx = 1:length(confidence_epe_ths)
         confidence_epe_th = confidence_epe_ths(idx);
@@ -210,14 +212,40 @@ function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_s
                 text(no_pixels(thresholds==0.2)+2, avg_epe(thresholds==0.2), '0.2', 'Color',clr(idx,:), 'HorizontalAlignment','left', 'VerticalAlignment','top');
             end
         end
+        
+        max_conf(classifier_out > max_conf) = classifier_out(classifier_out > max_conf);
     end
+    
+    % max_conf EPE value
+%     temp_classifier_out = max_conf(gt_mask);
+%     for idx2 = 1:length(thresholds)
+%         tmpC1 = temp_classifier_out >= thresholds(idx2);
+% 
+%         no_pixels(idx2) = 100*nnz(tmpC1)/length(epe_vals);
+%         avg_epe(idx2) = mean(epe_vals(tmpC1));
+%     end
+% 
+%     hs(end-1) = plot(avgepe_ah, no_pixels, avg_epe, 'LineStyle',line_styles{end-1}, 'Color',clr(end-1,:));
+
+    
+    % optimal confidence graph
+    epe_vals = sort(epe_vals);
+    temp_classifier_out = 1 - (epe_vals-min(epe_vals))/(max(epe_vals)-min(epe_vals));
+    for idx2 = 1:length(thresholds)
+        tmpC1 = temp_classifier_out >= thresholds(idx2);
+
+        no_pixels(idx2) = 100*nnz(tmpC1)/length(epe_vals);
+        avg_epe(idx2) = mean(epe_vals(tmpC1));
+    end
+    
+    hs(end) = plot(avgepe_ah, no_pixels, avg_epe, 'LineStyle',line_styles{end}, 'Color',clr(end,:));
     
     set(avgepe_ah, 'XLim',[0 100]);
     xlabel('% Pixels');
     ylabel('Average EPE');
     title(sprintf('Confidence Thresholding for %s Flow - %s', flow_short_type, seq_name));
     
-    legend(hs, arrayfun(@(x) sprintf('% 5.1f pixels', x), confidence_epe_ths, 'UniformOutput',false)', 'Location','NorthWest');
+    legend(hs, [arrayfun(@(x) sprintf('% 5.1f pixels', x), confidence_epe_ths, 'UniformOutput',false)'; 'Opt Confd'], 'Location','NorthWest');
 end
 
 
