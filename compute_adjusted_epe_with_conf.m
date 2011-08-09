@@ -26,9 +26,10 @@ function latex_tbl = compute_adjusted_epe_with_epe( results_dir )
     
     calcflows_id = '1529'; %'2606'; %'1532';
     confidence_epe_th = [0.1 0.25 0.5 1 2 10];
+    l2norm_div = 1.0;
     
     out_im_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Learning Occlusion Regions\Writeup\oisin_PAMI\images';
-    conf_dir = 'D:/oisin+results_flowconfidence2';
+    conf_dir = 'D:/AlgoSuitability/Results/oisin+results_flowconfidence2';
     data_dir = 'E:\Data\oisin+middlebury';
     results_dir = 'E:\Results\oisin+results\gm_ed_pb_tg_pc-tv_fl_cn_ld_DISCR_new-motion-data';
 
@@ -88,44 +89,28 @@ function latex_tbl = compute_adjusted_epe_with_epe( results_dir )
         sz = size(flow_info.uv_epe);
         
         % EPE using the most confident algo
-        max_conf = -inf(sz(1),sz(2));
-        conf_algo = nan(sz(1),sz(2));
-        for conf_idx = 1:length(confidence_epe_th)
-            conf_mat = zeros(sz);
-            
-            for flow_idx = 1:length(flow_info.algo_ids)
-                temp_out_dir = fullfile(conf_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th(conf_idx), flow_info.algo_ids{flow_idx}));
-
-                temp = dir(fullfile(temp_out_dir, sprintf('%d_*_%s_prediction.data', classifier_output.scene_id, flow_info.algo_ids{flow_idx})));
-                classifier_out = textread(fullfile(temp_out_dir, temp.name), '%f');
-
-                conf_mat(:,:,flow_idx) = reshape(classifier_out, sz(2), sz(1))';
-            end
-            [curr_max_conf curr_conf_algo] = max(conf_mat, [], 3);
-            nnz(curr_max_conf > max_conf)
-            conf_algo(curr_max_conf > max_conf) = curr_conf_algo(curr_max_conf > max_conf);
-            max_conf(curr_max_conf > max_conf) = curr_max_conf(curr_max_conf > max_conf);
-        end
-        [c r] = meshgrid(1:sz(2), 1:sz(1));
-        temp = flow_info.uv_epe(sub2ind(sz, r,c,conf_algo));
-        conf_epe = mean(temp(valid_mask));
+        [ conf_epe ] = epe_max_overall_confidence(sz, confidence_epe_th, flow_info, valid_mask, conf_dir, classifier_output);
         epe_table(idx, length(flow_info.algo_ids)+4) = conf_epe;
+        
+        % EPE using the closest matched confidence classifier according to median flow length
+        [ conf_epe ] = epe_max_confidence_len(sz, confidence_epe_th, flow_info, valid_mask, conf_dir, classifier_output, l2norm_div);
+        epe_table(idx, length(flow_info.algo_ids)+5) = conf_epe;
         
         % EPE with random choice of algorithm
         temp = randi(sz(3), sz([1 2]));
         [c r] = meshgrid(1:sz(2), 1:sz(1));
         temp = flow_info.uv_epe(sub2ind(sz, r,c,temp));
         rand_epe = mean(temp(valid_mask));
-        epe_table(idx, length(flow_info.algo_ids)+5) = rand_epe;
+        epe_table(idx, length(flow_info.algo_ids)+6) = rand_epe;
         
         % compute optCombo
         opt_epe = min(flow_info.uv_epe, [], 3);
         opt_epe = mean(opt_epe(valid_mask));
-        epe_table(idx, length(flow_info.algo_ids)+6) = opt_epe;
+        epe_table(idx, length(flow_info.algo_ids)+7) = opt_epe;
     end
 
     % remove the trivial combo col
-    epe_table(:,end-4) = [];
+    epe_table(:,end-5) = [];
     
     [temp sorted_idxs] = sort(epe_table(:,1));
     epe_table = epe_table(sorted_idxs,:);
@@ -155,8 +140,8 @@ function latex_tbl = compute_adjusted_epe_with_epe( results_dir )
     mean_epe = mean(vals);
     h = barh(mean_epe, 'w');
     set(gcf, 'Position', [10 10 300 (55*length(mean_epe))+70]);
-    set(gca, 'YTickLabel',[ classifier_output.settings.label_obj.label_names 'Ours' 'Ours Confd' 'RandCombo' 'OptCombo'], 'FontSize',14);
-    line(get(gca,'XLim'), repmat(length(classifier_output.settings.label_obj.label_names)+2.5,[1 2]), 'LineStyle','--', 'Color','k');
+    set(gca, 'YTickLabel',[ classifier_output.settings.label_obj.label_names 'Ours' 'Ours Confd' 'L2Th Confd' 'RandCombo' 'OptCombo'], 'FontSize',14);
+    line(get(gca,'XLim'), repmat(length(classifier_output.settings.label_obj.label_names)+3.5,[1 2]), 'LineStyle','--', 'Color','k');
     xlabel('Avg. EPE');
     
     for idx = 1:length(mean_epe)
@@ -164,9 +149,68 @@ function latex_tbl = compute_adjusted_epe_with_epe( results_dir )
     end
     [temp fldr] = fileparts(results_dir);
     set(gcf,'PaperPositionMode','auto');
-    print('-depsc', '-r0', fullfile(out_im_dir, sprintf('%s_CONF%s.eps', fldr, sprintf('_%d', confidence_epe_th*100))));
+    print('-depsc', '-r0', fullfile(out_im_dir, sprintf('%s_CONF%s_L2TH_%d.eps', fldr, sprintf('_%d', confidence_epe_th*100), l2norm_div*100)));
     
 %     graph_of_removal(epe_table, classifier_output.settings, fullfile(out_im_dir, sprintf('%s_CONF%s_Removal.eps', fldr, sprintf('_%d', confidence_epe_th*100))));
+end
+
+
+function [ conf_epe ] = epe_max_overall_confidence(sz, confidence_epe_th, flow_info, valid_mask, conf_dir, classifier_output)
+    max_conf = -inf(sz(1),sz(2));
+    conf_algo = nan(sz(1),sz(2));
+    for conf_idx = 1:length(confidence_epe_th)
+        conf_mat = zeros(sz);
+
+        for flow_idx = 1:length(flow_info.algo_ids)
+            temp_out_dir = fullfile(conf_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th(conf_idx), flow_info.algo_ids{flow_idx}));
+
+            temp = dir(fullfile(temp_out_dir, sprintf('%d_*_%s_prediction.data', classifier_output.scene_id, flow_info.algo_ids{flow_idx})));
+            classifier_out = textread(fullfile(temp_out_dir, temp.name), '%f');
+
+            conf_mat(:,:,flow_idx) = reshape(classifier_out, sz(2), sz(1))';
+        end
+        [curr_max_conf curr_conf_algo] = max(conf_mat, [], 3);
+        nnz(curr_max_conf > max_conf)
+        conf_algo(curr_max_conf > max_conf) = curr_conf_algo(curr_max_conf > max_conf);
+        max_conf(curr_max_conf > max_conf) = curr_max_conf(curr_max_conf > max_conf);
+    end
+    [c r] = meshgrid(1:sz(2), 1:sz(1));
+    temp = flow_info.uv_epe(sub2ind(sz, r,c,conf_algo));
+    conf_epe = mean(temp(valid_mask));
+end
+
+
+function [ conf_epe ] = epe_max_confidence_len(sz, confidence_epe_th, flow_info, valid_mask, conf_dir, classifier_output, l2norm_div)
+    l2norm = hypot(flow_info.uv_flows(:,:,1,:),flow_info.uv_flows(:,:,2,:));
+    l2norm = squeeze(l2norm);
+    l2norm = median(l2norm, 3) .* l2norm_div;
+    
+    conf_th_choice = ones(sz([1 2]));
+    
+    for conf_idx = 1:length(confidence_epe_th)-1
+        conf_th_choice(l2norm > confidence_epe_th(conf_idx)) = conf_idx+1;
+    end
+    
+    [c r] = meshgrid(1:sz(2), 1:sz(1));
+    epe_mat = zeros(sz([1 2]));
+    conf_idxs = unique(conf_th_choice);
+    for conf_idx = conf_idxs'
+        conf_mat = zeros(sz);
+
+        for flow_idx = 1:length(flow_info.algo_ids)
+            temp_out_dir = fullfile(conf_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th(conf_idx), flow_info.algo_ids{flow_idx}));
+
+            temp = dir(fullfile(temp_out_dir, sprintf('%d_*_%s_prediction.data', classifier_output.scene_id, flow_info.algo_ids{flow_idx})));
+            classifier_out = textread(fullfile(temp_out_dir, temp.name), '%f');
+
+            conf_mat(:,:,flow_idx) = reshape(classifier_out, sz(2), sz(1))';
+        end
+        [curr_max_conf curr_conf_algo] = max(conf_mat, [], 3);
+        temp = flow_info.uv_epe(sub2ind(sz, r,c,curr_conf_algo));
+        epe_mat(conf_th_choice == conf_idx) = temp(conf_th_choice == conf_idx);
+    end
+    
+    conf_epe = mean(epe_mat(valid_mask));
 end
 
 
