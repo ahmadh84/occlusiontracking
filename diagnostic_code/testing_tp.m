@@ -11,8 +11,8 @@ function [ output_args ] = testing_tp( input_args )
     d = dir(fullfile(prediction_dir, [scene_id '*prediction.data']));
     assert(~isempty(d), 'The prediction file was not found');
     
-    addpath(genpath(fullfile(pwd, '..', 'main_code', 'utils')));
-    addpath(genpath(fullfile(pwd, '..', 'misc', 'TurboPixels')));
+    addpath(genpath(fullfile(fileparts(which(mfilename)), '..', 'main_code', 'utils')));
+    addpath(genpath(fullfile(fileparts(which(mfilename)), '..', 'misc', 'TurboPixels')));
     
     % load image
     i = im2double(imread(fullfile(main_dir, scene_id, '1.png')));
