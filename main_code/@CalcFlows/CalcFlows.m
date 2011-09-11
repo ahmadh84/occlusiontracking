@@ -3,7 +3,7 @@ classdef CalcFlows < handle
     %   Detailed explanation goes here
     
     properties (Constant, Transient)
-        ALGOS_PATH = fullfile(pwd, 'algorithms');
+        ALGOS_PATH = fullfile(fileparts(fileparts(which(mfilename))), 'algorithms');
         GT_FLOW_FILE = '1_2.flo';
         GT_UNSURE_MASK = 'unsure_mask.png';
         SAVE_OBJ_NAME = 'flow_info';

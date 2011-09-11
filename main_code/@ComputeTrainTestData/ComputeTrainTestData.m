@@ -3,7 +3,7 @@ classdef ComputeTrainTestData < handle
     %   Detailed explanation goes here
     
     properties (Constant, Transient)
-        UTILS_PATH = fullfile(pwd, 'utils');
+        UTILS_PATH = fullfile(fileparts(fileparts(which(mfilename))), 'utils');
         IM1_PNG = '1.png';
         IM2_PNG = '2.png';
     end
