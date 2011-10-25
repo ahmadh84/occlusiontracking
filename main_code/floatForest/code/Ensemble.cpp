@@ -55,6 +55,7 @@ void Ensemble::train(Matrix2df& data, Matrix2df& labels, int numDimTrials, int n
 
 		delete [] bag;
 	}
+
 }
 
 
@@ -153,13 +154,9 @@ void Ensemble::loadEnsemble(string fileName) {
 			}
 
 			// create new node
-			Node* node = new Node();
-			node->nodeId = (int)readVals[0];
+			Node* node = new Node((int)readVals[0], numClasses_);
 			node->dimId = (int)readVals[1];
 			node->thresh = readVals[2];
-			node->posterior = new float[numClasses_];
-			node->left = 0;
-			node->right = 0;
 			for (int pIt = 0; pIt < numClasses_; pIt++)
 				node->posterior[pIt] = readVals[pIt+3];
 

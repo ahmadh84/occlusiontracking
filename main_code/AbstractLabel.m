@@ -18,14 +18,14 @@ classdef AbstractLabel
     
     
     methods
-        function feature_no_id = returnNoID(obj)
+        function label_no_id = returnNoID(obj)
         % creates unique feature number, good for storing with the file
         % name
         
             % create unique ID
             nos = uint8(obj.LABEL_SHORT_TYPE);
             nos = double(nos) .* ([1:length(nos)].^2);
-            feature_no_id = sum(nos);
+            label_no_id = sum(nos);
         end
     end
     

@@ -32,7 +32,7 @@ public:
 private:
 	int countNodes(Node* node, int& cnt);
 	void addNodeToTree(Node* node, Node* nodeToAdd);
-	void calcBestNode(Matrix2df& X, Matrix2df& Y, bool bag[], int numDimTrials, int numThreshTrials, Node& curNode);
+	void calcBestNode(Matrix2df& X, Matrix2df& Y, bool bag[], int numDimTrials, int numThreshTrials, Node& curNode, int minNoOFExsAtNode);
 	void preorderCreate(Node* node, Matrix2df& X, Matrix2df& Y, bool bag[], int numDimTrials, int numThreshTrials, int minNoOFExsAtNode);
 };
 

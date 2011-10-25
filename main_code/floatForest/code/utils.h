@@ -2,22 +2,60 @@
 #define UTILS_H
 #include <stdlib.h>
 
+class Node{
+
+public:
+	int nodeId;
+	int dimId;
+	float thresh;
+	float* posterior;
+	int totalExs;
+	float infoGain;
+	float entropy;
+	bool grown;
+	bool isLeaf;
+	Node *left;   // pointer to the left subtree
+	Node *right;  // pointer to the right subtree
+	Node *parent;
+
+	Node(int nodeId_, int noClasses_) {
+		grown = false;
+		isLeaf = false;
+		infoGain = -3.40282e+38;
+		entropy = -3.40282e+38;
+		left = 0;
+		right = 0;
+		parent = 0;
+		nodeId = nodeId_;
+		posterior = new float[noClasses_];
+		for (int i=0; i < noClasses_ ; i++)
+			posterior[i] = 1.0/(float)noClasses_ ;
+	}
+
+	Node() {}
+
+	void initialiseNode(int nodeId_, int noClasses_) {
+		grown = false;
+		isLeaf = false;
+		infoGain = -3.40282e+38;
+		entropy = -3.40282e+38;
+		left = 0;
+		right = 0;
+		parent = 0;
+		nodeId = nodeId_;
+		posterior = new float[noClasses_];
+		for (int i=0; i < noClasses_ ; i++)
+			posterior[i] = 1.0/(float)noClasses_ ;
+	}
+
+	~Node() {
+		// doesnt like this
+		//delete [] posterior;
+	}
+
+};
 
 //TODO exception handling not working yet
-typedef struct Node {
-		int nodeId;
-		int dimId;
-		float thresh;
-		float* posterior;
-		int totalExs;
-		float entropy;
-		bool grown;
-		int leftSize;
-		int rightSize;
-		struct Node *left;   // pointer to the left subtree
-		struct Node *right;  // pointer to the right subtree
-	};	
-
 class Matrix2df{
 
 public:
@@ -86,7 +124,7 @@ public:
 			colMins[cIt] = data[0][cIt];
 			colMaxes[cIt] = data[0][cIt];
 		}
-		
+
 		for (int rIt = 1; rIt < rows; rIt ++) {
 			for (int cIt = 0; cIt < cols; cIt ++) {
 
@@ -117,7 +155,7 @@ public:
 		}
 	}
 
-	
+
 	Matrix2df& operator = (Matrix2df& m1) {
 
 		if (m1.cols == cols && m1.rows == rows) {
@@ -127,10 +165,10 @@ public:
 		}
 		return *this;
 	}
-	
+
 
 	Matrix2df& operator/ (float denom) {
-	
+
 		for (int i = 0; i < rows; ++i)
 			for (int j = 0; j < cols; ++j)
 				data[i][j] = data[i][j] / float(denom);
@@ -156,7 +194,7 @@ public:
 				delete [] data[i];
 			delete [] data;
 		}
-		
+
 	}
 
 };
