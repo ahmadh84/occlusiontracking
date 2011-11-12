@@ -20,7 +20,7 @@ classdef HuberL1OF < AbstractOF
             % add paths for all the flow algorithms
             CalcFlows.addPaths();
             
-            curr_path = pwd;
+            curr_path = fileparts(which(mfilename));
             curr_path_im1 = fullfile(curr_path, 'temp_1_delete_if_found.pgm');
             curr_path_im2 = fullfile(curr_path, 'temp_2_delete_if_found.pgm');
             

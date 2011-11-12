@@ -23,6 +23,7 @@ classdef FlowConfidenceFeature < AbstractFeature
     properties
         training_seqs = [];
         seq_conflicts = {};
+        cell_flows = {};
         training_dir;
         confidence_epe_th = -1;
         confidence_ae_th = -1;
@@ -49,9 +50,10 @@ classdef FlowConfidenceFeature < AbstractFeature
             assert(~isempty(cell_flows), ['There should be atleast 1 flow algorithm to compute ' class(obj)]);
             
             % store the flow algorithms to be used and their ids
-            for algo_idx = 1:length(cell_flows)
-                obj.flow_short_types{end+1} = cell_flows{algo_idx}.OF_SHORT_TYPE;
-                obj.flow_ids(end+1) = cell_flows{algo_idx}.returnNoID();
+            obj.cell_flows = cell_flows;
+            for algo_idx = 1:length(obj.cell_flows)
+                obj.flow_short_types{end+1} = obj.cell_flows{algo_idx}.OF_SHORT_TYPE;
+                obj.flow_ids(end+1) = obj.cell_flows{algo_idx}.returnNoID();
             end
             
             obj.confidence_epe_th = confidence_epe_th;
@@ -294,17 +296,14 @@ classdef FlowConfidenceFeature < AbstractFeature
             % OpenCV Random Forest parameters
             settings.RF_MAX_DEPTH = '30';           % maximum levels in a tree
             settings.RF_MIN_SAMPLE_COUNT = '25';    % don't split a node if less
-            settings.RF_MAX_CATEGORIES = '30';      % limits the no. of categorical values before the decision tree preclusters those categories so that it will have to test no more than 2^max_categories–2 possible value subsets. Low values reduces computation at the cost of accuracy
+            settings.RF_MAX_CATEGORIES = '30';      % limits the no. of categorical values before the decision tree preclusters those categories so that it will have to test no more than 2^max_categories-2 possible value subsets. Low values reduces computation at the cost of accuracy
             settings.RF_NO_ACTIVE_VARS = '4';       % size of randomly selected subset of features to be tested at any given node (typically the sqrt of total no. of features)
             settings.RF_MAX_TREE_COUNT = '100';
             settings.RF_GET_VAR_IMP = '0';          % calculate the variable importance of each feature during training (at cost of additional computation time)
 
             % create the structure of OF algos to use and Features to compute
-            settings.cell_flows = { TVL1OF, ...
-                                    HuberL1OF, ...
-                                    ClassicNLOF, ...
-                                    LargeDisplacementOF };
-                                
+            settings.cell_flows = obj.cell_flows;
+            
                                      % no_scales     % scale
             settings.ss_info_im1 =  [ 10             0.8 ];                                 % image pyramid to be built for im1
             settings.ss_info_im2 =  [ 1              1 ];                                   % image pyramid to be built for im2

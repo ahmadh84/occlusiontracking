@@ -15,7 +15,15 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
     CLASS_XML_PATH = '';
     
     COMPUTE_REFRESH = 0;
-    settings.RANDOM_FOREST_RUN = 'randomForest\src\predictDescriptor\Release\predictDescriptor.exe ';
+    
+    % set the RF executable command
+    if ispc
+        % windows executable (compiled using Visual Studio 2008 on Win7x64)
+        settings.RANDOM_FOREST_RUN = 'randomForest\src\predictDescriptor\Release\predictDescriptor.exe ';
+    else
+        % linux executable (compiled using Ubuntu 11.10 x64)
+        settings.RANDOM_FOREST_RUN = './randomForest/src/predictDescriptor/Release/predictDescriptor ';
+    end
     
     
     uv_ftrs1_ss_info =            [ 10             0.8 ];   % this and the var below are there, because Temporal gradient and other features need different UV SS
@@ -47,7 +55,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
     % OpenCV Random Forest parameters
     settings.RF_MAX_DEPTH = '35';           % maximum levels in a tree
     settings.RF_MIN_SAMPLE_COUNT = '20';    % don't split a node if less
-    settings.RF_MAX_CATEGORIES = '25';      % limits the no. of categorical values before the decision tree preclusters those categories so that it will have to test no more than 2^max_categories–2 possible value subsets. Low values reduces computation at the cost of accuracy
+    settings.RF_MAX_CATEGORIES = '25';      % limits the no. of categorical values before the decision tree preclusters those categories so that it will have to test no more than 2^max_categories-2 possible value subsets. Low values reduces computation at the cost of accuracy
     settings.RF_NO_ACTIVE_VARS = '11';      % size of randomly selected subset of features to be tested at any given node (typically the sqrt of total no. of features)
     settings.RF_MAX_TREE_COUNT = '105';
     settings.RF_GET_VAR_IMP = '1';          % calculate the variable importance of each feature during training (at cost of additional computation time)

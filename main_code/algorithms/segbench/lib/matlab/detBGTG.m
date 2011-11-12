@@ -10,7 +10,7 @@ if numel(radius)==1, radius=radius*ones(2,1); end
 
 [h,w,unused] = size(im);
 idiag = norm([h w]);
-if isrgb(im), im=rgb2gray(im); end
+if size(im,3)==3, im=rgb2gray(im); end
 
 % compute brightness gradient
 [bg,theta] = cgmo(im,idiag*radius(1),norient,...
