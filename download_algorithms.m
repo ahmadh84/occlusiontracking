@@ -10,7 +10,7 @@ end
 % destination algorithms directory
 curr_dir = fileparts(which(mfilename));
 algos_dir = fullfile(curr_dir, 'main_code', 'algorithms');
-dont_delete = {'CUDA_masked_NSSD', 'FlowLib', 'kolmogCompar', 'Template_Match', 'vlfeat-0.9.9', 'randsample.m'};
+dont_delete = {'CUDA_masked_NSSD', 'FlowLib', 'kolmogCompar', 'Template_Match', 'vlfeat-0.9.9', 'kmeansK.cpp', 'mexutils.h', 'prctile.m', 'randsample.m'};
 if exist(algos_dir,'dir')
     % only delete the dir/files not in dont_delete
     d = dir(algos_dir);
@@ -80,7 +80,6 @@ try
     rmdir(fullfile(algos_dir, 'Classic NL', '@alt_ba_optical_flow'), 's');
     rmdir(fullfile(algos_dir, 'Classic NL', '@ba_optical_flow'), 's');
     rmdir(fullfile(algos_dir, 'Classic NL', '@hs_optical_flow'), 's');
-    delete(fullfile(algos_dir, 'Classic NL', 'readme.pdf'));
     replaceInTextFile(fullfile(algos_dir, 'Classic NL', 'estimate_flow_interface.m'), 'if \(~isdeployed\)\n\s*addpath\(genpath\(''utils''\)\);\nend', '% if \(~isdeployed\)\n%     addpath\(genpath\(''utils''\)\);\n% end');
     adjustAttributes(fullfile(algos_dir, 'Classic NL'));
     
@@ -147,6 +146,7 @@ try
     end
     % isrgb no longer exists
     replaceInTextFile(fullfile(algos_dir, 'segbench', 'lib', 'matlab', 'detBGTG.m'), 'if isrgb\(im\), im=rgb2gray\(im\); end', 'if size(im,3)==3, im=rgb2gray(im); end');
+    movefile(fullfile(temp_dir, 'segbench', 'README'), fullfile(algos_dir, 'segbench'));
     adjustAttributes(fullfile(algos_dir, 'segbench'));
 
     
