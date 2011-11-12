@@ -1,7 +1,7 @@
 #include "mex.h"
 #define max(a,b) (a>b?a:b)
 
-void mexFunction(int nlhs, mxArray* plhs [],int nrhs, mxArray* prhs[]){
+void mexFunction(int nlhs, mxArray* plhs [],int nrhs, const mxArray* prhs[]){
 	if(nrhs != 4 || nlhs != 1)
 		mexErrMsgTxt("use x = thomas_mex(a,b,c,d); with a being the diagonal, b the upper diagonal and c the lower diagonal of Ax=d\n a,d should be 1 x n and b,c should be 1 x n-1\n");
 	double *a = mxGetPr(prhs[0]); double *b = mxGetPr(prhs[1]); double *c = mxGetPr(prhs[2]); double *d=mxGetPr(prhs[3]);

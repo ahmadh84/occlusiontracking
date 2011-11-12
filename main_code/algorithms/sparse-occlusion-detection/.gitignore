@@ -1,0 +1,12 @@
+*.mex*
+.DS_Store
+*~
+*.*~
+*.png
+*.pdf
+*.mat
+#*
+relaxed-lp/trash/*
+relaxed-lp/scratch/*
+*.tmproj
+._*

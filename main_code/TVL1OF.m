@@ -19,8 +19,23 @@ classdef TVL1OF < AbstractOF
             
             % add paths for all the flow algorithms
             CalcFlows.addPaths();
+
+            % smoothness of flow
+            lambda = 50;
+
+            % warping parameters
+            pyramid_levels = 1000; % as much as possible
+            pyramid_factor = 0.9;
+            warps = 1;
+            maxits = 50;
             
-            uv_tv = tvl1of(im1, im2);
+            % this TV_L1 implementation only takes grayscale values
+            im1 = im2double(rgb2gray(im1));
+            im2 = im2double(rgb2gray(im2));
+            
+            [uv_tv illumination] = ...
+                coarse_to_fine(im1, im2, lambda, warps, maxits, pyramid_levels, pyramid_factor, 1);
+            %uv_tv = tvl1of(im1, im2);
             
             tv_compute_time = toc;
         end
