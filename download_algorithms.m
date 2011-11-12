@@ -10,12 +10,25 @@ end
 % destination algorithms directory
 curr_dir = fileparts(which(mfilename));
 algos_dir = fullfile(curr_dir, 'main_code', 'algorithms');
-dont_delete = [''];
+dont_delete = {'CUDA_masked_NSSD', 'FlowLib', 'kolmogCompar', 'Template_Match', 'vlfeat-0.9.9', 'randsample.m'};
 if exist(algos_dir,'dir')
-    
-    rmdir(algos_dir, 's');
+    % only delete the dir/files not in dont_delete
+    d = dir(algos_dir);
+    for idx = 1:length(d)
+        if strcmp(d(idx).name,'.') || strcmp(d(idx).name,'..')
+            continue;
+        end
+        if ~any(strcmp(d(idx).name, dont_delete))
+            if d(idx).isdir
+                rmdir(fullfile(algos_dir,d(idx).name), 's');
+            else
+                delete(fullfile(algos_dir,d(idx).name));
+            end
+        end
+    end
+else
+    mkdir(algos_dir);
 end
-mkdir(algos_dir);
 
 % create temp download directory
 temp_dir = fullfile(curr_dir, sprintf('temp%d', randi(1e8)));
