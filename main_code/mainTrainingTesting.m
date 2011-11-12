@@ -2,6 +2,9 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
 %MAINTRAININGTESTING Summary of this function goes here
 %   Detailed explanation goes here
 
+    % add the main directory to the path
+    addpath(fileparts(which(mfilename)));
+    
     % if not bothered about an RF xml classifier, don't create it
     if ~exist('produce_rf_xml_out', 'var')
         produce_rf_xml_out = 0;
