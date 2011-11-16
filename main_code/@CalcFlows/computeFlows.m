@@ -18,91 +18,23 @@ function computeFlows( obj )
     obj.uv_flows_reverse = [];
     obj.algo_ids = cell(1, obj.no_algos);
 
+    uv_extra_info.scene_dir = obj.scene_dir;
+    
+    
     % COMPUTE ALL THE OPTICAL FLOWs and store their IDs
     for algo_idx = 1:obj.no_algos
-        if strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Large Displacement OF')
-            % DON'T HAVE 64BIT MEX FOR LDOF
-            warning('CalcFlows:computeFlows', 'loading directly from file');
-            
-            % if file doesn't exist, attempt to compute it on a remote linux machine
-            if exist(fullfile(obj.scene_dir, 'largedispof.mat'), 'file') ~= 2
-                addpath('remoteexec');
-                status = remote_ldof(fullfile(obj.scene_dir, ComputeTrainTestData.IM1_PNG), fullfile(obj.scene_dir, ComputeTrainTestData.IM2_PNG));
-                assert(status == 0, 'Something went wrong while computing LDOF remotely');
-            end
-            
-            load(fullfile(obj.scene_dir, 'largedispof.mat'));
-            obj.uv_flows(:,:,:,algo_idx) = uv_ld;
-            
-            % if we need to compute the flow in reverse
-            if obj.compute_reverse
-                obj.uv_flows_reverse(:,:,:,algo_idx) = uv_ld_r;
-            end
-            
-            obj.flow_compute_times(algo_idx) = ld_compute_time;
-            
-        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'GT Flow')
-            % Just need to give the directory
-            warning('CalcFlows:computeFlows', 'using GT flow');
-        
-            [ obj.uv_flows(:,:,:,algo_idx) gf_compute_time ] = obj.cell_flow_algos{algo_idx}.calcFlow(obj.scene_dir);
-            
-            assert(~obj.compute_reverse, 'Can''t get reverse flow with GT flow');
-            
-            obj.flow_compute_times(algo_idx) = gf_compute_time;
-            
-        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Huber-L1')
-            % DON'T HAVE CUDA FOR machine
-            warning('CalcFlows:computeFlows', 'loading directly from file');
-            load(fullfile(obj.scene_dir, 'huberl1.mat'));
-            obj.uv_flows(:,:,:,algo_idx) = uv_fl;
-            
-            % if we need to compute the flow in reverse
-            if obj.compute_reverse
-                obj.uv_flows_reverse(:,:,:,algo_idx) = uv_fl_r;
-            end
-            
-            obj.flow_compute_times(algo_idx) = fl_compute_time;
-            
-        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Classic NL') && ...
-            exist(fullfile(obj.scene_dir, 'classicnl.mat'), 'file') == 2
-            
-            warning('CalcFlows:computeFlows', 'loading directly from file');
-            load(fullfile(obj.scene_dir, 'classicnl.mat'));
-            obj.uv_flows(:,:,:,algo_idx) = uv_cn;
-            
-            % if we need to compute the flow in reverse
-            if obj.compute_reverse
-                obj.uv_flows_reverse(:,:,:,algo_idx) = uv_cn_r;
-            end
-            
-            obj.flow_compute_times(algo_idx) = cn_compute_time;
-            
-        elseif strcmp(obj.cell_flow_algos{algo_idx}.OF_TYPE, 'Occlusion-Motion-ConvexOpt') && ...
-            exist(fullfile(obj.scene_dir, 'occlconvex.mat'), 'file') == 2
-            
-            warning('CalcFlows:computeFlows', 'loading directly from file');
-            load(fullfile(obj.scene_dir, 'occlconvex.mat'));
-            obj.uv_flows(:,:,:,algo_idx) = uv_oc;
-            
-            % if we need to compute the flow in reverse
-            if obj.compute_reverse
-                obj.uv_flows_reverse(:,:,:,algo_idx) = uv_oc_r;
-            end
-            
-            obj.flow_compute_times(algo_idx) = oc_compute_time;
-            
-        else
-            [ obj.uv_flows(:,:,:,algo_idx) compute_time ] = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2);
-            
-            % if we need to compute the flow in reverse
-            if obj.compute_reverse
-                [ obj.uv_flows_reverse(:,:,:,algo_idx) temp ] = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im2, obj.im1);
-                compute_time = compute_time + temp;
-            end
-            
-            obj.flow_compute_times(algo_idx) = compute_time;
+        % compute forward flow
+        uv_extra_info.reverse = 0;
+        [ obj.uv_flows(:,:,:,algo_idx) compute_time ] = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im1, obj.im2, uv_extra_info);
+
+        % if we need to compute the flow in reverse
+        if obj.compute_reverse
+            uv_extra_info.reverse = 1;
+            [ obj.uv_flows_reverse(:,:,:,algo_idx) temp ] = obj.cell_flow_algos{algo_idx}.calcFlow(obj.im2, obj.im1, uv_extra_info);
+            compute_time = compute_time + temp;
         end
+
+        obj.flow_compute_times(algo_idx) = compute_time;
         
         obj.algo_ids{algo_idx} = obj.cell_flow_algos{algo_idx}.OF_SHORT_TYPE;
     end

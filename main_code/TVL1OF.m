@@ -7,11 +7,16 @@ classdef TVL1OF < AbstractOF
     properties (Constant)
         OF_TYPE = 'TV-L1';
         OF_SHORT_TYPE = 'TV';
+        
+        SAVE_FILENAME = '';
+        FORWARD_FLOW_VAR = '';
+        BCKWARD_FLOW_VAR = '';
+        COMPUTATION_TIME_VAR = '';
     end
     
     
     methods (Static)
-        function [ uv_tv tv_compute_time ] = calcFlow(im1, im2)
+        function [ uv_tv tv_compute_time ] = calcFlow(im1, im2, extra_info)
             % calculates the TV-L1 flow
             fprintf('--> Computing TV-L1 flow\n');
             

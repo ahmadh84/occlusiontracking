@@ -8,11 +8,16 @@ classdef HornSchunckOF < AbstractOF
         OF_SHORT_TYPE = 'HS';
         
         OF_DIRECTORY_NAME = 'Horn & Schunck';
+        
+        SAVE_FILENAME = '';
+        FORWARD_FLOW_VAR = '';
+        BCKWARD_FLOW_VAR = '';
+        COMPUTATION_TIME_VAR = '';
     end
     
     
     methods (Static)
-        function [ uv_hs hs_compute_time ] = calcFlow(im1, im2)
+        function [ uv_hs hs_compute_time ] = calcFlow(im1, im2, extra_info)
             % calculates the Horn Schunk flow
             fprintf('--> Computing Horn Schunk flow\n');
             

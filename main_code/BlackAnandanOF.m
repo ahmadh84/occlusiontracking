@@ -9,11 +9,16 @@ classdef BlackAnandanOF < AbstractOF
         OF_SHORT_TYPE = 'BA';
         
         OF_DIRECTORY_NAME = 'Black & Anandan 3';
+        
+        SAVE_FILENAME = '';
+        FORWARD_FLOW_VAR = '';
+        BCKWARD_FLOW_VAR = '';
+        COMPUTATION_TIME_VAR = '';
     end
     
 
     methods (Static)
-        function [ uv_ba ba_compute_time ] = calcFlow(im1, im2)
+        function [ uv_ba ba_compute_time ] = calcFlow(im1, im2, extra_info)
             % calculates the Black Anandan flow
             fprintf('--> Computing Black Anandan flow\n');
             
