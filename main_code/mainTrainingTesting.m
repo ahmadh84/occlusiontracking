@@ -176,6 +176,8 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
             fprintf(2, 'Classifier Failed!\n');
             fprintf(1, out);
         end
+        
+        close all;
     end
 end
 

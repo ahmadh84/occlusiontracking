@@ -100,6 +100,11 @@ classdef ComputeFeatureVectors < handle
         
         
         function removeFeatures( obj, del_feature_cols )
+            % if no features to remove
+            if isempty(del_feature_cols)
+                return;
+            end
+            
             % delete the feature cols
             obj.features(:,del_feature_cols) = [];
             

@@ -15,7 +15,11 @@ classdef ClassifierOutputHandler < handle
         
         classifier_out;
         feature_importance = [];
+        
         area_under_roc;
+        max_f1_score_pr;
+        max_f1_score_idx = -1;
+        
         feature_depths;
         feature_types;
         classifier_train_err;
@@ -64,7 +68,7 @@ classdef ClassifierOutputHandler < handle
             obj.manageConsoleOutput( classifier_info.classifier_console_out );
             
             % get the ROC statistics
-            obj.computeROC();
+            obj.computeROCPR();
         end
         
         
@@ -163,9 +167,14 @@ classdef ClassifierOutputHandler < handle
                 text(recall(obj.thresholds==0.2)+0.02, obj.precision(obj.thresholds==0.2), '0.2', 'Color',[0 0 1]);
             end
             
+            % mark the optimal F1 score point
+            if obj.max_f1_score_idx ~= -1
+                plot(recall(obj.max_f1_score_idx), obj.precision(obj.max_f1_score_idx), 'rx', 'MarkerSize',8, 'LineWidth',1.5);
+            end
+            
             set(gca, 'XLim',[0 1], 'YLim',[0 1]);
             
-            title(sprintf('PR of %s', obj.settings.label_obj.LABEL_PURPOSE));
+            title(sprintf('PR of %s - Maximum F1 score %.4f (marked on graph)', obj.settings.label_obj.LABEL_PURPOSE, obj.max_f1_score_pr));
             
             xlabel('Recall');
             ylabel('Precision');
@@ -224,31 +233,31 @@ classdef ClassifierOutputHandler < handle
         
         function filename = getPosteriorImageFilename( obj )
             filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'posterior');
-            filename = regexprep(filename, '/', '\');
+            filename = regexprep(filename, '/', filesep);
         end
 
 
         function filename = getROCPlotFilename( obj )
             filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'roc');
-            filename = regexprep(filename, '/', '\');
+            filename = regexprep(filename, '/', filesep);
         end
         
 
         function filename = getPRPlotFilename( obj )
             filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'pr');
-            filename = regexprep(filename, '/', '\');
+            filename = regexprep(filename, '/', filesep);
         end
         
         
         function filename = getRFFeatureFilename( obj )
             filename = sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'rffeatureimp');
-            filename = regexprep(filename, '/', '\');
+            filename = regexprep(filename, '/', filesep);
         end
         
         
         function filename = getSavingFilename( obj )
             filename = [sprintf(regexprep(obj.getUniqueObjFilename(), '\', '/'), 'rffeatureimp') '.mat'];
-            filename = regexprep(filename, '/', '\');
+            filename = regexprep(filename, '/', filesep);
         end
         
     end
@@ -280,7 +289,7 @@ classdef ClassifierOutputHandler < handle
         end
         
         
-        function computeROC( obj )
+        function computeROCPR( obj )
             % computes the TPR and FPR at different thresholds (given by
             % obj.thresholds). Also computes the Area under the curve for
             % ROC
@@ -309,9 +318,9 @@ classdef ClassifierOutputHandler < handle
             T = nnz(labels);
             N = nnz(~labels);
             
-            obj.fpr = zeros(length(obj.thresholds),1);
-            obj.tpr = zeros(length(obj.thresholds),1);      % recall
-            obj.precision = zeros(length(obj.thresholds),1);
+            obj.fpr = zeros(length(obj.thresholds),1);          % fall-out
+            obj.tpr = zeros(length(obj.thresholds),1);          % recall / Hit-rate / sensitivity
+            obj.precision = zeros(length(obj.thresholds),1);    % positive predictive value (PPV)
     
             temp_classifier_out = obj.classifier_out';
             temp_classifier_out = temp_classifier_out(:);
@@ -339,6 +348,14 @@ classdef ClassifierOutputHandler < handle
             
             % compute the area under the curve
             obj.area_under_roc = sum((obj.fpr(1:end-1)-obj.fpr(2:end)).*((obj.tpr(1:end-1) + obj.tpr(2:end)).*0.5));
+            
+            % compute F1 score at all operating points
+            f1_scores = 2 * (obj.precision .* obj.tpr) ./ (obj.precision + obj.tpr);
+            obj.max_f1_score_pr = max(f1_scores);
+            found_idx = find(f1_scores == obj.max_f1_score_pr);
+            if ~isempty(found_idx)
+                obj.max_f1_score_idx = found_idx(round(length(found_idx)/2));
+            end
         end
         
         
