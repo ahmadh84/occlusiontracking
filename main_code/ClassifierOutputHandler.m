@@ -169,7 +169,7 @@ classdef ClassifierOutputHandler < handle
             
             % mark the optimal F1 score point
             if obj.max_f1_score_idx ~= -1
-                plot(recall(obj.max_f1_score_idx), obj.precision(obj.max_f1_score_idx), 'rx', 'MarkerSize',8, 'LineWidth',1.5);
+                plot(recall(obj.max_f1_score_idx), obj.precision(obj.max_f1_score_idx), 'rx', 'MarkerSize',9, 'LineWidth',1.8);
             end
             
             set(gca, 'XLim',[0 1], 'YLim',[0 1]);

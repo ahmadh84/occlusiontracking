@@ -175,7 +175,7 @@ classdef SPFlowBoundaryFeature < AbstractFeature
             uv_flow = calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,:,algos_to_use);
 
             % get the median flow (make 2 dim matrix - quicker! :s)
-            sz_temp = size(uv_flow);
+            sz_temp = [size(uv_flow,1) size(uv_flow,2) size(uv_flow,3) size(uv_flow,4)];
             uv_flow = reshape(uv_flow, [sz_temp(1)*sz_temp(2)*sz_temp(3) sz_temp(4)]);
             median_flow = median(uv_flow, 2);
             median_flow = reshape(median_flow, [sz_temp(1) sz_temp(2) sz_temp(3)]);
