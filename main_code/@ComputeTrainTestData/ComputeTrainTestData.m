@@ -69,7 +69,7 @@ classdef ComputeTrainTestData < handle
             [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(scene_id);
             
             % send the unique id used for appending to filenames
-            unique_id = comp_feat_vec.getUniqueID();
+            unique_id = obj.returnNoID(comp_feat_vec);
             
             % produce the training data
             if ~obj.force_no_gt
@@ -85,7 +85,7 @@ classdef ComputeTrainTestData < handle
             [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(scene_id);
             
             % send the unique id used for appending to filenames
-            unique_id = comp_feat_vec.getUniqueID();
+            unique_id = obj.returnNoID(comp_feat_vec);
             
             % produce the testing data
             [ test_filepath ] = obj.produceTestingDataFile( scene_id, comp_feat_vec, calc_flows );
@@ -98,7 +98,7 @@ classdef ComputeTrainTestData < handle
                 [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(training_ids(1));
 
                 % send the unique id used for appending to filenames
-                unique_id = comp_feat_vec.getUniqueID();
+                unique_id = obj.returnNoID(comp_feat_vec);
             end
             
             % produce the training data
@@ -120,18 +120,18 @@ classdef ComputeTrainTestData < handle
         [ extra_info ] = extraFVInfoStruct( obj, im1, im2, calc_flows, no_scales, scale );
 
         
-        function filename = getTestingDataFilename(obj, scene_id, comp_feat_vec_id, only_of)
+        function filename = getTestingDataFilename(obj, scene_id, traintestdata_unique_id, only_of)
             if isnumeric(scene_id)
                 scene_id = num2str(scene_id);
             end
-            if isnumeric(comp_feat_vec_id)
-                comp_feat_vec_id = num2str(comp_feat_vec_id);
+            if isnumeric(traintestdata_unique_id)
+                traintestdata_unique_id = num2str(traintestdata_unique_id);
             end
             
             if exist('only_of', 'var') && ~isempty(only_of)
-                filename = fullfile(obj.out_dir, [scene_id '_' comp_feat_vec_id '_' only_of '_Test.data']);
+                filename = fullfile(obj.out_dir, [scene_id '_' traintestdata_unique_id '_' only_of '_Test.data']);
             else
-                filename = fullfile(obj.out_dir, [scene_id '_' comp_feat_vec_id '_Test.data']);
+                filename = fullfile(obj.out_dir, [scene_id '_' traintestdata_unique_id '_Test.data']);
             end
             
             d = fileparts(filename);
@@ -141,18 +141,18 @@ classdef ComputeTrainTestData < handle
         end
         
         
-        function filename = getTrainingDataFilename(obj, scene_id, comp_feat_vec_id, only_of)
+        function filename = getTrainingDataFilename(obj, scene_id, traintestdata_unique_id, only_of)
             if isnumeric(scene_id)
                 scene_id = num2str(scene_id);
             end
-            if isnumeric(comp_feat_vec_id)
-                comp_feat_vec_id = num2str(comp_feat_vec_id);
+            if isnumeric(traintestdata_unique_id)
+                traintestdata_unique_id = num2str(traintestdata_unique_id);
             end
             
             if exist('only_of', 'var') && ~isempty(only_of)
-                filename = fullfile(obj.out_dir, [scene_id '_' comp_feat_vec_id '_' only_of '_Train.data']);
+                filename = fullfile(obj.out_dir, [scene_id '_' traintestdata_unique_id '_' only_of '_Train.data']);
             else
-                filename = fullfile(obj.out_dir, [scene_id '_' comp_feat_vec_id '_Train.data']);
+                filename = fullfile(obj.out_dir, [scene_id '_' traintestdata_unique_id '_Train.data']);
             end
             
             d = fileparts(filename);
@@ -171,6 +171,16 @@ classdef ComputeTrainTestData < handle
             
             % check if dir exists
             assert(isdir(scene_dir), sprintf('The directory %s does not exist', scene_dir));
+        end
+        
+        
+        function comptraintest_id = returnNoID(obj, comp_feat_vec)
+        % creates unique Classifier number, good for storing with the file
+        % name
+        
+            comptraintest_id = comp_feat_vec.getUniqueID();
+            
+            comptraintest_id = comptraintest_id + obj.settings.label_obj.returnNoID();
         end
     end
     

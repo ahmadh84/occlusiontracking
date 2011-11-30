@@ -9,7 +9,21 @@ classdef OcclusionLabel < AbstractLabel
     end
     
     
+    properties
+        ignore_cropped_gt = 0;      % set to 1 if you want to exclude out-of-frame occlusion/change in field-of-view occlusion (train on Cropped GT/CGT)
+    end
+    
+    
     methods
+        function obj = OcclusionLabel( varargin )
+            % if user wants to force ignoring the out-of-frame occlusion 
+            %   / change in field-of-view occlusion
+            if nargin > 0 && isscalar(varargin{1})
+                obj.ignore_cropped_gt = varargin{1};
+            end
+        end
+        
+        
         function [ label data_idxs idxs_per_label ] = calcLabelTraining( obj, comp_feat_vec, MAX_MARKINGS_PER_LABEL, extra_label_info )
         % creates label data which can be used in training stage of a
         % classifier. It would produce at maximum MAX_MARKINGS_PER_LABEL
@@ -170,6 +184,17 @@ classdef OcclusionLabel < AbstractLabel
             labels = (mask == 0)';
             labels = labels(:);
             
+            % minus the CGT labelling if needed
+            if obj.ignore_cropped_gt
+                assert(~isempty(extra_label_info.calc_flows.cgt_ignore_mask), 'Sequence %s does not have a cgt.png file (if you added these files later, you need to recreate your *_gt.mat files!)', comp_feat_vec.scene_dir);
+                
+                fprintf(1, 'REVERSING out-of-frame occlusion labelling (%d/%d pixels for %s)\n', nnz(extra_label_info.calc_flows.cgt_ignore_mask), nnz(extra_label_info.calc_flows.gt_mask), comp_feat_vec.scene_dir);
+                
+                % turn over the labelling for occlusions due to change in field-of-view
+                out_of_frame_occl = extra_label_info.calc_flows.cgt_ignore_mask';
+                labels(out_of_frame_occl(:)) = 0;
+            end
+            
             % inform user about the labels they should ignore
             if ~isempty(extra_label_info.calc_flows.gt_ignore_mask)
                 fprintf(1, 'IGNORING labelling of %d/%d pixels for %s\n', nnz(extra_label_info.calc_flows.gt_ignore_mask), numel(extra_label_info.calc_flows.gt_ignore_mask), comp_feat_vec.scene_dir);
@@ -179,6 +204,17 @@ classdef OcclusionLabel < AbstractLabel
             else
                 ignore_labels = false(size(labels));
             end
+        end
+       
+        
+        function label_no_id = returnNoID(obj)
+        % creates unique label number, good for storing with the file
+        % name
+        
+            % create unique ID
+            nos = returnNoID@AbstractLabel(obj);
+        
+            label_no_id = nos + obj.ignore_cropped_gt*100;
         end
     end
     

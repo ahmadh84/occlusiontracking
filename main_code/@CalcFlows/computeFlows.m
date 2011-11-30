@@ -76,6 +76,11 @@ function computeFlows( obj )
             obj.gt_ignore_mask = imread(fullfile(obj.scene_dir, CalcFlows.GT_UNSURE_MASK));
         end
         
+        % check if CGT mask is available
+        if exist(fullfile(obj.scene_dir, CalcFlows.OCCL_CGT_MASK), 'file') == 2
+            obj.cgt_ignore_mask = imread(fullfile(obj.scene_dir, CalcFlows.OCCL_CGT_MASK));
+        end
+        
         % Average EPE relative to the mask
         pts = nnz(obj.gt_mask);
         for algo_idx = 1:obj.no_algos

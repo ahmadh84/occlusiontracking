@@ -6,6 +6,7 @@ classdef CalcFlows < handle
         ALGOS_PATH = fullfile(fileparts(fileparts(which(mfilename))), 'algorithms');
         GT_FLOW_FILE = '1_2.flo';
         GT_UNSURE_MASK = 'unsure_mask.png';
+        OCCL_CGT_MASK = 'cgt.png';
         SAVE_OBJ_NAME = 'flow_info';
     end
     
@@ -33,6 +34,7 @@ classdef CalcFlows < handle
         epe_dist_btwfirstsec = [];
         gt_mask = [];
         gt_ignore_mask = [];
+        cgt_ignore_mask = [];
         algo_avg_epe = [];
         opt_avg_epe = 0.0;
         compute_reverse = 1;
