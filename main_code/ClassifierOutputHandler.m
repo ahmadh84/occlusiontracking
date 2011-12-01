@@ -11,6 +11,7 @@ classdef ClassifierOutputHandler < handle
         out_dir;
         scene_id;
         unique_id;
+        feature_id;
         prediction_out_filepath;
         
         classifier_out;
@@ -45,13 +46,14 @@ classdef ClassifierOutputHandler < handle
     
     
     methods
-        function obj = ClassifierOutputHandler( out_dir, scene_id, prediction_out_filepath, traintest_data, classifier_info, settings )
+        function obj = ClassifierOutputHandler( out_dir, scene_id, unique_id, prediction_out_filepath, traintest_data, classifier_info, settings )
             obj.out_dir = out_dir;
             obj.scene_id = scene_id;
             [ obj.comp_feat_vec obj.calc_flows ] = traintest_data.getFeatureVecAndFlow(scene_id);
             
             obj.settings = settings;
-            obj.unique_id = obj.comp_feat_vec.getUniqueID();
+            obj.unique_id = unique_id;
+            obj.feature_id = obj.comp_feat_vec.getUniqueID();
             obj.feature_depths = obj.comp_feat_vec.feature_depths;
             obj.feature_types = obj.comp_feat_vec.feature_types;
             

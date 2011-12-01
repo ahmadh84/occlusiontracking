@@ -166,7 +166,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
         if ret_val == 0
             fprintf(1, 'Done - Success!\n');
 
-            output_handler = ClassifierOutputHandler( out_dir, scene_id, PREDICTION_DATA_PATH, traintest_data, classifier_info, settings );
+            output_handler = ClassifierOutputHandler( out_dir, scene_id, unique_id, PREDICTION_DATA_PATH, traintest_data, classifier_info, settings );
             output_handler.printPosteriorImage();
             output_handler.printROCCurve();
             output_handler.printRFFeatureImp();
