@@ -36,10 +36,10 @@ function [ output_args ] = testing_gtf( input_args )
                                         OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
                                         OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info) };
 
-    [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+    [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
 
-    deleteTrainTestData(temp_out_dir);
-    deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
+    trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
     
     
     %%%%%%%%%%%%%%% TESTING ON NORMAL %%%%%%%%%%%%%%%%%%%%%%
@@ -62,21 +62,7 @@ function [ output_args ] = testing_gtf( input_args )
                                         OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info), ...
                                         OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info) };
 
-    [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+    [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
 
-    deleteTrainTestData(temp_out_dir);
-    deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
-
-    
-function deleteTrainTestData( d )
-delete(fullfile(d, '*_Test.data'));
-delete(fullfile(d, '*_Train.data'));
-
-
-function deleteFVData( d, sequences, unique_id )
-for scene_id = sequences
-    fv_filename = sprintf('%d_%d_FV.mat', scene_id, unique_id);
-    delete(fullfile(d, num2str(scene_id), fv_filename));
-end
-
-
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
+    trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);

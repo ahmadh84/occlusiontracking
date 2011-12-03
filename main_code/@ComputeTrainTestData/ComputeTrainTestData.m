@@ -62,14 +62,14 @@ classdef ComputeTrainTestData < handle
         end
         
         
-        function [ train_filepath test_filepath unique_id ] = produceTrainingTestingData( obj, scene_id, training_ids )
+        function [ train_filepath test_filepath unique_id featvec_id ] = produceTrainingTestingData( obj, scene_id, training_ids )
             % check if the scene id is not present in training ids
             assert(~any(scene_id == training_ids), 'The scene id provided should not be present in the set of training ids');
             
             [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(scene_id);
             
             % send the unique id used for appending to filenames
-            unique_id = obj.returnNoID(comp_feat_vec);
+            [ unique_id featvec_id ] = obj.returnNoID(comp_feat_vec);
             
             % produce the training data
             if ~obj.force_no_gt
@@ -81,24 +81,24 @@ classdef ComputeTrainTestData < handle
         end
         
         
-        function [ test_filepath unique_id ] = produceTestingData( obj, scene_id )
+        function [ test_filepath unique_id featvec_id ] = produceTestingData( obj, scene_id )
             [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(scene_id);
             
             % send the unique id used for appending to filenames
-            unique_id = obj.returnNoID(comp_feat_vec);
+            [ unique_id featvec_id ] = obj.returnNoID(comp_feat_vec);
             
             % produce the testing data
             [ test_filepath ] = obj.produceTestingDataFile( scene_id, comp_feat_vec, calc_flows );
         end
         
         
-        function [ train_filepath unique_id ] = produceTrainingData( obj, scene_id, training_ids, unique_id )
+        function [ train_filepath unique_id featvec_id ] = produceTrainingData( obj, scene_id, training_ids, unique_id )
             % if unique_id not passed by the user, get it by loading a feature vector
             if ~exist('unique_id', 'var') == 1
                 [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(training_ids(1));
 
                 % send the unique id used for appending to filenames
-                unique_id = obj.returnNoID(comp_feat_vec);
+                [ unique_id featvec_id ] = obj.returnNoID(comp_feat_vec);
             end
             
             % produce the training data
@@ -174,13 +174,13 @@ classdef ComputeTrainTestData < handle
         end
         
         
-        function comptraintest_id = returnNoID(obj, comp_feat_vec)
+        function [ comptraintest_id featvec_id ] = returnNoID(obj, comp_feat_vec)
         % creates unique Classifier number, good for storing with the file
         % name
         
-            comptraintest_id = comp_feat_vec.getUniqueID();
+            featvec_id = comp_feat_vec.getUniqueID();
             
-            comptraintest_id = comptraintest_id + obj.settings.label_obj.returnNoID();
+            comptraintest_id = featvec_id + obj.settings.label_obj.returnNoID();
         end
     end
     

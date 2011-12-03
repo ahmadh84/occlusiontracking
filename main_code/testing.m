@@ -18,7 +18,7 @@ for rf_nactive_vars = [1 2:3:17 40]
     
     mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
     
-    deleteTrainTestData(temp_out_dir);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
 end
 
 
@@ -33,7 +33,7 @@ for max_catg = 10:5:40
     
     mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
     
-    deleteTrainTestData(temp_out_dir);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
 end
 
 % max number of random trees
@@ -47,7 +47,7 @@ for max_trees = [1 5 10 30:30:200]
     
     mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
     
-    deleteTrainTestData(temp_out_dir);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
 end
 
 
@@ -61,7 +61,7 @@ for max_depth = [1 5 10:10:50]
     
     mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
     
-    deleteTrainTestData(temp_out_dir);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
 end
  
 
@@ -75,11 +75,6 @@ for sample_count = [10:10:50 100 200 300]
     
     mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
     
-    deleteTrainTestData(temp_out_dir);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
 end
- 
-
-function deleteTrainTestData( d )
-delete(fullfile(d, '*_Test.data'));
-delete(fullfile(d, '*_Train.data'));
 

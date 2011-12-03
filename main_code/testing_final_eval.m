@@ -43,10 +43,10 @@ override_settings.cell_features = { EdgeDistFeature(override_settings.ss_info_im
                                     ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                     ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
                                 
-% [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings, 1 );
+% [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings, 1 );
 % 
-% deleteTrainTestData(temp_out_dir);
-% deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+% trainTestDelete('deleteTrainTestData', temp_out_dir);
+% trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
 
 
 main_dir = '../../Data/evaluation_data/stein';
@@ -56,20 +56,7 @@ training_seq = [];
 testing_seq = [3 7 8 12 13 16 23 24 27 28 29 30];
 temp_out_dir = fullfile(out_dir, 'ed_pc_st_stm_tg_av_lv_cs_rc_ra_sans-ba-hs', 'stein');
 
-[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+[ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
 
-deleteTrainTestData(temp_out_dir);
-deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
-
-
-
-function deleteTrainTestData( d )
-delete(fullfile(d, '*_Test.data'));
-delete(fullfile(d, '*_Train.data'));
-
-
-function deleteFVData( d, sequences, unique_id )
-for scene_id = sequences
-    fv_filename = sprintf('%d_%d_FV.mat', scene_id, unique_id);
-    delete(fullfile(d, num2str(scene_id), fv_filename));
-end
+trainTestDelete('deleteTrainTestData', temp_out_dir);
+trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);

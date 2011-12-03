@@ -65,7 +65,7 @@ classdef FlowConfidenceFeature < AbstractFeature
             obj.extra_id = obj.getExtraID();
             
             t = clock;
-            obj.TEMP_SUBDIR = sprintf(obj.TEMP_SUBDIR, sprintf('%04d%02d%02d_%02d%02d%02d_%03d', t(1), t(2), t(3), t(4), t(5), uint16(t(6)), mod(t(6)*1000,1000)));
+            obj.TEMP_SUBDIR = sprintf(obj.TEMP_SUBDIR, sprintf('%04d%02d%02d_%02d%02d%02d_%03d', t(1), t(2), t(3), t(4), t(5), uint16(t(6)), uint16(mod(t(6)*1000,1000))));
         end
         
         
@@ -143,7 +143,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                             traintest_data = ComputeTrainTestData( obj.training_dir, fullfile(obj.training_dir, obj.TEMP_SUBDIR), settings, 0, COMPUTE_REFRESH, 1 );
                             
                             % produce the training and testing data
-                            [ TRAIN_PATH TEST_PATH unique_id ] = traintest_data.produceTrainingTestingData(scene_id, training_s);
+                            [ TRAIN_PATH TEST_PATH unique_id featvec_id ] = traintest_data.produceTrainingTestingData(scene_id, training_s);
 
                             PREDICTION_DATA_PATH = obj.getPredictionDataFilename(fullfile(obj.training_dir, obj.TEMP_SUBDIR), scene_id, unique_id, settings.USE_ONLY_OF);
 
@@ -194,9 +194,9 @@ classdef FlowConfidenceFeature < AbstractFeature
                                 
                                 % produce the training and testing data
                                 if unique_id == -1
-                                    [ TRAIN_PATH unique_id ] = traintest_data.produceTrainingData(scene_id, training_s);
+                                    [ TRAIN_PATH unique_id featvec_id ] = traintest_data.produceTrainingData(scene_id, training_s);
                                 else
-                                    [ TRAIN_PATH unique_id ] = traintest_data.produceTrainingData(scene_id, training_s, unique_id);
+                                    [ TRAIN_PATH unique_id featvec_id ] = traintest_data.produceTrainingData(scene_id, training_s, unique_id);
                                 end
 
                                 randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
@@ -214,7 +214,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                             traintest_data = ComputeTrainTestData( scene_main_dir, fullfile(obj.training_dir, obj.TEMP_SUBDIR), settings, 0, COMPUTE_REFRESH, 1 );
                             
                             % produce the testing data
-                            [ TEST_PATH unique_id ] = traintest_data.produceTestingData( scene_id );
+                            [ TEST_PATH unique_id featvec_id ] = traintest_data.produceTestingData( scene_id );
                             
                             PREDICTION_DATA_PATH = obj.getPredictionDataFilename(fullfile(obj.training_dir, obj.TEMP_SUBDIR), scene_id, unique_id, settings.USE_ONLY_OF);
 
@@ -237,7 +237,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                     end
                 end
                 
-                obj.deleteFVData(calc_feature_vec.scene_dir, scene_id, obj.training_seqs, unique_id);
+                obj.deleteFVData(calc_feature_vec.scene_dir, scene_id, obj.training_seqs, unique_id, featvec_id);
                 
                 fc_compute_time = toc(t_start_fc);
                 fprintf(1, '//> FlowConfidenceFeature took %f secs to compute\n', fc_compute_time);
@@ -330,17 +330,17 @@ classdef FlowConfidenceFeature < AbstractFeature
         end
 
 
-        function deleteFVData( obj, main_scene_dir, main_scene_id, training_seqs, unique_id )
+        function deleteFVData( obj, main_scene_dir, main_scene_id, training_seqs, unique_id, featvec_id)
             % delete feature vectors from training sequences
             for scene_id = training_seqs
-                fv_filename = fullfile(obj.training_dir, num2str(scene_id), sprintf('%d_%d_FV.mat', scene_id, unique_id));
+                fv_filename = fullfile(obj.training_dir, num2str(scene_id), sprintf('%d_%d_FV.mat', scene_id, featvec_id));
                 if exist(fv_filename, 'file') == 2
                     delete(fv_filename);
                 end
             end
             
             % delete feature vectors from scene_dir
-            fv_filename = fullfile(main_scene_dir, sprintf('%d_%d_FV.mat', main_scene_id, unique_id));
+            fv_filename = fullfile(main_scene_dir, sprintf('%d_%d_FV.mat', main_scene_id, featvec_id));
             if exist(fv_filename, 'file') == 2
                 delete(fv_filename);
             end

@@ -17,7 +17,7 @@ for max_training_markers = [30:30:150 300:300:1500 3000:3000:15000]
     
     mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
     
-    deleteTrainTestData(temp_out_dir);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
 end
 
 
@@ -35,7 +35,7 @@ for no_training_sequences = length(testing_seq)+1:length(training_seq)
     
     mainTrainingTesting( testing_seq, temp_training, main_dir, temp_out_dir, struct );
     
-    deleteTrainTestData(temp_out_dir);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
 end
 
 
@@ -63,10 +63,10 @@ for nhood_size = 2:4
 
     temp_out_dir = fullfile(out_dir, 'features_av_lv_cs', num2str(nhood_size));
 
-    [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+    [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
     
-    deleteTrainTestData(temp_out_dir);
-    deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
+    trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
 end
 
 
@@ -89,10 +89,10 @@ for pc_scales = [1:3 6:3:15]
 
     temp_out_dir = fullfile(out_dir, 'features_pc', num2str(pc_scales));
 
-    [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+    [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
     
-    deleteTrainTestData(temp_out_dir);
-    deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
+    trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
 end
 
 
@@ -127,10 +127,10 @@ for nhood_size = 1:2
 
         temp_out_dir = fullfile(out_dir, 'features_av_lv_cs_pc', [num2str(nhood_size) '_' num2str(pc_scales)]);
 
-        [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+        [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
 
-        deleteTrainTestData(temp_out_dir);
-        deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+        trainTestDelete('deleteTrainTestData', temp_out_dir);
+        trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
     end
 end
 
@@ -166,10 +166,10 @@ for pc_scales = 1:3
 
     temp_out_dir = fullfile(out_dir, 'features_av_lv_cs_pc_pb', num2str(pc_scales));
 
-    [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+    [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
 
-    deleteTrainTestData(temp_out_dir);
-    deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+    trainTestDelete('deleteTrainTestData', temp_out_dir);
+    trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
 end
 
 
@@ -198,40 +198,29 @@ override_settings.cell_flows = { BlackAnandanOF, ...
 override_settings.cell_features = { OFAngleVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info) };
 temp_out_dir = fullfile(out_dir, 'features_av');
 
-[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+[ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
 
-deleteTrainTestData(temp_out_dir);
-deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+trainTestDelete('deleteTrainTestData', temp_out_dir);
+trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
 close all;
 
 %%%%%%%%%%%%%%%%
 override_settings.cell_features = { OFLengthVarianceFeature(override_settings.cell_flows, nhood, uv_ftrs2_ss_info) };
 temp_out_dir = fullfile(out_dir, 'features_lv');
 
-[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+[ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
 
-deleteTrainTestData(temp_out_dir);
-deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+trainTestDelete('deleteTrainTestData', temp_out_dir);
+trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
 close all;
 
 %%%%%%%%%%%%%%%%
 override_settings.cell_features = { OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info) };
 temp_out_dir = fullfile(out_dir, 'features_cs');
 
-[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+[ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
 
-deleteTrainTestData(temp_out_dir);
-deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+trainTestDelete('deleteTrainTestData', temp_out_dir);
+trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
 close all;
 
-
-
-function deleteTrainTestData( d )
-delete(fullfile(d, '*_Test.data'));
-delete(fullfile(d, '*_Train.data'));
-
-function deleteFVData( d, sequences, unique_id )
-for scene_id = sequences
-    fv_filename = sprintf('%d_%d_FV.mat', scene_id, unique_id);
-    delete(fullfile(d, num2str(scene_id), fv_filename));
-end

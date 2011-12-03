@@ -1,4 +1,4 @@
-function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, out_dir, override_settings, produce_rf_xml_out, xml_name_append )
+function [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, out_dir, override_settings, produce_rf_xml_out, xml_name_append )
 %MAINTRAININGTESTING Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -103,7 +103,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
         if ~isempty(training_seq) && ~ischar(training_seq)
             % if need to train and test both
             
-            % bootstrap
+            % get the training set
             training_ids = trainingSequencesUtils('getTrainingSequences', training_seq, scene_id, seq_conflicts);
 
             fd_training_set = fopen(fullfile(out_dir, ['training_' num2str(scene_id) '.txt']), 'w+');
@@ -111,7 +111,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
             fclose(fd_training_set);
             
             % produce the training and testing data
-            [ TRAIN_PATH TEST_PATH unique_id ] = traintest_data.produceTrainingTestingData(scene_id, training_ids);
+            [ TRAIN_PATH TEST_PATH unique_id featvec_id ] = traintest_data.produceTrainingTestingData(scene_id, training_ids);
             
             PREDICTION_DATA_PATH = getPredictionDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
             
@@ -135,7 +135,7 @@ function [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, traini
             % if need to test only
             
             % produce the training and testing data
-            [ TEST_PATH unique_id ] = traintest_data.produceTestingData( scene_id );
+            [ TEST_PATH unique_id featvec_id ] = traintest_data.produceTestingData( scene_id );
             
             PREDICTION_DATA_PATH = getPredictionDataFilename(out_dir, scene_id, unique_id, settings.USE_ONLY_OF);
             
@@ -188,9 +188,9 @@ function filename = getXMLDataFilename(out_dir, comp_feat_vec_id, only_of, xml_n
     end
 
     if exist('only_of', 'var') && ~isempty(only_of)
-        filename = fullfile(out_dir, [comp_feat_vec_id '_' only_of '_class' xml_name_append '.xml']);
+        filename = fullfile(out_dir, [comp_feat_vec_id '_' only_of xml_name_append '_class.xml']);
     else
-        filename = fullfile(out_dir, [comp_feat_vec_id '_class' xml_name_append '.xml']);
+        filename = fullfile(out_dir, [comp_feat_vec_id xml_name_append '_class.xml']);
     end
 end
 

@@ -52,31 +52,18 @@ override_settings.cell_features = { EdgeDistFeature(override_settings.ss_info_im
                                     FlowLengthVarianceFeature(override_settings.cell_flows, uv_ftrs1_ss_info) };
 
 % temp_out_dir = fullfile(out_dir, 'ed_pc_st_stm_tg_av_lv_cs_rc_ra', 'other');
-trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+trainTestDeleteThis(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
 
 
 
 
 
-function trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings)
+function trainTestDeleteThis(testing_seq, training_seq, main_dir, temp_out_dir, override_settings)
 
-[ unique_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
-% [ unique_id ] = mainTrainingTesting( testing_seq(1:end), [], main_dir, temp_out_dir, override_settings );
-deleteTrainTestXMLData(temp_out_dir);
+[ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, main_dir, temp_out_dir, override_settings );
+% [ unique_id featvec_id ] = mainTrainingTesting( testing_seq(1:end), [], main_dir, temp_out_dir, override_settings );
 
-deleteFVData(main_dir, union(training_seq, testing_seq), unique_id);
-deleteFVData(main_dir, union(testing_seq, training_seq), unique_id);
+trainTestDelete('deleteTrainTestData', temp_out_dir);
+trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
+
 close all;
-
-
-function deleteTrainTestXMLData( d )
-delete(fullfile(d, '*_Test.data'));
-delete(fullfile(d, '*_Train.data'));
-%delete(fullfile(d, '*_class.xml'));
-
-
-function deleteFVData( d, sequences, unique_id )
-for scene_id = sequences
-    fv_filename = sprintf('%d_%d_FV.mat', scene_id, unique_id);
-    delete(fullfile(d, num2str(scene_id), fv_filename));
-end

@@ -63,11 +63,11 @@ override_settings.cell_features = { EdgeDistFeature(override_settings.ss_info_im
                                     SPFlowBoundaryFeature(override_settings.cell_flows) };
 
 % temp_out_dir = fullfile(out_dir, 'ed_pc_st_stm_tg_av_lv_cs_rc_ra', 'other');
-% trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+% trainTestDeleteThis(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
 
 temp_out_dir = fullfile(out_dir, 'ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp-sans-BA-HS-middl');
 training_seq = [9 10 11 12 13 14 17 18 19 28];
-trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+trainTestDeleteThis(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
 
 % 
 % d = dir(fullfile(temp_out_dir, '*_class.xml'));
@@ -80,35 +80,22 @@ temp_out_dir = fullfile(out_dir, 'ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc
 training_seq = [];
 testing_seq = [19 21]; %[1 2 3 4 7 8 10 12 13 15 16 18 19 21 26 28 29 30];
 
-% trainTestDelete(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
+% trainTestDeleteThis(testing_seq, training_seq, main_dir, temp_out_dir, override_settings);
 
 
 
-function trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings)
+function trainTestDeleteThis(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings)
 
 if isempty(training_seq)
-    [ unique_id ] = mainTrainingTesting( testing_seq, [], seq_conflicts, main_dir, temp_out_dir, override_settings );
+    [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, [], seq_conflicts, main_dir, temp_out_dir, override_settings );
 else
     % get the XML file first
-%     [ unique_id ] = mainTrainingTesting( setdiff(testing_seq, training_seq), training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, 1 );
+%     [ unique_id featvec_id ] = mainTrainingTesting( setdiff(testing_seq, training_seq), training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, 1 );
     % then test on rest
-    [ unique_id ] = mainTrainingTesting( intersect(testing_seq, training_seq), training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings );
+    [ unique_id featvec_id ] = mainTrainingTesting( intersect(testing_seq, training_seq), training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings );
 end
 
-deleteTrainTestXMLData(temp_out_dir);
+trainTestDelete('deleteTrainTestData', temp_out_dir);
+trainTestDelete('deleteFVData', main_dir, union(testing_seq, training_seq), unique_id, featvec_id);
 
-deleteFVData(main_dir, union(training_seq, testing_seq), unique_id);
 close all;
-
-
-function deleteTrainTestXMLData( d )
-delete(fullfile(d, '*_Test.data'));
-delete(fullfile(d, '*_Train.data'));
-%delete(fullfile(d, '*_class.xml'));
-
-
-function deleteFVData( d, sequences, unique_id )
-for scene_id = sequences
-    fv_filename = sprintf('%d_%d_FV.mat', scene_id, unique_id);
-    delete(fullfile(d, num2str(scene_id), fv_filename));
-end

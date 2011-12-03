@@ -50,80 +50,8 @@ function [ output_args ] = testing_trainings_oisin( input_args )
             override_settings.MAX_MARKINGS_PER_LABEL = max_training_markers;
 
             temp_out_dir = fullfile(out_dir, sprintf('training_samples_%d',run_test), num2str(max_training_markers));
-
-            [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+            
+            [ MAIN_CLASS_XML_PATH ] = trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
         end
-    end
-end
-
-
-function [ MAIN_CLASS_XML_PATH ] = trainTestDelete(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings)
-    
-    MAIN_CLASS_XML_PATH = '';
-    
-    if isempty(training_seq)
-        [ unique_id ] = mainTrainingTesting( testing_seq, [], seq_conflicts, main_dir, temp_out_dir, override_settings );
-    elseif ischar(training_seq)
-        [ unique_id ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings );
-    else
-        % make groups of sequences which need the same training set
-        [ test_seq_groups full_training_seq ] = trainingSequencesUtils( 'groupTestingSeqs', training_seq, testing_seq, seq_conflicts );
-
-        % iterate over each group
-        for idx = 1:size(test_seq_groups,1)
-            if ~full_training_seq(idx)
-                training_ids = trainingSequencesUtils('getTrainingSequences', training_seq, test_seq_groups{idx}(1), seq_conflicts);
-                xml_filename_append = sprintf('_%d', training_ids);
-            else
-                xml_filename_append = '';
-            end
-            
-            if length(test_seq_groups{idx}) > 1
-                % use one of the testing sequences to create an XML classifier
-                [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}(1), training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, 1, xml_filename_append );
-            
-                % make the rest use the trained classifier
-                [ unique_id ] = mainTrainingTesting( test_seq_groups{idx}(2:end), CLASS_XML_PATH, seq_conflicts, main_dir, temp_out_dir, override_settings );
-            else
-                % if only one sequence, only produce XML in the case that
-                % it has the full training set
-                [ unique_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, isempty(xml_filename_append) );
-            end
-            
-            % delete the classifier only in the case that it is not of the
-            % full training set
-            if ~full_training_seq(idx) && ~isempty(CLASS_XML_PATH)
-                delete(CLASS_XML_PATH);
-            else
-                MAIN_CLASS_XML_PATH = CLASS_XML_PATH;
-            end
-
-            deleteTrainTestData(temp_out_dir);
-            close all;
-        end
-    end
-
-    deleteTrainTestData(temp_out_dir);
-
-    % delete all the FV (feature vector) mat files created
-    if ischar(training_seq)
-        deleteFVData(main_dir, testing_seq, unique_id);
-    else
-        deleteFVData(main_dir, union(training_seq, testing_seq), unique_id);
-    end
-    close all;
-end
-
-
-function deleteTrainTestData( d )
-    delete(fullfile(d, '*_Test.data'));
-    delete(fullfile(d, '*_Train.data'));
-end
-
-
-function deleteFVData( d, sequences, unique_id )
-    for scene_id = sequences
-        fv_filename = sprintf('%d_%d_FV.mat', scene_id, unique_id);
-        delete(fullfile(d, num2str(scene_id), fv_filename));
     end
 end
