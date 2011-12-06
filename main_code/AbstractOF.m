@@ -24,6 +24,7 @@ classdef AbstractOF
             success = 0;
             uv_flow = [];
             uv_compute_time = 0;
+            all_loaded_info = struct;
             
             if ~isempty(class_ref.SAVE_FILENAME) && exist(fullfile(extra_info.scene_dir, class_ref.SAVE_FILENAME), 'file') == 2
                 warning('CalcFlows:computeFlows', 'loading directly from file');

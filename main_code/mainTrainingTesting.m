@@ -1,4 +1,4 @@
-function [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, out_dir, override_settings, produce_rf_xml_out, xml_name_append )
+function [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, out_dir, override_settings, produce_rf_xml_out, xml_name_append, output_results_data )
 %MAINTRAININGTESTING Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -11,6 +11,9 @@ function [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( testing_
     end
     if ~exist('xml_name_append', 'var')
         xml_name_append = '';
+    end
+    if ~exist('output_results_data', 'var')
+        output_results_data = 1;
     end
     CLASS_XML_PATH = '';
     
@@ -167,11 +170,13 @@ function [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( testing_
             fprintf(1, 'Done - Success!\n');
 
             output_handler = ClassifierOutputHandler( out_dir, scene_id, unique_id, PREDICTION_DATA_PATH, traintest_data, classifier_info, settings );
-            output_handler.printPosteriorImage();
-            output_handler.printROCCurve();
-            output_handler.printRFFeatureImp();
-            output_handler.printPRCurve();
-            output_handler.saveObject();
+            if output_results_data == 1
+                output_handler.printPosteriorImage();
+                output_handler.printROCCurve();
+                output_handler.printRFFeatureImp();
+                output_handler.printPRCurve();
+                output_handler.saveObject();
+            end
         else
             fprintf(2, 'Classifier Failed!\n');
             fprintf(1, out);

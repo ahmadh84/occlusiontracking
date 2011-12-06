@@ -196,7 +196,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                                 if unique_id == -1
                                     [ TRAIN_PATH unique_id featvec_id ] = traintest_data.produceTrainingData(scene_id, training_s);
                                 else
-                                    [ TRAIN_PATH unique_id featvec_id ] = traintest_data.produceTrainingData(scene_id, training_s, unique_id);
+                                    [ TRAIN_PATH unique_id featvec_id ] = traintest_data.produceTrainingData(scene_id, training_s, unique_id, featvec_id);
                                 end
 
                                 randomforest_cmd = [settings.RANDOM_FOREST_RUN ' ' settings.RF_MAX_TREE_COUNT ' ' ...
@@ -249,7 +249,7 @@ classdef FlowConfidenceFeature < AbstractFeature
                 
                 % remove the temporary folder if present and empty
                 if isdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR))
-                    rmdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR));
+                    rmdir(fullfile(obj.training_dir, obj.TEMP_SUBDIR), 's');
                 end
             end
             

@@ -197,13 +197,15 @@ classdef OcclusionLabel < AbstractLabel
             
             % minus the CGT labelling if needed
             if obj.reverse_cropped_gt
-                assert(~isempty(extra_label_info.calc_flows.cgt_ignore_mask), 'Sequence %s does not have a cgt.png file (if you added these files later, you need to recreate your *_gt.mat files!)', comp_feat_vec.scene_dir);
-                
-                fprintf(1, 'REVERSING out-of-frame occlusion labelling (%d/%d pixels for %s)\n', nnz(extra_label_info.calc_flows.cgt_ignore_mask), nnz(labels), comp_feat_vec.scene_dir);
+                if isempty(extra_label_info.calc_flows.cgt_ignore_mask)
+                    warning('OcclusionLabel:calcLabelWhole', 'Sequence %s does not have a cgt.png file (if you added these files later, you need to recreate your *_gt.mat files!)', comp_feat_vec.scene_dir);
+                else
+                    fprintf(1, 'REVERSING out-of-frame occlusion labelling (%d/%d pixels for %s)\n', nnz(extra_label_info.calc_flows.cgt_ignore_mask), nnz(labels), comp_feat_vec.scene_dir);
 
-                % turn over the labelling for occlusions due to change in field-of-view
-                out_of_frame_occl = extra_label_info.calc_flows.cgt_ignore_mask';
-                labels(out_of_frame_occl(:)) = 0;
+                    % turn over the labelling for occlusions due to change in field-of-view
+                    out_of_frame_occl = extra_label_info.calc_flows.cgt_ignore_mask';
+                    labels(out_of_frame_occl(:)) = 0;
+                end
             end
             
             % ignore the labelling for occlusions due to change in field-of-view

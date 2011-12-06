@@ -25,7 +25,7 @@ function [ varargout ] = trainTestDelete( varargin )
 end
 
 
-function [ MAIN_CLASS_XML_PATH ] = trainTestDeleteMain(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings)
+function [ MAIN_CLASS_XML_PATH ] = trainTestDeleteMain(testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, output_results_data)
 %TRAINTESTDELETE calls mainTrainingTesting function for running the
 % classifier for the given test and training sequences. It will also do any
 % required cleanup, like deleting the feature vector files, training, or
@@ -76,13 +76,17 @@ function [ MAIN_CLASS_XML_PATH ] = trainTestDeleteMain(testing_seq, training_seq
 %      of training.
 %
 
+    % set extra arguments
+    if exist('output_results_data','var') ~= 1
+        output_results_data = 1;
+    end
 
     MAIN_CLASS_XML_PATH = '';
     
     if isempty(training_seq)
-        [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, [], seq_conflicts, main_dir, temp_out_dir, override_settings );
+        [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, [], seq_conflicts, main_dir, temp_out_dir, override_settings, 0, '', output_results_data );
     elseif ischar(training_seq)
-        [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings );
+        [ unique_id featvec_id ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, 0, '', output_results_data );
     else
         % make groups of sequences which need the same training set
         [ test_seq_groups full_training_seq ] = trainingSequencesUtils( 'groupTestingSeqs', training_seq, testing_seq, seq_conflicts );
@@ -98,14 +102,14 @@ function [ MAIN_CLASS_XML_PATH ] = trainTestDeleteMain(testing_seq, training_seq
             
             if length(test_seq_groups{idx}) > 1
                 % use one of the testing sequences to create an XML classifier
-                [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}(1), training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, 1, xml_filename_append );
+                [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}(1), training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, 1, xml_filename_append, output_results_data );
             
                 % make the rest use the trained classifier
-                [ unique_id featvec_id ] = mainTrainingTesting( test_seq_groups{idx}(2:end), CLASS_XML_PATH, seq_conflicts, main_dir, temp_out_dir, override_settings );
+                [ unique_id featvec_id ] = mainTrainingTesting( test_seq_groups{idx}(2:end), CLASS_XML_PATH, seq_conflicts, main_dir, temp_out_dir, override_settings, 0, '', output_results_data );
             else
                 % if only one sequence, only produce XML in the case that
                 % it has the full training set
-                [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, isempty(xml_filename_append) );
+                [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, isempty(xml_filename_append), output_results_data );
             end
             
             % delete the classifier only in the case that it is not of the

@@ -92,9 +92,9 @@ classdef ComputeTrainTestData < handle
         end
         
         
-        function [ train_filepath unique_id featvec_id ] = produceTrainingData( obj, scene_id, training_ids, unique_id )
+        function [ train_filepath unique_id featvec_id ] = produceTrainingData( obj, scene_id, training_ids, unique_id, featvec_id )
             % if unique_id not passed by the user, get it by loading a feature vector
-            if ~exist('unique_id', 'var') == 1
+            if ~(exist('unique_id', 'var') == 1) || ~(exist('featvec_id', 'var') == 1)
                 [comp_feat_vec calc_flows] = obj.getFeatureVecAndFlow(training_ids(1));
 
                 % send the unique id used for appending to filenames
