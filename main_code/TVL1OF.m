@@ -35,8 +35,13 @@ classdef TVL1OF < AbstractOF
             maxits = 50;
             
             % this TV_L1 implementation only takes grayscale values
-            im1 = im2double(rgb2gray(im1));
-            im2 = im2double(rgb2gray(im2));
+            if size(im1,3) == 1
+                im1 = im2double(im1);
+                im2 = im2double(im2);
+            else
+                im1 = im2double(rgb2gray(im1));
+                im2 = im2double(rgb2gray(im2));
+            end
             
             [uv_tv illumination] = ...
                 coarse_to_fine(im1, im2, lambda, warps, maxits, pyramid_levels, pyramid_factor, 1);
