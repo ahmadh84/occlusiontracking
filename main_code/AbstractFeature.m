@@ -18,8 +18,8 @@ classdef AbstractFeature
     
     methods
         function feature_no_id = returnNoID(obj)
-        % creates unique feature number, good for storing with the file
-        % name
+        % creates unique feature number (based on feature attributes), good 
+        % for storing with the filename
         
             % create unique ID
             nos = uint8(obj.FEATURE_SHORT_TYPE);

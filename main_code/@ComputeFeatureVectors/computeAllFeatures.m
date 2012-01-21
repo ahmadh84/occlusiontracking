@@ -19,7 +19,7 @@ function computeAllFeatures( obj )
     % iterate and compute all the features provided
     for feature_idx = 1:obj.no_feature_types
         % compute the feature
-        [ feature feature_depth feature_compute_time] = obj.cell_features{feature_idx}.calcFeatures(obj);
+        [ feature feature_depth feature_compute_time ] = obj.cell_features{feature_idx}.calcFeatures(obj);
 
         % add feature to the main collection
         obj.feature_depths(feature_idx) = feature_depth;

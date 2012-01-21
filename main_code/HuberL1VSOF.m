@@ -27,10 +27,11 @@ classdef HuberL1VSOF < AbstractOF
             % try load flow from file
             [ success uv_vs vs_compute_time all_loaded_info ] = AbstractOF.loadFromFile(eval(mfilename('class')), extra_info);
             
+            % try to load flow from file written by VideoSeg framework
             if HuberL1VSOF.VS_CODE_FLOW_CHECK
                 if extra_info.reverse == 0
                     % forward flow file
-                    filename = fullfile(extra_info.scene_dir, 'flowbwd.flow');
+                    filename = fullfile(extra_info.scene_dir, 'flowfwd.flow');
                 else
                     % backward flow file
                     filename = fullfile(extra_info.scene_dir, 'flowbwd.flow');
@@ -43,6 +44,7 @@ classdef HuberL1VSOF < AbstractOF
                     [v] = fread(fid, [size(im1,2) size(im1,1)], 'float');
                     uv_vs = cat(3,u',v');
                     vs_compute_time = 0;
+                    success = 1;
                 end
             end
             
