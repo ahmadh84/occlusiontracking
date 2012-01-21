@@ -93,6 +93,13 @@ classdef CalcFlows < handle
             % add algo paths to the MATLAB path
             CalcFlows.addPaths();
             
+            for idx = 1:length(cell_flows)
+                if strcmp(cell_flows{idx}.OF_TYPE, OcclusionsConvexOF.OF_TYPE) == 1
+                    % initialize vlfeat if OcclusionsConvexOF is being used
+                    run(fullfile(CalcFlows.ALGOS_PATH, 'vlfeat-0.9.9/toolbox/vl_setup'));
+                end
+            end
+            
             % perform the main computation of this object
             obj.computeFlows();
         end
@@ -199,9 +206,6 @@ classdef CalcFlows < handle
             end
             
             addpath(fullfile(CalcFlows.ALGOS_PATH, 'segbench/lib/matlab'));
-            
-            % initialize vlfeat
-            run(fullfile(CalcFlows.ALGOS_PATH, 'vlfeat-0.9.9/toolbox/vl_setup'));
         end
     end
 end

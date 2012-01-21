@@ -6,8 +6,8 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
     out_dir = '../../Results/VideoSegTest/TEMP';
     main_dir = '../../../Data/Images/UCL/oisin+middlebury';
 
-    training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50];
-    testing_seq = [1 2 4 5 9:14 17:19 22 24 26:29 30 39 40:48 49 50];
+    training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50 129 130 131];
+    testing_seq = [132 1 2 4 5 9:14 17:19 22 24 26:29 30 39 40:48 49 50];
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Test middlebury sequences %
@@ -19,9 +19,10 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
     % 10 - OFCollidingSpeedFeature
     % 11 - ReverseFlowConstancyFeature
     % 12 - ReverseFlowAngleDiffFeature
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%% All Sub-features above %%%%%%
-    [ override_settings ] = create_override_settings( seq_conflicts, [4 7 8 9 10 11 12] );
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%% Just PC,TG,RC,RA %%%%%%
+    [ override_settings ] = create_override_settings( seq_conflicts, [4 7 11 12] );
 
     temp_out_dir = fullfile(out_dir, [override_settings.cell_flows{1}.OF_SHORT_TYPE '-']);
     for ftr_idx = 1:length(override_settings.cell_features)
@@ -29,12 +30,12 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
     end
     temp_out_dir = [temp_out_dir '-RCGT'];
 
-    %trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
-
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%% Just PC,TG,RC,RA %%%%%%
-    [ override_settings ] = create_override_settings( seq_conflicts, [4 7 11 12] );
+    trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%% All Sub-features above %%%%%%
+    [ override_settings ] = create_override_settings( seq_conflicts, [4 7 8 9 10 11 12] );
 
     temp_out_dir = fullfile(out_dir, [override_settings.cell_flows{1}.OF_SHORT_TYPE '-']);
     for ftr_idx = 1:length(override_settings.cell_features)
@@ -68,7 +69,7 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
     end
     temp_out_dir = [temp_out_dir '-RCGT'];
 
-    trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+    %trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,7 +78,7 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
 
     temp_out_dir = fullfile(out_dir, [override_settings.cell_flows{1}.OF_SHORT_TYPE '--ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_sp-RCGT']);
 
-    %trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+    trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
 end
 
 

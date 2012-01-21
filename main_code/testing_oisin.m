@@ -2,8 +2,8 @@ function testing_oisin()
 %TESTING_FINAL_EVAL Summary of this function goes here
 %   Detailed explanation goes here
 
-    main_dir = 'E:/Data/oisin+middlebury';
-    out_dir = 'E:/Results/oisin+results';
+    main_dir = '../../../Data/Images/UCL/oisin+middlebury';
+    out_dir = '../../Results/Oisin_Test';
     
     %              |  middlebury   |       Oisin (Maya)      | Sun |
     training_seq = [1 2 3 4 5 6 7 8 9 10 11 12 13 14 17 18 19 15 16];
@@ -27,7 +27,7 @@ function testing_oisin()
     override_settings.uv_ss_info = [ max(uv_ftrs1_ss_info(1), uv_ftrs2_ss_info(1)) ...     % image pyramid to be built for flow
                                                  uv_ftrs2_ss_info(2) ];
     
-    override_settings.MAX_MARKINGS_PER_LABEL = 17000;
+    override_settings.MAX_MARKINGS_PER_LABEL = 7000;
     
     override_settings.RF_MAX_DEPTH = '10';
     override_settings.RF_MIN_SAMPLE_COUNT = '50';
@@ -41,7 +41,7 @@ function testing_oisin()
                                      ClassicNLOF, ...
                                      LargeDisplacementOF };
                                  
-    override_settings.label_obj = AlgoSuitabilityLabel( override_settings.cell_flows, 0 );
+    override_settings.label_obj = AlgoSuitabilityLabel( override_settings.cell_flows, 0.3 );
     
     override_settings.cell_features = { GradientMagFeature(override_settings.ss_info_im1), ...
                                         EdgeDistFeature(override_settings.ss_info_im1), ...

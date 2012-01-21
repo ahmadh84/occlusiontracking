@@ -3,7 +3,7 @@ function [ latex_txt features tbl_auc tbl_f1 ] = makeRCGTGraphsToTable( input_ar
 %   Detailed explanation goes here
     
     addpath('main_code');
-    main_d = '/home/ahumayun/algosuitability/Results/VideoSegTest/RCGT';
+    main_d = '/home/ahumayun/algosuitability/Results/VideoSegTest/RCGT_VS';
 
     d = dir(fullfile(main_d, '*-RCGT'));
     seq = [9 10 17 18 19 22 26 29 30 49]
@@ -35,13 +35,17 @@ function [ latex_txt features tbl_auc tbl_f1 ] = makeRCGTGraphsToTable( input_ar
         txt = cell2mat(cellfun(@(x) sprintf('+\\textrm{%s}',upper(x)), features{idx}, 'UniformOutput',false));
         features{idx} = txt(2:end);
     end
-    features{end-1} = 'All Features';
-    features{end} = 'All Features + 4 flows';
+%     if length(features) == 5
+%         features{end} = 'All Features';
+%     else
+%         features{end-1} = 'All Features';
+%         features{end} = 'All Features + 4 flows';
+%     end
     
     [max_val max_idx] = max(tbl_f1, [], 1);
     latex_txt = '';
     for idx = 1:length(d)
-        latex_txt = [latex_txt sprintf('\n \\maintblfnt %s & ', features{idx})];
+        latex_txt = [latex_txt sprintf('\n \\tiny %s & ', features{idx})];
         for idx2 = 1:length(seq)
             if idx == max_idx(idx2)
                 latex_txt = [latex_txt sprintf('\\maintblfnt \\textbf{%.3f} & ', tbl_f1(idx,idx2))];
