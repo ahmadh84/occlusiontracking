@@ -38,7 +38,7 @@ function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_ve
         % adjust info (remove any features if necessary)
         [ comp_feat_vec extra_label_info ] = ComputeTrainTestData.adjustFeaturesInfo(comp_feat_vec, calc_flows, extra_label_info, obj.settings, false);
         
-        labels = obj.settings.label_obj.calcLabelWhole(comp_feat_vec, extra_label_info);
+        [ labels labels2 ] = obj.settings.label_obj.calcLabelWhole(comp_feat_vec, extra_label_info);
     else
         % No GT Labels
         labels = zeros(size(comp_feat_vec.features,1), 1);
@@ -49,6 +49,6 @@ function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_ve
     
     % write test data to file
     dlmwrite(test_filename, comp_feat_vec.features);
-    dlmwrite(test_labels_filename, labels);
+    dlmwrite(test_labels_filename, labels2);
 end
 
