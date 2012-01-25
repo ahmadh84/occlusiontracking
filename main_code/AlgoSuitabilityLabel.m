@@ -25,9 +25,9 @@ classdef AlgoSuitabilityLabel < AbstractLabel
         end
         
         
-        function [ label data_idxs idxs_per_label ] = calcLabelTraining( obj, comp_feat_vec, MAX_MARKINGS_PER_LABEL, extra_label_info )
+        function [ label data_idxs labels2 idxs_per_label ] = calcLabelTraining( obj, comp_feat_vec, MAX_MARKINGS_PER_LABEL, extra_label_info )
             
-            [ labels ignore_labels ] = obj.calcLabelWhole( comp_feat_vec, extra_label_info );
+            [ labels labels2 ignore_labels ] = obj.calcLabelWhole( comp_feat_vec, extra_label_info );
             
 %             max_label = length(extra_label_info.calc_flows.cell_flow_algos)+ 1;
             max_label = length(extra_label_info.calc_flows.cell_flow_algos);
@@ -41,7 +41,9 @@ classdef AlgoSuitabilityLabel < AbstractLabel
             
             % remove the ignored labels
             labels = double(labels);
-            labels(ignore_labels) = inf;
+            labels2 = double(labels2);
+            labels(ignore_labels,:) = inf;
+            labels2(ignore_labels,:) = inf;
             
             % want equal contribution from each class
             class_regions = arrayfun(@(x) find(labels==x), 1:max_label, 'UniformOutput',false);
@@ -59,64 +61,69 @@ classdef AlgoSuitabilityLabel < AbstractLabel
         end
         
         
-        function [ labels ignore_labels ] = calcLabelWhole( obj, comp_feat_vec, extra_label_info )
+        function [ labels labels2 ignore_labels ] = calcLabelWhole( obj, comp_feat_vec, extra_label_info )
         % outputs all the labels given the data features (usually not used) 
         % and customizable extra information (here the GT flow)
         
             assert(isfield(extra_label_info, 'calc_flows'), 'CalcFlows object is needed for computing occlusion label');
             
             %%%%%%%%%%%%%%% ADJUST Calcflows %%%%%%%%%%%%%%%%%%
-            no_algos = size(extra_label_info.calc_flows.uv_epe,3);
-            extra_label_info.calc_flows.uv_ang_err = zeros(size(extra_label_info.calc_flows.uv_flows,1), size(extra_label_info.calc_flows.uv_flows,2), no_algos);
-            extra_label_info.calc_flows.uv_epe = extra_label_info.calc_flows.uv_ang_err;
-            for algo_idx = 1:no_algos
-%                [ extra_label_info.calc_flows.uv_ang_err(:,:,algo_idx) extra_label_info.calc_flows.uv_epe(:,:,algo_idx) ] = flowAngErrMe(extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_gt(:,:,2), ...
- %                                                                              extra_label_info.calc_flows.uv_flows(:,:,1,algo_idx), extra_label_info.calc_flows.uv_gt(:,:,2));
-                 [ extra_label_info.calc_flows.uv_ang_err(:,:,algo_idx) extra_label_info.calc_flows.uv_epe(:,:,algo_idx) ] = flowAngErrMe(extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_gt(:,:,2), ...
-                                                                                 extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_flows(:,:,2,algo_idx));
-            end
-
-            % find the best algorithm according to Angular error
-            [ extra_label_info.calc_flows.result_ang extra_label_info.calc_flows.class_ang ] = min(extra_label_info.calc_flows.uv_ang_err,[],3);
-
-            % find the best algorithm according to EPE
-            [ extra_label_info.calc_flows.result_epe extra_label_info.calc_flows.class_epe ] = min(extra_label_info.calc_flows.uv_epe,[],3);
-
-            % find the distance between first and second best score
-            [vals ind] = sort(extra_label_info.calc_flows.uv_epe, 3);
-            if size(extra_label_info.calc_flows.uv_epe,3) > 1
-                extra_label_info.calc_flows.epe_dist_btwfirstsec = vals(:,:,2) - vals(:,:,1);
-            else
-                extra_label_info.calc_flows.epe_dist_btwfirstsec = vals;
-            end
-
-            % GT mask
-            %obj.gt_mask = obj.loadGTMask( 0 );
-
-            % check if unsure/ignore mask is available
-            %if exist(fullfile(obj.scene_dir, CalcFlows.GT_UNSURE_MASK), 'file') == 2
-             %   obj.gt_ignore_mask = imread(fullfile(obj.scene_dir, CalcFlows.GT_UNSURE_MASK));
-            %end
-
-            % check if CGT mask is available
-            %if exist(fullfile(obj.scene_dir, CalcFlows.OCCL_CGT_MASK), 'file') == 2
-             %   obj.cgt_ignore_mask = imread(fullfile(obj.scene_dir, CalcFlows.OCCL_CGT_MASK));
-            %end
-
-            % Average EPE relative to the mask
-            pts = nnz(extra_label_info.calc_flows.gt_mask);
-            for algo_idx = 1:no_algos
-                temp_uv_epe = extra_label_info.calc_flows.uv_epe(:,:,algo_idx);
-                extra_label_info.calc_flows.algo_avg_epe(algo_idx) = sum(sum(temp_uv_epe(extra_label_info.calc_flows.gt_mask)))/pts;
-            end
-            extra_label_info.calc_flows.opt_avg_epe = sum(sum(extra_label_info.calc_flows.result_epe(extra_label_info.calc_flows.gt_mask)))/pts;
+%             no_algos = size(extra_label_info.calc_flows.uv_epe,3);
+%             extra_label_info.calc_flows.uv_ang_err = zeros(size(extra_label_info.calc_flows.uv_flows,1), size(extra_label_info.calc_flows.uv_flows,2), no_algos);
+%             extra_label_info.calc_flows.uv_epe = extra_label_info.calc_flows.uv_ang_err;
+%             for algo_idx = 1:no_algos
+% %                [ extra_label_info.calc_flows.uv_ang_err(:,:,algo_idx) extra_label_info.calc_flows.uv_epe(:,:,algo_idx) ] = flowAngErrMe(extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_gt(:,:,2), ...
+%  %                                                                              extra_label_info.calc_flows.uv_flows(:,:,1,algo_idx), extra_label_info.calc_flows.uv_gt(:,:,2));
+%                  [ extra_label_info.calc_flows.uv_ang_err(:,:,algo_idx) extra_label_info.calc_flows.uv_epe(:,:,algo_idx) ] = flowAngErrMe(extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_gt(:,:,2), ...
+%                                                                                  extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_flows(:,:,2,algo_idx));
+%             end
+% 
+%             % find the best algorithm according to Angular error
+%             [ extra_label_info.calc_flows.result_ang extra_label_info.calc_flows.class_ang ] = min(extra_label_info.calc_flows.uv_ang_err,[],3);
+% 
+%             % find the best algorithm according to EPE
+%             [ extra_label_info.calc_flows.result_epe extra_label_info.calc_flows.class_epe ] = min(extra_label_info.calc_flows.uv_epe,[],3);
+% 
+%             % find the distance between first and second best score
+%             [vals ind] = sort(extra_label_info.calc_flows.uv_epe, 3);
+%             if size(extra_label_info.calc_flows.uv_epe,3) > 1
+%                 extra_label_info.calc_flows.epe_dist_btwfirstsec = vals(:,:,2) - vals(:,:,1);
+%             else
+%                 extra_label_info.calc_flows.epe_dist_btwfirstsec = vals;
+%             end
+% 
+%             % GT mask
+%             %obj.gt_mask = obj.loadGTMask( 0 );
+% 
+%             % check if unsure/ignore mask is available
+%             %if exist(fullfile(obj.scene_dir, CalcFlows.GT_UNSURE_MASK), 'file') == 2
+%              %   obj.gt_ignore_mask = imread(fullfile(obj.scene_dir, CalcFlows.GT_UNSURE_MASK));
+%             %end
+% 
+%             % check if CGT mask is available
+%             %if exist(fullfile(obj.scene_dir, CalcFlows.OCCL_CGT_MASK), 'file') == 2
+%              %   obj.cgt_ignore_mask = imread(fullfile(obj.scene_dir, CalcFlows.OCCL_CGT_MASK));
+%             %end
+% 
+%             % Average EPE relative to the mask
+%             pts = nnz(extra_label_info.calc_flows.gt_mask);
+%             for algo_idx = 1:no_algos
+%                 temp_uv_epe = extra_label_info.calc_flows.uv_epe(:,:,algo_idx);
+%                 extra_label_info.calc_flows.algo_avg_epe(algo_idx) = sum(sum(temp_uv_epe(extra_label_info.calc_flows.gt_mask)))/pts;
+%             end
+%             extra_label_info.calc_flows.opt_avg_epe = sum(sum(extra_label_info.calc_flows.result_epe(extra_label_info.calc_flows.gt_mask)))/pts;
             %%%%%%%%%%%%%%% ADJUST Calcflows fin %%%%%%%%%%%%%%%%%%
             
             mask = extra_label_info.calc_flows.gt_mask;
             labels = extra_label_info.calc_flows.class_epe;
+            labels2 = extra_label_info.calc_flows.uv_epe;
             labels(mask == 0) = length(extra_label_info.calc_flows.cell_flow_algos) + 1;
-            labels = labels';
-            labels = labels(:);
+            labels2(repmat(mask == 0, [1 1 length(extra_label_info.calc_flows.cell_flow_algos)])) = length(extra_label_info.calc_flows.cell_flow_algos) + 1;
+            labels = labels';        % labels = labels' for 2 dimensional case
+            labels2 = permute(labels2, [2 1 3:ndims(labels2)]);
+            sz = [size(labels2) 1];
+            labels = labels(:);      % labels = labels(:) for 2 dimensional case
+            labels2 = reshape(labels2, [sz(1)*sz(2) sz(3:end)]);
             
             % inform user about the labels they should ignore
             if ~isempty(extra_label_info.calc_flows.gt_ignore_mask)
@@ -125,7 +132,7 @@ classdef AlgoSuitabilityLabel < AbstractLabel
                 ignore_labels = extra_label_info.calc_flows.gt_ignore_mask';
                 ignore_labels = ignore_labels(:);
             else
-                ignore_labels = false(size(labels));
+                ignore_labels = false([size(labels,1) 1]);
             end
         end
     end

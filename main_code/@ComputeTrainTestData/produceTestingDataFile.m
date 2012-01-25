@@ -13,6 +13,7 @@ function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_ve
     
     % get the filename to which all the data will be output
     test_filename = obj.getTestingDataFilename(scene_id, obj.returnNoID(comp_feat_vec), obj.settings.USE_ONLY_OF);
+    test_labels_filename = fullfile(fileparts(test_filename), sprintf('%d_%d_Test_Labels.data', scene_id, obj.returnNoID(comp_feat_vec)));
     
     % if the file already exists delete it
     if exist(test_filename, 'file') == 2
@@ -20,6 +21,12 @@ function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_ve
             fprintf(1, 'Deleting old testing file %s\n', test_filename);
         end
         delete(test_filename);
+    end
+    if exist(test_labels_filename, 'file') == 2
+        if ~obj.silent_mode
+            fprintf(1, 'Deleting old training file %s\n', test_labels_filename);
+        end
+        delete(test_labels_filename);
     end
     
     % write test data to file - left to right (row major order)
@@ -41,6 +48,7 @@ function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_ve
     end
     
     % write test data to file
-    dlmwrite(test_filename, [labels comp_feat_vec.features]);
+    dlmwrite(test_filename, comp_feat_vec.features);
+    dlmwrite(test_labels_filename, labels);
 end
 
