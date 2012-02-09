@@ -109,7 +109,7 @@ function [ MAIN_CLASS_XML_PATH ] = trainTestDeleteMain(testing_seq, training_seq
             else
                 % if only one sequence, only produce XML in the case that
                 % it has the full training set
-                [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, isempty(xml_filename_append), output_results_data );
+                [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, isempty(xml_filename_append), xml_filename_append, output_results_data );
             end
             
             % delete the classifier only in the case that it is not of the
