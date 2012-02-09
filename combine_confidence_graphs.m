@@ -22,6 +22,7 @@ function combine_confidence_graphs
     out_dir = 'D:/oisin+results_flowconfidence2';
     data_dir = 'E:/Data/oisin+middlebury';
     calc_flows_id = '1529';
+    output_common_id = 'gm_ed_pb_tg_pc';
     
     addpath('main_code');
     
@@ -48,30 +49,36 @@ function combine_confidence_graphs
             close all;
             
             figure; pr_ah = axes; hold on;
-            makePRCurve(pr_ah, confidence_epe_ths, flow_short_types{algo_idx}, seq_id, out_dir, seq_names{seq_id});
-            out_filename = sprintf('%d_PR_FC-gm_ed_tg_pc-%s', seq_id, flow_short_types{algo_idx});
+            makePRCurve(pr_ah, confidence_epe_ths, flow_short_types{algo_idx}, seq_id, output_common_id, out_dir, seq_names{seq_id});
+            out_filename = sprintf('%d_PR_FC-%s-%s', seq_id, output_common_id, flow_short_types{algo_idx});
             print('-depsc', '-r0', fullfile(out_dir, 'combined', out_filename));
             
             figure; roc_ah = axes; hold on;
-            makeROCCurve(roc_ah, confidence_epe_ths, flow_short_types{algo_idx}, seq_id, out_dir, seq_names{seq_id});
-            out_filename = sprintf('%d_ROC_FC-gm_ed_tg_pc-%s', seq_id, flow_short_types{algo_idx});
+            makeROCCurve(roc_ah, confidence_epe_ths, flow_short_types{algo_idx}, seq_id, output_common_id, out_dir, seq_names{seq_id});
+            out_filename = sprintf('%d_ROC_FC-%s-%s', seq_id, output_common_id, flow_short_types{algo_idx});
             print('-depsc', '-r0', fullfile(out_dir, 'combined', out_filename));
             
             load(fullfile(data_dir, num2str(seq_id), sprintf('%d_%s_gt.mat', seq_id, calc_flows_id)));
+            %%%%%%%%%%%%%%% ADJUST Calcflows %%%%%%%%%%%%%%%%%%
+%             [ flow_info.uv_ang_err(:,:,algo_idx) flow_info.uv_epe(:,:,algo_idx) ] = flowAngErrMe(flow_info.uv_gt(:,:,1), flow_info.uv_gt(:,:,2), ...
+%                                                                               flow_info.uv_flows(:,:,1,algo_idx), flow_info.uv_gt(:,:,2));
+%              [ flow_info.uv_ang_err(:,:,algo_idx) flow_info.uv_epe(:,:,algo_idx) ] = flowAngErrMe(flow_info.uv_gt(:,:,1), flow_info.uv_gt(:,:,2), ...
+%                                                                              flow_info.uv_gt(:,:,1), flow_info.uv_flows(:,:,2,algo_idx));
+            %%%%%%%%%%%%%%% ADJUST Calcflows fin %%%%%%%%%%%%%%%%%%
             epe_mat = flow_info.uv_epe(:,:,algo_idx);
             figure; avgepe_ah = axes; hold on;
-            makeAvgEPECurve(avgepe_ah, epe_mat, flow_info.gt_mask, confidence_epe_ths, flow_short_types{algo_idx}, seq_id, out_dir, seq_names{seq_id});
-            out_filename = sprintf('%d_AVGEPE_FC-gm_ed_tg_pc-%s', seq_id, flow_short_types{algo_idx});
+            makeAvgEPECurve(avgepe_ah, epe_mat, flow_info.gt_mask, confidence_epe_ths, flow_short_types{algo_idx}, seq_id, output_common_id, out_dir, seq_names{seq_id});
+            out_filename = sprintf('%d_AVGEPE_FC-%s-%s', seq_id, output_common_id, flow_short_types{algo_idx});
             print('-depsc', '-r0', fullfile(out_dir, 'combined', out_filename));
             
             figure; epe_ah = axes; hold on;
             makeEPEImage(epe_ah, epe_mat, flow_info.gt_mask, flow_short_types{algo_idx}, seq_names{seq_id});
-            out_filename = sprintf('%d_EPE_FC-gm_ed_tg_pc-%s', seq_id, flow_short_types{algo_idx});
+            out_filename = sprintf('%d_EPE_FC-%s-%s', seq_id, output_common_id, flow_short_types{algo_idx});
             print('-depsc', '-r0', fullfile(out_dir, 'combined', out_filename));
             
             figure; conf_ah = axes; hold on;
-            makeConfidenceImage(output_epe, size(epe_mat), conf_ah, flow_short_types{algo_idx}, seq_id, out_dir, seq_names{seq_id});
-            out_filename = sprintf('%d_CONF_%d_FC-gm_ed_tg_pc-%s.eps', seq_id, output_epe*10, flow_short_types{algo_idx});
+            makeConfidenceImage(output_epe, size(epe_mat), conf_ah, flow_short_types{algo_idx}, seq_id, output_common_id, out_dir, seq_names{seq_id});
+            out_filename = sprintf('%d_CONF_%d_FC-%s-%s', seq_id, output_epe*10, output_common_id, flow_short_types{algo_idx});
             print('-depsc', '-r0', fullfile(out_dir, 'combined', out_filename));
         end
     end
@@ -79,7 +86,7 @@ function combine_confidence_graphs
 end
 
 
-function makePRCurve(pr_ah, confidence_epe_ths, flow_short_type, seq_id, out_dir, seq_name)
+function makePRCurve(pr_ah, confidence_epe_ths, flow_short_type, seq_id, output_common_id, out_dir, seq_name)
     box(pr_ah, 'on');
     
     line_styles = {':', '-.', '--', '-', ':', '-.'};
@@ -89,7 +96,7 @@ function makePRCurve(pr_ah, confidence_epe_ths, flow_short_type, seq_id, out_dir
     
     for idx = 1:length(confidence_epe_ths)
         confidence_epe_th = confidence_epe_ths(idx);
-        temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th, flow_short_type));
+        temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-%s-%s', confidence_epe_th, output_common_id, flow_short_type));
 
         temp = dir(fullfile(temp_out_dir, 'result', sprintf('%d_*_rffeatureimp.mat', seq_id)));
         clsfrout_hndlr = load(fullfile(temp_out_dir, 'result', temp.name));
@@ -118,12 +125,12 @@ function makePRCurve(pr_ah, confidence_epe_ths, flow_short_type, seq_id, out_dir
     ylabel('Precision');
     title(sprintf('PR Curve of %s Flow Confidence - %s', flow_short_type, seq_name));
     
-    legend(hs, arrayfun(@(x) sprintf('% 5.1f pixels', x), confidence_epe_ths, 'UniformOutput',false)', 'Location','SouthWest');
+    legend(hs, arrayfun(@(x) sprintf('% 5.2f pixels', x), confidence_epe_ths, 'UniformOutput',false)', 'Location','SouthWest');
     
 end
 
 
-function makeROCCurve(roc_ah, confidence_epe_ths, flow_short_type, seq_id, out_dir, seq_name)
+function makeROCCurve(roc_ah, confidence_epe_ths, flow_short_type, seq_id, output_common_id, out_dir, seq_name)
     box(roc_ah, 'on');
     
     line_styles = {':', '-.', '--', '-', ':', '-.'};
@@ -133,7 +140,7 @@ function makeROCCurve(roc_ah, confidence_epe_ths, flow_short_type, seq_id, out_d
 
     for idx = 1:length(confidence_epe_ths)
         confidence_epe_th = confidence_epe_ths(idx);
-        temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th, flow_short_type));
+        temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-%s-%s', confidence_epe_th, output_common_id, flow_short_type));
 
         temp = dir(fullfile(temp_out_dir, 'result', sprintf('%d_*_rffeatureimp.mat', seq_id)));
         clsfrout_hndlr = load(fullfile(temp_out_dir, 'result', temp.name));
@@ -162,11 +169,11 @@ function makeROCCurve(roc_ah, confidence_epe_ths, flow_short_type, seq_id, out_d
     ylabel('TPR');
     title(sprintf('ROC of %s Flow Confidence - %s', flow_short_type, seq_name));
     
-    legend(hs, arrayfun(@(x) sprintf('% 5.1f pixels', x), confidence_epe_ths, 'UniformOutput',false)', 'Location','SouthEast');
+    legend(hs, arrayfun(@(x) sprintf('% 5.2f pixels', x), confidence_epe_ths, 'UniformOutput',false)', 'Location','SouthEast');
 end
 
 
-function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_short_type, seq_id, out_dir, seq_name)
+function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_short_type, seq_id, output_common_id, out_dir, seq_name)
     box(avgepe_ah, 'on');
     
     image_sz = size(epe_mat);
@@ -174,7 +181,7 @@ function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_s
     
     line_styles = {':', '-.', '--', '-', ':', '-.', '-', '-'};
     
-    hs = zeros(length(confidence_epe_ths)+2,1);
+    hs = zeros(length(confidence_epe_ths)+1,1);
     clr = [0 0 1; 0 0 1; 0 0 0; 0 0 0; 0 0 0; 0 0 0; 1 0 0; 1 0 1];
     thresholds = 0:0.001:1;
     
@@ -185,7 +192,7 @@ function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_s
     
     for idx = 1:length(confidence_epe_ths)
         confidence_epe_th = confidence_epe_ths(idx);
-        temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th, flow_short_type));
+        temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-%s-%s', confidence_epe_th, output_common_id, flow_short_type));
         
         temp = dir(fullfile(temp_out_dir, sprintf('%d_*_%s_prediction.data', seq_id, flow_short_type)));
         classifier_out = textread(fullfile(temp_out_dir, temp.name), '%f');
@@ -245,7 +252,7 @@ function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_s
     ylabel('Average EPE');
     title(sprintf('Confidence Thresholding for %s Flow - %s', flow_short_type, seq_name));
     
-    legend(hs, [arrayfun(@(x) sprintf('% 5.1f pixels', x), confidence_epe_ths, 'UniformOutput',false)'; 'Opt Confd'], 'Location','NorthWest');
+    legend(hs, [arrayfun(@(x) sprintf('% 5.2f pixels', x), confidence_epe_ths, 'UniformOutput',false)'; 'Opt Confd'], 'Location','NorthWest');
 end
 
 
@@ -259,8 +266,8 @@ function makeEPEImage(epe_ah, epe_mat, gt_mask, flow_short_type, seq_name)
 end
 
 
-function makeConfidenceImage(confidence_epe_th, image_sz, conf_ah, flow_short_type, seq_id, out_dir, seq_name)
-    temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th, flow_short_type));
+function makeConfidenceImage(confidence_epe_th, image_sz, conf_ah, flow_short_type, seq_id, output_common_id, out_dir, seq_name)
+    temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-%s-%s', confidence_epe_th, output_common_id, flow_short_type));
 
     temp = dir(fullfile(temp_out_dir, sprintf('%d_*_%s_prediction.data', seq_id, flow_short_type)));
     classifier_out = textread(fullfile(temp_out_dir, temp.name), '%f');

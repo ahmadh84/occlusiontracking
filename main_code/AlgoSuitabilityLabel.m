@@ -73,7 +73,7 @@ classdef AlgoSuitabilityLabel < AbstractLabel
 %             extra_label_info.calc_flows.uv_epe = extra_label_info.calc_flows.uv_ang_err;
 %             for algo_idx = 1:no_algos
 % %                [ extra_label_info.calc_flows.uv_ang_err(:,:,algo_idx) extra_label_info.calc_flows.uv_epe(:,:,algo_idx) ] = flowAngErrMe(extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_gt(:,:,2), ...
-%  %                                                                              extra_label_info.calc_flows.uv_flows(:,:,1,algo_idx), extra_label_info.calc_flows.uv_gt(:,:,2));
+% %                                                                               extra_label_info.calc_flows.uv_flows(:,:,1,algo_idx), extra_label_info.calc_flows.uv_gt(:,:,2));
 %                  [ extra_label_info.calc_flows.uv_ang_err(:,:,algo_idx) extra_label_info.calc_flows.uv_epe(:,:,algo_idx) ] = flowAngErrMe(extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_gt(:,:,2), ...
 %                                                                                  extra_label_info.calc_flows.uv_gt(:,:,1), extra_label_info.calc_flows.uv_flows(:,:,2,algo_idx));
 %             end
@@ -116,14 +116,16 @@ classdef AlgoSuitabilityLabel < AbstractLabel
             
             mask = extra_label_info.calc_flows.gt_mask;
             labels = extra_label_info.calc_flows.class_epe;
-            labels2 = extra_label_info.calc_flows.uv_epe;
             labels(mask == 0) = length(extra_label_info.calc_flows.cell_flow_algos) + 1;
+            labels = labels';
+            labels = labels(:);
+            
+            % prepare label having all class EPE values
+            labels2 = extra_label_info.calc_flows.uv_epe;
             labels2(repmat(mask == 0, [1 1 length(extra_label_info.calc_flows.cell_flow_algos)])) = length(extra_label_info.calc_flows.cell_flow_algos) + 1;
-            labels = labels';        % labels = labels' for 2 dimensional case
-            labels2 = permute(labels2, [2 1 3:ndims(labels2)]);
+            labels2 = permute(labels2, [2 1 3:ndims(labels2)]);        % labels = labels' for 2 dimensional case
             sz = [size(labels2) 1];
-            labels = labels(:);      % labels = labels(:) for 2 dimensional case
-            labels2 = reshape(labels2, [sz(1)*sz(2) sz(3:end)]);
+            labels2 = reshape(labels2, [sz(1)*sz(2) sz(3:end)]);       % labels = labels(:) for 2 dimensional case
             
             % inform user about the labels they should ignore
             if ~isempty(extra_label_info.calc_flows.gt_ignore_mask)

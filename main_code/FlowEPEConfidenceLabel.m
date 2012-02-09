@@ -53,7 +53,13 @@ classdef FlowEPEConfidenceLabel < AbstractLabel
         function [ labels ignore_labels ] = calcLabelWhole( obj, comp_feat_vec, extra_label_info )
         % outputs all the labels given the data features (usually not used) 
         % and customizable extra information (here the GT flow)
-        
+            
+            if isempty(extra_label_info.calc_flows.gt_mask)
+                labels = [];
+                ignore_labels = [];
+                return;
+            end
+            
             assert(isfield(extra_label_info, 'uv_epe'), 'uv_epe matrix is needed for computing FlowEPEConfidenceLabel');
             
             mask = extra_label_info.uv_epe;

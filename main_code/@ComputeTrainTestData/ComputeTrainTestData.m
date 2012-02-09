@@ -198,6 +198,14 @@ classdef ComputeTrainTestData < handle
             
             if ~isempty(algo_idx)
                 if ~NO_GT
+                    %%%%%%%%%%%%%%% ADJUST Calcflows %%%%%%%%%%%%%%%%%%
+%                     [ calc_flows.uv_ang_err(:,:,algo_idx) calc_flows.uv_epe(:,:,algo_idx) ] = flowAngErrMe(calc_flows.uv_gt(:,:,1), calc_flows.uv_gt(:,:,2), ...
+%                                                                                                            calc_flows.uv_flows(:,:,1,algo_idx), calc_flows.uv_gt(:,:,2));
+%                        
+%                  [ calc_flows.uv_ang_err(:,:,algo_idx) calc_flows.uv_epe(:,:,algo_idx) ] = flowAngErrMe(calc_flows.uv_gt(:,:,1), calc_flows.uv_gt(:,:,2), ...
+%                                                                                  calc_flows.uv_gt(:,:,1), calc_flows.uv_flows(:,:,2,algo_idx));
+                    %%%%%%%%%%%%%%% ADJUST Calcflows fin %%%%%%%%%%%%%%%%%%
+            
                     % pull out both angular error and EPE and store in
                     % extra info (this will be extra info passed to the 
                     % label object)
