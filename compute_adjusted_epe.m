@@ -24,8 +24,8 @@ function latex_tbl = compute_adjusted_epe( results_dir )
     
     calcflows_id = '1529'; %'2606'; %'1532';
     
-    out_im_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Learning Occlusion Regions\Writeup\oisin_PAMI\images';
-    data_dir = 'E:\Data\oisin+middlebury';
+    out_im_dir = '/home/ahumayun/Dropbox/oisin_PAMI/images';
+    data_dir = '/home/ahumayun/Data/Images/UCL/oisin+middlebury';
 %     results_dir = 'E:\Results\oisin+results\gm_ed_pb_tg_pc-tv_fl_cn_ld_DISCR_new-motion-data';
 
     f = dir(fullfile(results_dir, 'result', '*_rffeatureimp.mat'));
@@ -55,6 +55,15 @@ function latex_tbl = compute_adjusted_epe( results_dir )
         % calculate the EPE values
         valid_mask = flow_info.gt_mask & border_mask;
         [rx cx] = find(valid_mask);
+        
+        %%%%%%%%%%%%%%% ADJUST Calcflows %%%%%%%%%%%%%%%%%%
+        for algo_idx = 1:length(flow_info.algo_ids)
+           %[ flow_info.uv_ang_err(:,:,algo_idx) flow_info.uv_epe(:,:,algo_idx) ] = flowAngErrMe(flow_info.uv_gt(:,:,1), flow_info.uv_gt(:,:,2), ...
+            %                                                                                   flow_info.uv_flows(:,:,1,algo_idx), flow_info.uv_gt(:,:,2));
+           [ flow_info.uv_ang_err(:,:,algo_idx) flow_info.uv_epe(:,:,algo_idx) ] = flowAngErrMe(flow_info.uv_gt(:,:,1), flow_info.uv_gt(:,:,2), ...
+                                                                                               flow_info.uv_gt(:,:,1), flow_info.uv_flows(:,:,2,algo_idx));
+        end
+        %%%%%%%%%%%%%%% ADJUST Calcflows fin %%%%%%%%%%%%%%%%%%
         
         % calculate avg epe for each algo
         for flow_idx = 1:length(flow_info.algo_ids)
