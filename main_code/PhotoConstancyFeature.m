@@ -30,7 +30,7 @@ classdef PhotoConstancyFeature < AbstractFeature
     
     
     properties (Constant)
-        NAN_VAL = 100;
+        NAN_VAL = 1000;
         FEATURE_TYPE = 'Photo Constancy';
         FEATURE_SHORT_TYPE = 'PC';
     end
@@ -68,11 +68,11 @@ classdef PhotoConstancyFeature < AbstractFeature
                     ~isempty(fields(calc_feature_vec.im2_scalespace)), ...
                     'The scale space for im 1 and/or im 2 has not been defined in the passed ComputeFeatureVectors');
                 
-                assert(calc_feature_vec.im1_scalespace.scale == obj.scale && ...
-                    calc_feature_vec.im1_scalespace.no_scales >= obj.no_scales, 'The scale space given for im 1 in ComputeFeatureVectors is incompatible');
+                assert(calc_feature_vec.im1_cielab_scalespace.scale == obj.scale && ...
+                    calc_feature_vec.im1_cielab_scalespace.no_scales >= obj.no_scales, 'The scale space given for im 1 l*a*b* in ComputeFeatureVectors is incompatible');
                 
-                assert(calc_feature_vec.im2_scalespace.scale == obj.scale && ...
-                    calc_feature_vec.im2_scalespace.no_scales >= obj.no_scales, 'The scale space given for im 2 in ComputeFeatureVectors is incompatible');
+                assert(calc_feature_vec.im2_cielab_scalespace.scale == obj.scale && ...
+                    calc_feature_vec.im2_cielab_scalespace.no_scales >= obj.no_scales, 'The scale space given for im 2 l*a*b* in ComputeFeatureVectors is incompatible');
                 
                 assert(isfield(calc_feature_vec.extra_info, 'flow_scalespace') && ...
                     ~isempty(fields(calc_feature_vec.extra_info.flow_scalespace)), ...
@@ -91,8 +91,8 @@ classdef PhotoConstancyFeature < AbstractFeature
                 % iterate for multiple scales
                 for scale_idx = 1:obj.no_scales
                     % get the next image in the scale space
-                    im1_resized = calc_feature_vec.im1_scalespace.ss{scale_idx};
-                    im2_resized = calc_feature_vec.im2_scalespace.ss{scale_idx};
+                    im1_resized = calc_feature_vec.im1_cielab_scalespace.ss{scale_idx};
+                    im2_resized = calc_feature_vec.im2_cielab_scalespace.ss{scale_idx};
                     
                     [cols rows] = meshgrid(1:size(im1_resized, 2), 1:size(im1_resized, 1));
 
@@ -105,11 +105,13 @@ classdef PhotoConstancyFeature < AbstractFeature
                         % get the next flow image in the scale space
                         uv_resized = calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algo_id);
 
-                        % project the second image to the first according to the flow
-                        proj_im = interp2(im2_resized, cols + uv_resized(:,:,1), rows + uv_resized(:,:,2), 'cubic');
+                        % project the im2's a* to the first according to the flow
+                        proj_im(:,:,1) = interp2(im2_resized(:,:,2), cols + uv_resized(:,:,1), rows + uv_resized(:,:,2), 'cubic');
+                        proj_im(:,:,2) = interp2(im2_resized(:,:,3), cols + uv_resized(:,:,1), rows + uv_resized(:,:,2), 'cubic');
 
                         % compute the error in the projection
-                        proj_im = abs(im1_resized - proj_im);
+                        proj_im = im1_resized(:,:,[2 3]) - proj_im;
+                        proj_im = sqrt(sum(proj_im.^2, 3));
                         proj_im(isnan(proj_im)) = PhotoConstancyFeature.NAN_VAL;
 
                         % store
@@ -118,6 +120,12 @@ classdef PhotoConstancyFeature < AbstractFeature
                 end
             else
                 assert(isfield(calc_feature_vec.extra_info, 'calc_flows'), 'The CalcFlows object has not been defined in the passed ComputeFeatureVectors');
+                
+                assert(any(strcmp(fieldnames(calc_feature_vec), 'im1_cielab')) && ...
+                    ~isempty(calc_feature_vec.im1_cielab), 'im1 l*a*b* image doesn''t exist (note that the input images should not be grayscale)');
+                
+                assert(any(strcmp(fieldnames(calc_feature_vec), 'im2_cielab')) && ...
+                    ~isempty(calc_feature_vec.im2_cielab), 'im2 l*a*b* image doesn''t exist (note that the input images should not be grayscale)');
                 
                 no_flow_algos = length(obj.flow_short_types);
                 
@@ -133,12 +141,16 @@ classdef PhotoConstancyFeature < AbstractFeature
                     assert(nnz(algo_id) == 1, ['Can''t find matching flow algorithm used in computation of ' class(obj)]);
                     
                     % project the second image to the first according to the flow
-                    proj_im = interp2(calc_feature_vec.im2_gray, ...
+                    proj_im(:,:,1) = interp2(calc_feature_vec.im2_cielab(:,:,2), ...
                         cols + calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,1,algo_id), ...
                         rows + calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,2,algo_id), 'cubic');
-                   
+                    proj_im(:,:,2) = interp2(calc_feature_vec.im2_cielab(:,:,3), ...
+                        cols + calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,1,algo_id), ...
+                        rows + calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,2,algo_id), 'cubic');
+                    
                     % compute the error in the projection
-                    proj_im = abs(calc_feature_vec.im1_gray - proj_im);
+                    proj_im = calc_feature_vec.im1_cielab(:,:,[2 3]) - proj_im;
+                    proj_im = sqrt(sum(proj_im.^2, 3));
                     proj_im(isnan(proj_im)) = PhotoConstancyFeature.NAN_VAL;
                     
                     % store
