@@ -79,7 +79,7 @@ function [ override_settings ] = create_override_settings( seq_conflicts, select
 %                                      HuberL1OF, ...
 %                                      ClassicNLOF, ...
 %                                      LargeDisplacementOF };
-    override_settings.cell_flows = { HuberL1VSOF };
+    override_settings.cell_flows = { TVL1VSOF };
     
     override_settings.uv_ss_info =   [ max(uv_ftrs1_ss_info(1), uv_ftrs2_ss_info(1)) ...     % image pyramid to be built for flow
                                                  uv_ftrs2_ss_info(2) ];
