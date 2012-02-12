@@ -12,8 +12,12 @@ classdef ComputeFeatureVectors < handle
         im2;
         im1_gray;
         im2_gray;
+        im1_cielab;
+        im2_cielab;
         im1_scalespace = struct;
         im2_scalespace = struct;
+        im1_cielab_scalespace = struct;
+        im2_cielab_scalespace = struct;
         extra_info = struct;
     end
     
@@ -56,6 +60,11 @@ classdef ComputeFeatureVectors < handle
             if size(obj.im1,3) > 1
                 obj.im1_gray = im2double(rgb2gray(obj.im1));
                 obj.im2_gray = im2double(rgb2gray(obj.im2));
+                
+                % convert to L*a*b* (CIElab)
+                cform = makecform('srgb2lab');
+                obj.im1_cielab = applycform(im2double(obj.im1), cform);
+                obj.im2_cielab = applycform(im2double(obj.im2), cform);
             else
                 obj.im1_gray = im2double(obj.im1);
                 obj.im2_gray = im2double(obj.im2);
@@ -82,6 +91,20 @@ classdef ComputeFeatureVectors < handle
                 obj.im2_scalespace.no_scales = varargin{3}(1);
                 obj.im2_scalespace.scale = varargin{3}(2);
                 obj.im2_scalespace.ss = ComputeFeatureVectors.computeScaleSpace(obj.im2_gray, varargin{3}(1), varargin{3}(2));
+            end
+            
+            % if user wants to have lab im1 scale space
+            if nargin > 3 && isvector(varargin{2}) && length(varargin{2}) == 2 && ~isempty(obj.im1_cielab)
+                obj.im1_cielab_scalespace.no_scales = varargin{2}(1);
+                obj.im1_cielab_scalespace.scale = varargin{2}(2);
+                obj.im1_cielab_scalespace.ss = ComputeFeatureVectors.computeScaleSpace(obj.im1_cielab, varargin{2}(1), varargin{2}(2));
+            end
+            
+            % if user wants to have lab im2 scale space
+            if nargin > 4 && isvector(varargin{3}) && length(varargin{3}) == 2 && ~isempty(obj.im2_cielab)
+                obj.im2_cielab_scalespace.no_scales = varargin{3}(1);
+                obj.im2_cielab_scalespace.scale = varargin{3}(2);
+                obj.im2_cielab_scalespace.ss = ComputeFeatureVectors.computeScaleSpace(obj.im2_cielab, varargin{3}(1), varargin{3}(2));
             end
             
             % if user wants to recompute everything and not pick up from file
