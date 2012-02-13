@@ -105,7 +105,9 @@ classdef PhotoConstancyFeature < AbstractFeature
                         % get the next flow image in the scale space
                         uv_resized = calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algo_id);
 
-                        % project the im2's a* to the first according to the flow
+                        proj_im = zeros([size(im2_resized,1), size(im2_resized,2), 2]);
+                        
+                        % project the im2's a* and b* to the first according to the flow
                         proj_im(:,:,1) = interp2(im2_resized(:,:,2), cols + uv_resized(:,:,1), rows + uv_resized(:,:,2), 'cubic');
                         proj_im(:,:,2) = interp2(im2_resized(:,:,3), cols + uv_resized(:,:,1), rows + uv_resized(:,:,2), 'cubic');
 

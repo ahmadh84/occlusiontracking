@@ -7,7 +7,7 @@ classdef TVL1VSOF < AbstractOF
     
     properties (Constant)
         OF_TYPE = 'TV-L1-VS';
-        OF_SHORT_TYPE = 'VS';
+        OF_SHORT_TYPE = 'TVV';
         VS_CODE_FLOW_CHECK = 1;
         
         TEMP_DIR = 'temp_tv_l1_vs';
@@ -18,16 +18,16 @@ classdef TVL1VSOF < AbstractOF
         FLOW_FILENAME = 'temp.flow';
         
         SAVE_FILENAME = 'tvl1vs.mat';
-        FORWARD_FLOW_VAR = 'uv_vs';
-        BCKWARD_FLOW_VAR = 'uv_vs_r';
-        COMPUTATION_TIME_VAR = 'vs_compute_time';
+        FORWARD_FLOW_VAR = 'uv_tvv';
+        BCKWARD_FLOW_VAR = 'uv_tvv_r';
+        COMPUTATION_TIME_VAR = 'tvv_compute_time';
     end
     
         
     methods (Static)
-        function [ uv_vs vs_compute_time ] = calcFlow(im1, im2, extra_info)
+        function [ uv_tvv tvv_compute_time ] = calcFlow(im1, im2, extra_info)
             % try load flow from file
-            [ success uv_vs vs_compute_time all_loaded_info ] = AbstractOF.loadFromFile(eval(mfilename('class')), extra_info);
+            [ success uv_tvv tvv_compute_time all_loaded_info ] = AbstractOF.loadFromFile(eval(mfilename('class')), extra_info);
             
             % try to load flow from file written by VideoSeg framework
             if TVL1VSOF.VS_CODE_FLOW_CHECK
@@ -44,8 +44,8 @@ classdef TVL1VSOF < AbstractOF
                     fid = fopen(filename);
                     [u] = fread(fid, [size(im1,2) size(im1,1)], 'float');
                     [v] = fread(fid, [size(im1,2) size(im1,1)], 'float');
-                    uv_vs = cat(3,u',v');
-                    vs_compute_time = 0;
+                    uv_tvv = cat(3,u',v');
+                    tvv_compute_time = 0;
                     success = 1;
                 end
             end
@@ -53,9 +53,7 @@ classdef TVL1VSOF < AbstractOF
             if ~success
                 % calculates the anisotropic TV-L1 flow
                 fprintf('--> Computing TV-L1 flow (from VideoSegmentation framework)\n');
-
-                tic;
-
+                
                 curr_path = pwd;
                 
                 % create a new directory to do the computation
@@ -103,7 +101,7 @@ classdef TVL1VSOF < AbstractOF
                 header_info = fread(fid, 3, 'int'); % read header
                 [u] = fread(fid, [size(im1,2) size(im1,1)], 'float');
                 [v] = fread(fid, [size(im1,2) size(im1,1)], 'float');
-                uv_vs = cat(3,u',v');
+                uv_tvv = cat(3,u',v');
                 
                 fclose(fid);
                 
@@ -111,7 +109,7 @@ classdef TVL1VSOF < AbstractOF
                 cd(curr_path);
                 rmdir(TVL1VSOF.TEMP_DIR, 's');
                 
-                vs_compute_time = toc;
+                tvv_compute_time = toc;
             end
         end
     end
