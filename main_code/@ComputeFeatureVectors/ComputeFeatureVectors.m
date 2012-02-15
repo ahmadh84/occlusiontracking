@@ -33,6 +33,8 @@ classdef ComputeFeatureVectors < handle
         extra_id = 0;
         
         silent_mode = 0;
+        for_training = 0;
+        training_noise_params = {};
     end
     
     
@@ -55,6 +57,19 @@ classdef ComputeFeatureVectors < handle
             % load images
             obj.im1 = imread(fullfile(obj.scene_dir, ComputeTrainTestData.IM1_PNG));
             obj.im2 = imread(fullfile(obj.scene_dir, ComputeTrainTestData.IM2_PNG));
+            
+            % if this is training mode - store any noise params
+            if nargin > 7 && isscalar(varargin{6})
+                obj.for_training = varargin{6};
+                if obj.for_training == 1
+                    obj.training_noise_params = varargin{7};
+                end
+            end
+            
+            % add noise to the training images if needed
+            if obj.for_training == 1
+                [obj.im1 obj.im2] = ComputeFeatureVectors.preprocessingTraining(obj.im1, obj.im2, {obj.training_noise_params});
+            end
             
             % save grayscales
             if size(obj.im1,3) > 1
@@ -153,6 +168,16 @@ classdef ComputeFeatureVectors < handle
                 unique_id = [unique_id obj.cell_features{feature_idx}.returnNoID()];
             end
             
+            if obj.for_training
+                unique_id = [unique_id 0];
+                
+                if ~isempty(obj.training_noise_params)
+                    for idx = 1:length(obj.training_noise_params)
+                        unique_id(end) = unique_id(end) + sum(uint8(num2str(obj.training_noise_params{idx})));
+                    end
+                end
+            end
+            
             % sum them since order doesn't matter
             unique_id = sum(unique_id);
             
@@ -206,6 +231,17 @@ classdef ComputeFeatureVectors < handle
             for scale_idx = 2:no_scales
                 % place a resized version in the stack
                 im_scalespace{scale_idx} = imresize(im_scalespace{scale_idx-1}, scale);
+            end
+        end
+        
+        
+        function [im1, im2] = preprocessingTraining(im1, im2, params)
+        % run any preprocessing functions
+            noise_params = params{1};
+            
+            if ~isempty(noise_params)
+                im1 = imnoise(im1, noise_params{:});
+                im2 = imnoise(im2, noise_params{:});
             end
         end
     end

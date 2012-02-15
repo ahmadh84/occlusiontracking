@@ -104,17 +104,9 @@ classdef PhotoConstancyFeature < AbstractFeature
                         
                         % get the next flow image in the scale space
                         uv_resized = calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algo_id);
-
-                        proj_im = zeros([size(im2_resized,1), size(im2_resized,2), 2]);
                         
-                        % project the im2's a* and b* to the first according to the flow
-                        proj_im(:,:,1) = interp2(im2_resized(:,:,2), cols + uv_resized(:,:,1), rows + uv_resized(:,:,2), 'cubic');
-                        proj_im(:,:,2) = interp2(im2_resized(:,:,3), cols + uv_resized(:,:,1), rows + uv_resized(:,:,2), 'cubic');
-
-                        % compute the error in the projection
-                        proj_im = im1_resized(:,:,[2 3]) - proj_im;
-                        proj_im = sqrt(sum(proj_im.^2, 3));
-                        proj_im(isnan(proj_im)) = PhotoConstancyFeature.NAN_VAL;
+                        % compute photoconstancy
+                        [ proj_im ] = obj.computePhotoConstancy(im1_resized, im2_resized, uv_resized, cols, rows);
 
                         % store
                         photoconst(:,:,((algo_idx-1)*obj.no_scales)+scale_idx) = imresize(proj_im, calc_feature_vec.image_sz);
@@ -142,18 +134,9 @@ classdef PhotoConstancyFeature < AbstractFeature
                     
                     assert(nnz(algo_id) == 1, ['Can''t find matching flow algorithm used in computation of ' class(obj)]);
                     
-                    % project the second image to the first according to the flow
-                    proj_im(:,:,1) = interp2(calc_feature_vec.im2_cielab(:,:,2), ...
-                        cols + calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,1,algo_id), ...
-                        rows + calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,2,algo_id), 'cubic');
-                    proj_im(:,:,2) = interp2(calc_feature_vec.im2_cielab(:,:,3), ...
-                        cols + calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,1,algo_id), ...
-                        rows + calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,2,algo_id), 'cubic');
-                    
-                    % compute the error in the projection
-                    proj_im = calc_feature_vec.im1_cielab(:,:,[2 3]) - proj_im;
-                    proj_im = sqrt(sum(proj_im.^2, 3));
-                    proj_im(isnan(proj_im)) = PhotoConstancyFeature.NAN_VAL;
+                    % compute photoconstancy
+                    [ proj_im ] = obj.computePhotoConstancy(calc_feature_vec.im1_cielab, calc_feature_vec.im2_cielab, ...
+                        calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,:,algo_id), cols, rows);
                     
                     % store
                     photoconst(:,:,algo_idx) = proj_im;
@@ -197,6 +180,41 @@ classdef PhotoConstancyFeature < AbstractFeature
                     return_feature_list{starting_no+scale_id} = {[obj.FEATURE_TYPE ' using ' obj.flow_short_types{flow_id}], ['scale ' num2str(scale_id)], ['size ' sprintf('%.1f%%', (obj.scale^(scale_id-1))*100)]};
                 end
             end
+        end
+    end
+    
+    
+    methods (Access = private)
+        function [ proj_im ] = computePhotoConstancy(obj, im1, im2, uv, cols, rows)
+            shifts = [0 0; -1 0; -1 -1; 0 -1; 1 -1; 1 0; 1 1; 0 1; -1 1];
+            
+            temp = zeros([size(im2,1), size(im2,2), 2]);
+            proj_im = zeros([size(im2,1), size(im2,2), size(shifts,1)]);
+
+            flow_u = cols + uv(:,:,1);
+            flow_v = rows + uv(:,:,2);
+            
+            lab_a = im2(:,:,2);
+            lab_b = im2(:,:,3);
+            
+            for shift_idx = 1:size(shifts,1)
+                tform = maketform('affine', [1 0; 0 1; shifts(shift_idx,1) shifts(shift_idx,2)]);
+                
+                lab_a_temp = imtransform(lab_a, tform, 'XData',[1 size(lab_a,2)], 'YData',[1 size(lab_a,1)], 'FillValues',NaN);
+                lab_b_temp = imtransform(lab_b, tform, 'XData',[1 size(lab_b,2)], 'YData',[1 size(lab_b,1)], 'FillValues',NaN);
+                
+                % project the im2's a* and b* to the first according to the flow
+                temp(:,:,1) = interp2(lab_a_temp, flow_u, flow_v, 'cubic');
+                temp(:,:,2) = interp2(lab_b_temp, flow_u, flow_v, 'cubic');
+
+                % compute the error in the projection
+                temp = im1(:,:,[2 3]) - temp;
+                proj_im(:,:,shift_idx) = sum(temp.^2, 3);
+            end
+            
+            % take the min from all the neighborhood values and compute root for L2 norm
+            proj_im = sqrt(min(proj_im, [], 3));
+            proj_im(isnan(proj_im)) = PhotoConstancyFeature.NAN_VAL;
         end
     end
 

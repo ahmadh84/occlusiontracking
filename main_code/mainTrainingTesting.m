@@ -55,6 +55,9 @@ function [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( testing_
     % use one in training/testing
     settings.USE_ONLY_OF = '';  % HuberL1OF.OF_SHORT_TYPE;
     
+    % if you want to add noise to the training images (leave empty if not)
+    settings.training_noise_params = {};
+    
     % OpenCV Random Forest parameters
     settings.RF_MAX_DEPTH = '35';           % maximum levels in a tree
     settings.RF_MIN_SAMPLE_COUNT = '20';    % don't split a node if less

@@ -27,7 +27,7 @@ function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_i
             fprintf(1, '\t... using data from sequence %d\n', training_id);
         end
         
-        [train_comp_feat_vec train_calc_flows] = obj.getFeatureVecAndFlow(training_id);
+        [train_comp_feat_vec train_calc_flows] = obj.getFeatureVecAndFlow(training_id, 1);
         
         % the structure that will be sent to the label data
         extra_label_info.calc_flows = train_calc_flows;

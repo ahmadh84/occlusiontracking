@@ -42,6 +42,8 @@ classdef CalcFlows < handle
         flow_extra_time = 0.0;
         
         silent_mode = 0;
+        for_training = 0;
+        training_noise_params = {};
     end
     
     
@@ -73,6 +75,19 @@ classdef CalcFlows < handle
             % load images
             obj.im1 = imread(fullfile(obj.scene_dir, ComputeTrainTestData.IM1_PNG));
             obj.im2 = imread(fullfile(obj.scene_dir, ComputeTrainTestData.IM2_PNG));
+            
+            % if this is training mode - store any noise params
+            if nargin > 6 && isscalar(varargin{5})
+                obj.for_training = varargin{5};
+                if obj.for_training == 1
+                    obj.training_noise_params = varargin{6};
+                end
+            end
+            
+            % add noise to the training images if needed
+            if obj.for_training == 1
+                [obj.im1 obj.im2] = ComputeFeatureVectors.preprocessingTraining(obj.im1, obj.im2, {obj.training_noise_params});
+            end
             
             % if user wants to force that there is no GT
             if nargin > 2 && isscalar(varargin{1})
@@ -131,6 +146,16 @@ classdef CalcFlows < handle
             
             for algo_idx = 1:obj.no_algos
                 unique_id = [unique_id obj.cell_flow_algos{algo_idx}.returnNoID()];
+            end
+            
+            if obj.for_training
+                unique_id = [unique_id 0];
+                
+                if ~isempty(obj.training_noise_params)
+                    for idx = 1:length(obj.training_noise_params)
+                        unique_id(end) = unique_id(end) + sum(uint8(num2str(obj.training_noise_params{idx})));
+                    end
+                end
             end
             
             if obj.compute_reverse

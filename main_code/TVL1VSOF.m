@@ -62,15 +62,9 @@ classdef TVL1VSOF < AbstractOF
                 end
                 mkdir(TVL1VSOF.TEMP_DIR);
                 
-                % write images for converting to video (copy in reverse if
-                % computing backward flow)
-                if extra_info.reverse == 0
-                    copyfile(fullfile(extra_info.scene_dir, ComputeTrainTestData.IM1_PNG), fullfile(TVL1VSOF.TEMP_DIR, ComputeTrainTestData.IM1_PNG));
-                    copyfile(fullfile(extra_info.scene_dir, ComputeTrainTestData.IM2_PNG), fullfile(TVL1VSOF.TEMP_DIR, ComputeTrainTestData.IM2_PNG));
-                else
-                    copyfile(fullfile(extra_info.scene_dir, ComputeTrainTestData.IM1_PNG), fullfile(TVL1VSOF.TEMP_DIR, ComputeTrainTestData.IM2_PNG));
-                    copyfile(fullfile(extra_info.scene_dir, ComputeTrainTestData.IM2_PNG), fullfile(TVL1VSOF.TEMP_DIR, ComputeTrainTestData.IM1_PNG));
-                end
+                % write images for converting to video
+                imwrite(im1, fullfile(TVL1VSOF.TEMP_DIR, ComputeTrainTestData.IM1_PNG));
+                imwrite(im2, fullfile(TVL1VSOF.TEMP_DIR, ComputeTrainTestData.IM2_PNG));
                 
                 cd(TVL1VSOF.TEMP_DIR);
                 

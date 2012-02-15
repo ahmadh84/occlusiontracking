@@ -106,7 +106,7 @@ classdef ComputeTrainTestData < handle
         end
         
         
-        [ comp_feat_vec calc_flow ] = getFeatureVecAndFlow(obj, scene_id);
+        [ comp_feat_vec calc_flow ] = getFeatureVecAndFlow(obj, scene_id, for_training);
     end
     
     
