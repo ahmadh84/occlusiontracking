@@ -3,10 +3,11 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
 %   Detailed explanation goes here
     
     seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50], [51:88], [89:106], [107:124], [125:128]};
-    out_dir = '../../Results/VideoSegTest/TEMP';
+    out_dir = '../../Results/VideoSegTest/TestsImproveClassifier';
     main_dir = '../../../Data/Images/UCL/oisin+middlebury';
 
-    training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50 129 130 131];
+    %training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50 129 130 131];
+    training_seq = [18 19 26 39 40 47 49 50 51 56 90 115 128];
     testing_seq = [132 1 2 4 5 9:14 17:19 22 24 26:29 30 39 40:48 49 50];
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,6 +22,19 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
     % 12 - ReverseFlowAngleDiffFeature
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%% Just PC,LV,CS,RC %%%%%%
+    [ override_settings ] = create_override_settings( seq_conflicts, [4 9 10 11] );
+
+    temp_out_dir = fullfile(out_dir, [override_settings.cell_flows{1}.OF_SHORT_TYPE '-']);
+    for ftr_idx = 1:length(override_settings.cell_features)
+        temp_out_dir = [temp_out_dir '_' lower(override_settings.cell_features{ftr_idx}.FEATURE_SHORT_TYPE)];
+    end
+    temp_out_dir = [temp_out_dir '-RCGT'];
+
+    trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%% Just PC,TG,RC,RA %%%%%%
     [ override_settings ] = create_override_settings( seq_conflicts, [4 7 11 12] );
 
@@ -30,7 +44,7 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
     end
     temp_out_dir = [temp_out_dir '-RCGT'];
 
-    trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+    %trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,15 +92,15 @@ function [ output_args ] = testing_videoseg_occlrev_tryouts2( input_args )
 
     temp_out_dir = fullfile(out_dir, [override_settings.cell_flows{1}.OF_SHORT_TYPE '--ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_sp-RCGT']);
 
-    trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
+    %trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
 end
 
 
 function [ override_settings ] = create_override_settings( seq_conflicts, select_features )
     override_settings = struct;
-    uv_ftrs1_ss_info =               [ 10             0.8 ];   % this and the var below are there, because Temporal gradient and other features need different UV SS
-    uv_ftrs2_ss_info =               [ 4              0.8 ];
-    override_settings.ss_info_im1 =  [ 10             0.8 ];                                 % image pyramid to be built for im1
+    uv_ftrs1_ss_info =               [ 6              0.8 ];   % this and the var below are there, because Temporal gradient and other features need different UV SS
+    uv_ftrs2_ss_info =               [ 6              0.8 ];
+    override_settings.ss_info_im1 =  [ 6              0.8 ];                                 % image pyramid to be built for im1
     override_settings.ss_info_im2 =  uv_ftrs2_ss_info;                                       % image pyramid to be built for im2
     
     % create occlusion label but ignore occlusions due to change in
@@ -100,10 +114,13 @@ function [ override_settings ] = create_override_settings( seq_conflicts, select
 %                                      HuberL1OF, ...
 %                                      ClassicNLOF, ...
 %                                      LargeDisplacementOF };
-    override_settings.cell_flows = { TVL1VSOF };
+    override_settings.cell_flows = { TVL1VSOF, ...
+                                     LargeDisplacementVSOF };
     
     override_settings.uv_ss_info =   [ max(uv_ftrs1_ss_info(1), uv_ftrs2_ss_info(1)) ...     % image pyramid to be built for flow
                                                  uv_ftrs2_ss_info(2) ];
+                                             
+    override_settings.training_noise_params = {'gaussian', 0, 0.0003};
 
     [c r] = meshgrid(-1:1, -1:1);
     nhood = cat(3, r(:), c(:));
