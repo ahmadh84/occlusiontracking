@@ -106,7 +106,7 @@ classdef PhotoConstancyFeature < AbstractFeature
                         uv_resized = calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algo_id);
                         
                         % compute photoconstancy
-                        [ proj_im ] = obj.computePhotoConstancy(im1_resized, im2_resized, uv_resized, cols, rows);
+                        [ proj_im ] = obj.computePhotoConstancy(im1_resized(:,:,[2 3]), im2_resized(:,:,[2 3]), uv_resized, cols, rows);
 
                         % store
                         photoconst(:,:,((algo_idx-1)*obj.no_scales)+scale_idx) = imresize(proj_im, calc_feature_vec.image_sz);
@@ -188,27 +188,25 @@ classdef PhotoConstancyFeature < AbstractFeature
         function [ proj_im ] = computePhotoConstancy(obj, im1, im2, uv, cols, rows)
             shifts = [0 0; -1 0; -1 -1; 0 -1; 1 -1; 1 0; 1 1; 0 1; -1 1];
             
-            temp = zeros([size(im2,1), size(im2,2), 2]);
+            temp = zeros(size(im2));
             proj_im = zeros([size(im2,1), size(im2,2), size(shifts,1)]);
 
             flow_u = cols + uv(:,:,1);
             flow_v = rows + uv(:,:,2);
             
-            lab_a = im2(:,:,2);
-            lab_b = im2(:,:,3);
-            
+            % iterate over all shift neighborhoods
             for shift_idx = 1:size(shifts,1)
                 tform = maketform('affine', [1 0; 0 1; shifts(shift_idx,1) shifts(shift_idx,2)]);
                 
-                lab_a_temp = imtransform(lab_a, tform, 'XData',[1 size(lab_a,2)], 'YData',[1 size(lab_a,1)], 'FillValues',NaN);
-                lab_b_temp = imtransform(lab_b, tform, 'XData',[1 size(lab_b,2)], 'YData',[1 size(lab_b,1)], 'FillValues',NaN);
+                for d = 1:size(im2,3)
+                    clr_temp = imtransform(im2(:,:,d), tform, 'XData',[1 size(im2,2)], 'YData',[1 size(im2,1)], 'FillValues',NaN);
+                    
+                    % project the im2's a* and b* to the first according to the flow
+                    temp(:,:,d) = interp2(clr_temp, flow_u, flow_v, 'cubic');
+                end
                 
-                % project the im2's a* and b* to the first according to the flow
-                temp(:,:,1) = interp2(lab_a_temp, flow_u, flow_v, 'cubic');
-                temp(:,:,2) = interp2(lab_b_temp, flow_u, flow_v, 'cubic');
-
                 % compute the error in the projection
-                temp = im1(:,:,[2 3]) - temp;
+                temp = im1 - temp;
                 proj_im(:,:,shift_idx) = sum(temp.^2, 3);
             end
             
