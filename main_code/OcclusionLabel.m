@@ -230,6 +230,32 @@ classdef OcclusionLabel < AbstractLabel
                 gt_ignore_labels = extra_label_info.calc_flows.gt_ignore_mask';
                 ignore_labels = ignore_labels | gt_ignore_labels(:);
             end
+            
+            % output distributions
+%             figure;
+%             for feature_idx = 1:size(comp_feat_vec.features,2)
+%                 nve_data = comp_feat_vec.features(labels==0,feature_idx);
+%                 pve_data = comp_feat_vec.features(labels==1,feature_idx);
+%                 if ~isempty(nve_data)
+%                     range = [min(min(nve_data), min(pve_data)) max(max(nve_data), max(pve_data))];
+%                     midp = (range(2) - range(1))/(50*2);
+%                     midps = range(1)+midp:midp*2:range(2);
+%                     nve_h = hist(nve_data, midps);
+%                     nve_h = nve_h ./ sum(nve_h);
+%                     pve_h = hist(pve_data, midps);
+%                     pve_h = pve_h ./ sum(pve_h);
+%                     h = bar(midps, [nve_h' pve_h'],1.65);
+%                     legend(h, {sprintf('NotOccl: %0.2f, %0.2f',min(nve_data),max(nve_data)) sprintf('Occl: %0.2f, %0.2f',min(pve_data),max(pve_data))});
+%                     xlabel('Feature Value');
+%                     ylabel('Normalized Frequency');
+% 
+%                     feat_type_idx = find(feature_idx > [0 cumsum(comp_feat_vec.feature_depths)], 1, 'last');
+%                     [d f] = fileparts(comp_feat_vec.scene_dir);
+%                     filepath = fullfile('~/Dropbox/FeatureCMP', sprintf('%03d_%s_%03d.png',feature_idx,comp_feat_vec.feature_types{feat_type_idx},str2num(f)));
+%                     print('-dpng', '-r0', filepath);
+%                 end
+%             end
+%             close;
         end
        
         

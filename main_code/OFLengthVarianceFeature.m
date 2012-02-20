@@ -93,7 +93,7 @@ classdef OFLengthVarianceFeature < AbstractFeature
                     image_sz = image_sz([1 2]);
                     
                     % compute length variance for each optical flow given
-                    lenvar_temp = obj.computeLenVarForEachUV( calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algos_to_use), image_sz );
+                    lenvar_temp = OFLengthVarianceFeature.computeLenVarForEachUV( calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algos_to_use), obj.nhood, image_sz );
                     
                     % iterate over all the candidate flow algorithms
                     for feat_idx = 1:size(lenvar_temp,3)
@@ -105,7 +105,7 @@ classdef OFLengthVarianceFeature < AbstractFeature
                 assert(isfield(calc_feature_vec.extra_info, 'calc_flows'), 'The CalcFlows object has not been defined in the passed ComputeFeatureVectors');
                 
                 % compute length variance for each optical flow given
-                lenvar = obj.computeLenVarForEachUV( calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,:,algos_to_use), calc_feature_vec.image_sz );
+                lenvar = OFLengthVarianceFeature.computeLenVarForEachUV( calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,:,algos_to_use), obj.nhood, calc_feature_vec.image_sz );
             end
             
             feature_depth = size(lenvar,3);
@@ -150,8 +150,8 @@ classdef OFLengthVarianceFeature < AbstractFeature
     end
 
     
-    methods (Access = private)
-        function [ lenvar ] = computeLenVarForEachUV( obj, uv_flows, image_sz )
+    methods (Static)
+        function [ lenvar ] = computeLenVarForEachUV( uv_flows, nhood, image_sz )
             
             no_flow_algos = size(uv_flows, 4);
 
@@ -161,9 +161,9 @@ classdef OFLengthVarianceFeature < AbstractFeature
             % get the nhood r and c's (each col given a neighborhood 
             %  around a pixel - nhood_r is row ind, nhood_c is col ind)
             [cols rows] = meshgrid(1:image_sz(2), 1:image_sz(1));
-            nhood_rep = repmat(obj.nhood, [1 numel(rows) 1]);
-            nhood_r = nhood_rep(:,:,1) + repmat(rows(:)', [size(obj.nhood,1) 1]);
-            nhood_c = nhood_rep(:,:,2) + repmat(cols(:)', [size(obj.nhood,1) 1]);
+            nhood_rep = repmat(nhood, [1 numel(rows) 1]);
+            nhood_r = nhood_rep(:,:,1) + repmat(rows(:)', [size(nhood,1) 1]);
+            nhood_c = nhood_rep(:,:,2) + repmat(cols(:)', [size(nhood,1) 1]);
 
             % get the pixel indices which are outside
             idxs_outside = nhood_r <= 0 | nhood_c <= 0 | nhood_r > image_sz(1) | nhood_c > image_sz(2);

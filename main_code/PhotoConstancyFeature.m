@@ -30,7 +30,7 @@ classdef PhotoConstancyFeature < AbstractFeature
     
     
     properties (Constant)
-        NAN_VAL = 1000;
+        NAN_VAL = 0;
         FEATURE_TYPE = 'Photo Constancy';
         FEATURE_SHORT_TYPE = 'PC';
     end
@@ -106,7 +106,7 @@ classdef PhotoConstancyFeature < AbstractFeature
                         uv_resized = calc_feature_vec.extra_info.flow_scalespace.ss{scale_idx}(:,:,:,algo_id);
                         
                         % compute photoconstancy
-                        [ proj_im ] = obj.computePhotoConstancy(im1_resized(:,:,[2 3]), im2_resized(:,:,[2 3]), uv_resized, cols, rows);
+                        [ proj_im ] = PhotoConstancyFeature.computePhotoConstancy(im1_resized, im2_resized, uv_resized, cols, rows);
 
                         % store
                         photoconst(:,:,((algo_idx-1)*obj.no_scales)+scale_idx) = imresize(proj_im, calc_feature_vec.image_sz);
@@ -135,7 +135,7 @@ classdef PhotoConstancyFeature < AbstractFeature
                     assert(nnz(algo_id) == 1, ['Can''t find matching flow algorithm used in computation of ' class(obj)]);
                     
                     % compute photoconstancy
-                    [ proj_im ] = obj.computePhotoConstancy(calc_feature_vec.im1_cielab, calc_feature_vec.im2_cielab, ...
+                    [ proj_im ] = PhotoConstancyFeature.computePhotoConstancy(calc_feature_vec.im1_cielab, calc_feature_vec.im2_cielab, ...
                         calc_feature_vec.extra_info.calc_flows.uv_flows(:,:,:,algo_id), cols, rows);
                     
                     % store
@@ -184,9 +184,11 @@ classdef PhotoConstancyFeature < AbstractFeature
     end
     
     
-    methods (Access = private)
-        function [ proj_im ] = computePhotoConstancy(obj, im1, im2, uv, cols, rows)
-            shifts = [0 0; -1 0; -1 -1; 0 -1; 1 -1; 1 0; 1 1; 0 1; -1 1];
+    methods (Static)
+        function [ proj_im ] = computePhotoConstancy(im1, im2, uv, cols, rows)
+            width = 1;
+            [shift_c shift_r] = meshgrid(-width:width, -width:width);
+            shifts = [shift_r(:) shift_c(:)];
             
             temp = zeros(size(im2));
             proj_im = zeros([size(im2,1), size(im2,2), size(shifts,1)]);
@@ -194,25 +196,46 @@ classdef PhotoConstancyFeature < AbstractFeature
             flow_u = cols + uv(:,:,1);
             flow_v = rows + uv(:,:,2);
             
-            % iterate over all shift neighborhoods
-            for shift_idx = 1:size(shifts,1)
-                tform = maketform('affine', [1 0; 0 1; shifts(shift_idx,1) shifts(shift_idx,2)]);
-                
-                for d = 1:size(im2,3)
-                    clr_temp = imtransform(im2(:,:,d), tform, 'XData',[1 size(im2,2)], 'YData',[1 size(im2,1)], 'FillValues',NaN);
-                    
-                    % project the im2's a* and b* to the first according to the flow
-                    temp(:,:,d) = interp2(clr_temp, flow_u, flow_v, 'cubic');
-                end
-                
-                % compute the error in the projection
-                temp = im1 - temp;
-                proj_im(:,:,shift_idx) = sum(temp.^2, 3);
-            end
+            flow_u = round(flow_u);
+            flow_v = round(flow_v);
             
-            % take the min from all the neighborhood values and compute root for L2 norm
-            proj_im = sqrt(min(proj_im, [], 3));
-            proj_im(isnan(proj_im)) = PhotoConstancyFeature.NAN_VAL;
+            flow_u = repmat(flow_u, [1 1 1 size(shifts,1)]);
+            flow_v = repmat(flow_v, [1 1 1 size(shifts,1)]);
+            flow_u = bsxfun(@plus, flow_u, reshape(shifts(:,1), [1 1 1 size(shifts,1)]));
+            flow_v = bsxfun(@plus, flow_v, reshape(shifts(:,2), [1 1 1 size(shifts,1)]));
+            
+            % find the points which have fallen outside the image
+            outside_idcs = flow_u < 1 | flow_u > size(im2,2) | flow_v < 1 | flow_v > size(im2,1);
+            flow_u(outside_idcs) = 1;
+            flow_v(outside_idcs) = 1;
+            
+            % iterate over all depths of the image and compute diff^2
+            temp = repmat(reshape([1 2 3], [1 1 3]), [size(flow_u,1) size(flow_u,2) 1 size(shifts,1)]);
+            ind_dash = sub2ind(size(im1), repmat(flow_v,[1 1 3 1]), repmat(flow_u, [1 1 3 1]), temp);
+            proj_im = PhotoConstancyFeature.cie94diff(repmat(im1,[1 1 1 size(shifts,1)]), im2(ind_dash));
+            
+            nooffset_idx = uint32(size(shifts,1)/2);
+            
+            proj_im(outside_idcs) = NaN;
+            proj_im = min(proj_im,[],3);
+            proj_im(outside_idcs(:,:,nooffset_idx)) = PhotoConstancyFeature.NAN_VAL;
+        end
+        
+        
+        function [ clr_diff ] = cie94diff(lab1, lab2)
+            delta_L = lab1(:,:,1,:) - lab2(:,:,1,:);
+            C_1 = sqrt(lab1(:,:,2,:).^2 + lab1(:,:,3,:).^2);
+            C_2 = sqrt(lab2(:,:,2,:).^2 + lab2(:,:,3,:).^2);
+            delta_C_ab = C_1 - C_2;
+            delta_a = lab1(:,:,2,:) - lab2(:,:,2,:);
+            delta_b = lab1(:,:,3,:) - lab2(:,:,3,:);
+            delta_H_ab =  delta_a.^2 + delta_b.^2 - delta_C_ab.^2;
+            delta_H_ab(delta_H_ab<0) = 0;
+            K_L = 2;
+            K_1 = 0.045;
+            K_2 = 0.015;
+            clr_diff = sqrt((delta_L/K_L).^2 + (delta_C_ab./(1+K_1*C_1)).^2 + (delta_H_ab./((1+K_2*C_1).^2)));
+            clr_diff = squeeze(clr_diff);
         end
     end
 
