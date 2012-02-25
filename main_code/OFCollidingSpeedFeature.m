@@ -37,13 +37,10 @@ classdef OFCollidingSpeedFeature < AbstractFeature
     end
     
     
-    properties (Transient) 
-        pinv_dist_u;
-        pinv_dist_v;
-        proj_a1;
-        proj_a2;
-        proj_a3;
-        proj_a4;
+    properties (Transient)
+        vecdir_u;
+        vecdir_v;
+        l2normsq;
     end
     
     
@@ -167,7 +164,8 @@ classdef OFCollidingSpeedFeature < AbstractFeature
         % creates a cell vector where each item contains a string of the
         % feature type (in the order the will be spit out by calcFeatures)
             
-            window_size = num2str(max((max(obj.nhood_2,[],1) - min(obj.nhood_1,[],1))+1));
+            window_size = (max(obj.nhood,[],1) - min(obj.nhood,[],1))+1;
+            window_size = sprintf('%dx%d', window_size(1), window_size(2));
             return_feature_list = cell(obj.no_scales * length(obj.FEATURES_PER_PIXEL_TYPES) * length(obj.flow_short_types),1);
             
             for flow_id = 1:length(obj.flow_short_types)
@@ -226,6 +224,11 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                 xfl = uv_flows(:,:,1,algo_idx);
                 yfl = uv_flows(:,:,2,algo_idx);
 
+%                 all_lens = sqrt(xfl.^2 + yfl.^2);
+%                 norm_len = mean(all_lens(:));
+%                 xfl = xfl ./ norm_len;
+%                 yfl = yfl ./ norm_len;
+                
                 % initialize the feature to return
                 features = zeros(numel(xfl), length(obj.FEATURES_PER_PIXEL_TYPES));
 
@@ -240,7 +243,6 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                     temp_r_2 = nhood_r_2(:,curr_idxs);
                     temp_c_2 = nhood_c_2(:,curr_idxs);
                     
-                    
                     % throw away indices which fall outside (fix temp_r
                     % and temp_c)
                     if s ~= 0
@@ -251,25 +253,16 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                         [temp, remaining_idxs_rs] = sort(temp_idxs_outside, 1);
                         remaining_idxs_rs(end-s+1:end,:) = [];
                         
-                        % get the projection matrix A
-                        curr_proj_a1 = obj.proj_a1(remaining_idxs_rs);
-                        curr_proj_a2 = obj.proj_a2(remaining_idxs_rs);
-                        curr_proj_a3 = obj.proj_a3(remaining_idxs_rs);
-                        curr_proj_a4 = obj.proj_a4(remaining_idxs_rs);
-                        
-                        % get the pseudoinv distance
-                        curr_pinv_d_u = obj.pinv_dist_u(remaining_idxs_rs);
-                        curr_pinv_d_v = obj.pinv_dist_v(remaining_idxs_rs);
+                        % get the l2 sq and projection line u,v matrices
+                        curr_l2normsq = obj.l2normsq(remaining_idxs_rs);
+                        curr_vecdir_u = obj.vecdir_u(remaining_idxs_rs);
+                        curr_vecdir_v = obj.vecdir_v(remaining_idxs_rs);
                         
                         % if its not a 2D array straighten the arrays
-                        if ~all(size(curr_proj_a1) == size(remaining_idxs_rs))
-                            curr_proj_a1 = curr_proj_a1';
-                            curr_proj_a2 = curr_proj_a2';
-                            curr_proj_a3 = curr_proj_a3';
-                            curr_proj_a4 = curr_proj_a4';
-                            
-                            curr_pinv_d_u = curr_pinv_d_u';
-                            curr_pinv_d_v = curr_pinv_d_v';
+                        if ~all(size(curr_l2normsq) == size(remaining_idxs_rs))
+                            curr_l2normsq = curr_l2normsq';
+                            curr_vecdir_u = curr_vecdir_u';
+                            curr_vecdir_v = curr_vecdir_v';
                         end
 
                         % adjust temp_r and temp_c with the indxs found which are not outside the image
@@ -279,15 +272,10 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                         temp_r_2 = temp_r_2(remaining_idxs_rs);
                         temp_c_2 = temp_c_2(remaining_idxs_rs);
                     else
-                        % get the projection matrix A
-                        curr_proj_a1 = repmat(obj.proj_a1, [1 size(temp_r_1, 2)]);
-                        curr_proj_a2 = repmat(obj.proj_a2, [1 size(temp_r_1, 2)]);
-                        curr_proj_a3 = repmat(obj.proj_a3, [1 size(temp_r_1, 2)]);
-                        curr_proj_a4 = repmat(obj.proj_a4, [1 size(temp_r_1, 2)]);
-                        
-                        % get the pseudoinv distance
-                        curr_pinv_d_u = repmat(obj.pinv_dist_u, [1 size(temp_r_1, 2)]);
-                        curr_pinv_d_v = repmat(obj.pinv_dist_v, [1 size(temp_r_1, 2)]);
+                        % get the l2 sq and projection line u,v matrices
+                        curr_l2normsq = repmat(obj.l2normsq, [1 size(temp_r_1, 2)]);
+                        curr_vecdir_u = repmat(obj.vecdir_u, [1 size(temp_r_1, 2)]);
+                        curr_vecdir_v = repmat(obj.vecdir_v, [1 size(temp_r_1, 2)]);
                     end
 
                     % get the indxs for each pixel nhood
@@ -297,16 +285,12 @@ classdef OFCollidingSpeedFeature < AbstractFeature
                     temp_indxs = sub2ind(size(xfl), temp_r_2, temp_c_2);
                     temp_u_2 = xfl(temp_indxs);
                     temp_v_2 = yfl(temp_indxs);
-
-
+                    
                     %%% The main feature computation
                     fu = temp_u_1 - temp_u_2;
                     fv = temp_v_1 - temp_v_2;
                     
-                    curr_proj_a1 = curr_proj_a1.*fu + curr_proj_a3.*fv;
-                    curr_proj_a2 = curr_proj_a2.*fu + curr_proj_a4.*fv;
-                    
-                    t = curr_pinv_d_u.*curr_proj_a1 + curr_pinv_d_v.*curr_proj_a2;
+                    t = curr_l2normsq ./ ((fu .* curr_vecdir_u) + (fv .* curr_vecdir_v));
                     
                     if ~isempty(t)
                         % store features accordingly
@@ -331,17 +315,11 @@ classdef OFCollidingSpeedFeature < AbstractFeature
         
         
         function obj = extraInfo( obj )
-            dist = squeeze(obj.nhood_2 - obj.nhood_1);
+            vec_dir = squeeze(obj.nhood_2 - obj.nhood_1);
+            obj.vecdir_u = vec_dir(:,1);
+            obj.vecdir_v = vec_dir(:,2);
             
-            n = sum(dist.^2, 2);
-            
-            obj.proj_a1 = ( dist(:,1).^2 ) ./ n;
-            obj.proj_a2 = ( dist(:,1).*dist(:,2) ) ./ n;
-            obj.proj_a3 = obj.proj_a2;
-            obj.proj_a4 = ( dist(:,2).^2 ) ./ n;
-            
-            obj.pinv_dist_u = 1./n .* dist(:,1);
-            obj.pinv_dist_v = 1./n .* dist(:,2);
+            obj.l2normsq = sum(vec_dir.^2, 2);
         end
     end
 
