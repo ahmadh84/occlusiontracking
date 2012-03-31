@@ -1,8 +1,8 @@
 classdef TVL1OF < AbstractOF
     %TVL1OF 
-    % get output for "An improved algorithm for TV-L1 optical flow" (A. 
-    %   Wedel, T. Pock, C. Zach, H. Bischof, D. Cremers. In Proc. of the 
-    %   Dagstuhl Motion Workshop, LNCS. 2008)
+    % get output for "A Duality Based Approach for Realtime TV-L1 Optical 
+    %   Flow" (C. Zach and T. Pock and H. Bischof. In Pattern Recognition 
+    %   (Proc. DAGM), 2007)
     
     properties (Constant)
         OF_TYPE = 'TV-L1';
