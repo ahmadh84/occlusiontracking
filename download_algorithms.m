@@ -1,4 +1,6 @@
 function download_algorithms
+% Downloads different codes needed to train and test with classifier
+
 clc
 
 fprintf(2, '---------------------------------------------------------------------------\n                              Download Notice                              \n---------------------------------------------------------------------------\nBy running this script, you accept all licensing agreements accompanied\nwith the 3rd party softwares that will now be downloaded and used later in\nour scripts.\n\nPress ''y'' to accept (any other key to stop the script): ');
@@ -32,8 +34,6 @@ end
 
 % create temp download directory
 temp_dir = fullfile(curr_dir, sprintf('temp%d', randi(1e8)));
-mkdir(temp_dir);
-%temp_dir = fullfile(curr_dir, 'temp48537565');
 mkdir(temp_dir);
 
 try
@@ -152,7 +152,7 @@ try
     
     % download sparse occlusion detection code
     fprintf(1, 'Downloading UCLA Occlusion Detection code ...\n');
-    urlwrite('http://vision.ucla.edu/~ayvaci/occlusion-detection/sparse-occlusion-detection-matlab.zip', fullfile(temp_dir, 'sparse-occlusion-detection-matlab.zip'));
+    urlwrite('http://vision.ucla.edu/~ayvaci/sparse-occlusion-detection-matlab.zip', fullfile(temp_dir, 'sparse-occlusion-detection-matlab.zip'));
     fprintf(1, 'Done downloading\n');
    
     mkdir(fullfile(algos_dir, 'sparse-occlusion-detection'));
@@ -205,8 +205,10 @@ try
     fprintf(1, 'Downloading Kolmogorov and Zabih Occlusions code ...\n');
     urlwrite('http://pub.ist.ac.at/~vnk/software/match-v3.4.src.tar.gz', fullfile(temp_dir, 'match-v3.4.src.tar.gz'));
     fprintf(1, 'Done downloading\n');
-    fprintf(1, 'TODO: make occlusions code for KZ\n');
+    untar(fullfile(temp_dir, 'match-v3.4.src.tar.gz'), temp_dir);
+    movefile(fullfile(temp_dir, 'match-v3.4.src', '*'), fullfile(algos_dir, 'kolmogCompar'));
     
+    % delete temp directory
     rmdir(temp_dir, 's');
     
 catch exception
@@ -215,6 +217,7 @@ catch exception
     rethrow(exception)
 end
 
+end
 
 
 function replaceInTextFile(filepath, re_file, replace_txt)
@@ -230,7 +233,7 @@ str = regexprep(str, re_file, replace_txt);
 fd = fopen(filepath, 'w');
 fprintf(fd, '%s', str);
 fclose(fd);
-
+end
 
 
 function transferMatlabFromGNU(makefilepath, dest_dir)
@@ -248,7 +251,7 @@ end
 for idx = 1:length(files)
     movefile(fullfile(fileparts(makefilepath), files{idx}), dest_dir);
 end
-
+end
 
 
 function adjustAttributes(folder_path)
@@ -269,4 +272,5 @@ for idx = 1:length(d)
     else
         unix(['chmod 0644 "' curr_path '"']);
     end
+end
 end
