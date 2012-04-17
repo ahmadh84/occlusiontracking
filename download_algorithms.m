@@ -12,7 +12,7 @@ end
 % destination algorithms directory
 curr_dir = fileparts(which(mfilename));
 algos_dir = fullfile(curr_dir, 'main_code', 'algorithms');
-dont_delete = {'CUDA_masked_NSSD', 'FlowLib', 'kolmogCompar', 'Template_Match', 'vlfeat-0.9.9', 'kmeansK.cpp', 'mexutils.h', 'prctile.m', 'randsample.m'};
+dont_delete = {'CUDA_masked_NSSD', 'FlowLib', 'kolmogCompar', 'Template_Match', 'vlfeat-0.9.9', 'kmeansK.cpp', 'mexutils.h', 'prctile.m', 'randsample.m', 'TV_L1', 'README'};
 if exist(algos_dir,'dir')
     % only delete the dir/files not in dont_delete
     d = dir(algos_dir);
@@ -181,25 +181,25 @@ try
     
     
     % download TV-L1 code
-    fprintf(1, 'Downloading TU-Graz TV-L1 code ...\n');
-    urlwrite('http://gpu4vision.icg.tugraz.at/binaries/tvl1_motion.tgz', fullfile(temp_dir, 'tvl1_motion.tgz'));
-    fprintf(1, 'Done downloading\n');
-    
-    mkdir(fullfile(algos_dir, 'TV_L1'));
-    untar(fullfile(temp_dir, 'tvl1_motion.tgz'), fullfile(algos_dir, 'TV_L1'));
-    movefile(fullfile(algos_dir, 'TV_L1', 'tvl1_motion', '*'), fullfile(algos_dir, 'TV_L1'));
-    rmdir(fullfile(algos_dir, 'TV_L1', 'tvl1_motion'), 's');
-    delete(fullfile(algos_dir, 'TV_L1', '*.png'));
-    delete(fullfile(algos_dir, 'TV_L1', 'flowToColor.m'));
-    delete(fullfile(algos_dir, 'TV_L1', 'writeFlowFile.m'));
-    % add silencing variable
-    replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'coarse_to_fine.m'), 'pyramid_levels, pyramid_factor\);', 'pyramid_levels, pyramid_factor, silent_mode);');
-    replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'coarse_to_fine.m'), '  fprintf(''\*\*\* level = %d\\n'', level\);', '  if exist(''silent_mode'',''var'')==0\n    silent_mode=0;\n  end\n\n  if silent_mode < 2\n    fprintf(''*** level = %d\\n'', level);\n  end');
-    replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'coarse_to_fine.m'), '\(I1, I2, u, v, w, p, lambda, warps, maxits, scale\);', '(I1, I2, u, v, w, p, lambda, warps, maxits, scale, silent_mode);');
-    replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'tv_l1_motion_primal_dual.m'), 'warps, maxits, scale\)', 'warps, maxits, scale, silent_mode)');
-    replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'tv_l1_motion_primal_dual.m'), '  fprintf\(''tv-l1-of-pd: warp = %d\\n'', j\);', '  if silent_mode < 1\n    fprintf(''tv-l1-of-pd: warp = %d\\n'', j);\n  end');
-    replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'tv_l1_motion_primal_dual.m'), '      show_flow\(u,v,gamma\*w,I1,I\_2\_warped \+ \(u-u0\)\.\*I\_x \+ \(v-v0\)\.\*I\_y \+ gamma\*w\);\s      fprintf\(''tv-l1-motion-primal-dual: it = %d\\n'', k\)', '      if silent_mode < 1\n        show_flow(u,v,gamma*w,I1,I_2_warped + (u-u0).*I_x + (v-v0).*I_y + gamma*w);\n        fprintf(''tv-l1-motion-primal-dual: it = %d\\n'', k)\n      end');
-    adjustAttributes(fullfile(algos_dir, 'TV_L1'));
+%     fprintf(1, 'Downloading TU-Graz TV-L1 code ...\n');
+%     urlwrite('http://gpu4vision.icg.tugraz.at/binaries/tvl1_motion.tgz', fullfile(temp_dir, 'tvl1_motion.tgz'));
+%     fprintf(1, 'Done downloading\n');
+%     
+%     mkdir(fullfile(algos_dir, 'TV_L1'));
+%     untar(fullfile(temp_dir, 'tvl1_motion.tgz'), fullfile(algos_dir, 'TV_L1'));
+%     movefile(fullfile(algos_dir, 'TV_L1', 'tvl1_motion', '*'), fullfile(algos_dir, 'TV_L1'));
+%     rmdir(fullfile(algos_dir, 'TV_L1', 'tvl1_motion'), 's');
+%     delete(fullfile(algos_dir, 'TV_L1', '*.png'));
+%     delete(fullfile(algos_dir, 'TV_L1', 'flowToColor.m'));
+%     delete(fullfile(algos_dir, 'TV_L1', 'writeFlowFile.m'));
+%     % add silencing variable
+%     replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'coarse_to_fine.m'), 'pyramid_levels, pyramid_factor\);', 'pyramid_levels, pyramid_factor, silent_mode);');
+%     replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'coarse_to_fine.m'), '  fprintf(''\*\*\* level = %d\\n'', level\);', '  if exist(''silent_mode'',''var'')==0\n    silent_mode=0;\n  end\n\n  if silent_mode < 2\n    fprintf(''*** level = %d\\n'', level);\n  end');
+%     replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'coarse_to_fine.m'), '\(I1, I2, u, v, w, p, lambda, warps, maxits, scale\);', '(I1, I2, u, v, w, p, lambda, warps, maxits, scale, silent_mode);');
+%     replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'tv_l1_motion_primal_dual.m'), 'warps, maxits, scale\)', 'warps, maxits, scale, silent_mode)');
+%     replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'tv_l1_motion_primal_dual.m'), '  fprintf\(''tv-l1-of-pd: warp = %d\\n'', j\);', '  if silent_mode < 1\n    fprintf(''tv-l1-of-pd: warp = %d\\n'', j);\n  end');
+%     replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'tv_l1_motion_primal_dual.m'), '      show_flow\(u,v,gamma\*w,I1,I\_2\_warped \+ \(u-u0\)\.\*I\_x \+ \(v-v0\)\.\*I\_y \+ gamma\*w\);\s      fprintf\(''tv-l1-motion-primal-dual: it = %d\\n'', k\)', '      if silent_mode < 1\n        show_flow(u,v,gamma*w,I1,I_2_warped + (u-u0).*I_x + (v-v0).*I_y + gamma*w);\n        fprintf(''tv-l1-motion-primal-dual: it = %d\\n'', k)\n      end');
+%     adjustAttributes(fullfile(algos_dir, 'TV_L1'));
     
     % download KZ occlusions code
     fprintf(1, 'Downloading Kolmogorov and Zabih Occlusions code ...\n');

@@ -1,0 +1,41 @@
+The following two pieces of code are provided for convenience (they are hard to compile or no longer available online). All rights are reserved with the original writers of the software.
+
+
+1. The code in TV_L1 directory is from:
+
+   @INPROCEEDINGS{Zach2007_OpticalFlow,
+   	author = {C. Zach and T. Pock and H. Bischof},
+   	title = {A Duality Based Approach for Realtime TV-L1 Optical Flow},
+   	pages = {214--223},
+   	year = {2007},
+   	booktitle = {Pattern Recognition (Proc. DAGM)},
+   	address = {Heidelberg, Germany},
+   }
+
+   License for this code is given in TV_L1\tvl1of.m
+
+
+2. The code in FlowLib directory is from:
+
+   @INPROCEEDINGS{Werlberger2009a,
+   	author = {Manuel Werlberger and Werner Trobin and Thomas Pock and Andreas Wedel and Daniel Cremers and Horst Bischof}
+   	title = {Anisotropic {Huber-L1} Optical Flow},
+   	booktitle = {Proceedings of the British Machine Vision Conference (BMVC)},
+   	month = {September}, 
+   	year = {2009},
+   	address = {London, UK}
+   }
+   
+   or
+   
+   @INPROCEEDINGS{Werlberger2010,
+   	author = {Manuel Werlberger and Thomas Pock and Horst Bischof},
+   	title = {Motion Estimation with Non-Local Total Variation Regularization},
+   	booktitle = {{IEEE} Computer Society Conference on Computer Vision and Pattern Recognition (CVPR)},
+   	month = {June},
+   	year = {2010},
+   	address = {San Francisco, CA, USA}
+   }
+   
+   License for this code is given in FlowLib\README
+
