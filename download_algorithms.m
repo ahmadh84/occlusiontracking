@@ -85,9 +85,9 @@ try
     
     
     % download GLCM code
-    fprintf(1, 'Downloading Avinash Uppuluri''s GLCM code from Mathworks ...\n');
-    urlwrite('http://www.mathworks.com/matlabcentral/fx_files/22354/5/GLCM_Features4.zip', fullfile(temp_dir, 'GLCM_Features4.zip'));
-    fprintf(1, 'Done downloading\n');
+%     fprintf(1, 'Downloading Avinash Uppuluri''s GLCM code from Mathworks ...\n');
+%     urlwrite('http://www.mathworks.com/matlabcentral/fx_files/22354/5/GLCM_Features4.zip', fullfile(temp_dir, 'GLCM_Features4.zip'));
+%     fprintf(1, 'Done downloading\n');
     
     mkdir(fullfile(algos_dir, 'GLCM'));
     unzip(fullfile(temp_dir, 'GLCM_Features4.zip'), fullfile(temp_dir, 'GLCM'));
