@@ -1,6 +1,22 @@
 function frames_to_folders( main_folder, relative_to_first, reverse_ordering, skip_frames )
-%FRAMES_TO_FOLDERS Summary of this function goes here
-%   Detailed explanation goes here
+%FRAMES_TO_FOLDERS This function shifts a sequence of images into folders
+% of frame pairs (in a format that it can be used by the classifier). For
+% instance if you input a folder which has 3 images: image000.png, 
+% image001.png, image002.png, it will create 2 sub-folders, 1 containing
+% image000.png and image001.png and the other one containing image001.png
+% and image002.png. All images in the folders created are renamed to 1.png
+% and 2.png. framestofolders_readme.txt is written in the input folder 
+% (main_folder) telling what files were copied in what folders.
+%
+% @args:
+%   main_folder: is the folder where the sequence of images are. The output
+%     folders will also be placed in this folder
+%   relative_to_first: set to 1 if the first image for all image pairs
+%     should always be taken as the first image in the whole input sequence
+%   reverse_ordering: set to 1 if you want to reverse the number of the 
+%     sequence
+%   skip_frames: if greater than zero, it will skip n frames from each 
+%     frame. This has the effect of speeding up the sequence
 
     addpath('main_code');
     

@@ -67,6 +67,10 @@ try
             offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx));
     end
 
+    % create the flow color images for all sequences
+    gtflow_images(fullfile(download_dir, training_dirname));
+    
+    % delete the zip file and the extracted folder
     rmdir(fullfile(download_dir, download_dirname), 's');
     delete(fullfile(download_dir, 'UCLgtOFv1.1.zip'));
 

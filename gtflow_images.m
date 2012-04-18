@@ -5,8 +5,6 @@ function gtflow_images( data_dir )
     addpath('main_code/utils/flow-code-matlab');
     addpath('main_code');
     
-%     data_dir = '../Data/oisin+middlebury';
-    
     d = dir(data_dir);
     
     for no = 1:length(d)
