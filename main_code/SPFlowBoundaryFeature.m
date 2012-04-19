@@ -1,15 +1,12 @@
 classdef SPFlowBoundaryFeature < AbstractFeature
-    %SPFLOWBOUNDARYFEATURE the distance transfrom from the edges in the first 
-    %   image (using canny edge detector). The constructor either takes 
-    %   nothing or size 2 vector for computing the feature on scalespace 
-    %   (first value: number of scales, second value: resizing factor). If 
-    %   using scalespace, ComputeFeatureVectors object passed to
-    %   calcFeatures should have im1_scalespace (the scalespace structure),
-    %   apart from image_sz. image_sz and im1_gray are required for 
-    %   computing this feature without scalespace. . If using the 
-    %   scalespace, usually, the output features go up in the scalespace 
-    %   (increasing gaussian std-dev) with increasing depth.
-    
+    %SPFLOWBOUNDARYFEATURE computes gradient of flow across superpixel 
+    %   boundaries. It first computes superpixels via normalized cuts, then
+    %   associates a constant median flow to each pixel of a superpixel, 
+    %   and then computes the gradient magnitude over the whole image. This 
+    %   results in an image which has flow gradients across superpixel 
+    %   boundaries: more different the motion of two neighboring 
+    %   superpixels, the stronger the boundary. Finally, the resulting
+    %   image is convolved with a gaussian fiter to spread the boundaries.
     
     properties
         % Number of superpixels coarse/fine.

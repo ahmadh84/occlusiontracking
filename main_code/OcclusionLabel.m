@@ -1,5 +1,9 @@
 classdef OcclusionLabel < AbstractLabel
-    %OCCLUSIONLABEL label which gives occluded regions in flow
+    %OCCLUSIONLABEL is the binary label used to train/test for getting
+    % physical scene locations (represented by pixels) which were visible
+    % in the first frame but have been occluded in the next. Training with 
+    % this label essentially gives a probability of a certain pixel
+    % to undergo occlusion in the second frame.
     
     properties (Constant)
         LABEL_TYPE = 'Occlusion GT Label';

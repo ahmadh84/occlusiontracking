@@ -1,6 +1,7 @@
 classdef CalcFlows < handle
-    %CALCFLOWS Summary of this class goes here
-    %   Detailed explanation goes here
+    %CALCFLOWS class computes optical flow for a particular sequence. It
+    % can compute flow using multiple algorithms (specified when you 
+    % construct an object) and also store them in a file in the scene_dir.
     
     properties (Constant, Transient)
         ALGOS_PATH = fullfile(fileparts(fileparts(which(mfilename))), 'algorithms');
