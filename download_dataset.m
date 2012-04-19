@@ -2,7 +2,7 @@ function download_dataset
 % Downloads Mac Aodha et al. (CVPR 2010) dataset for training (or testing)
 % the classifier
 
-training_dirname = 'TrainingDataset';
+training_dirname = 'AlgoSuitabilityDataset';
 download_dirname = 'UCLgtOFv1.1';
 clc
 

@@ -88,12 +88,12 @@ try
 %     fprintf(1, 'Downloading Avinash Uppuluri''s GLCM code from Mathworks ...\n');
 %     urlwrite('http://www.mathworks.com/matlabcentral/fx_files/22354/5/GLCM_Features4.zip', fullfile(temp_dir, 'GLCM_Features4.zip'));
 %     fprintf(1, 'Done downloading\n');
-    
-    mkdir(fullfile(algos_dir, 'GLCM'));
-    unzip(fullfile(temp_dir, 'GLCM_Features4.zip'), fullfile(temp_dir, 'GLCM'));
-    movefile(fullfile(temp_dir, 'GLCM', 'GLCM_Features4.m'), fullfile(algos_dir, 'GLCM'));
-    movefile(fullfile(temp_dir, 'GLCM', 'license.txt'), fullfile(algos_dir, 'GLCM'));
-    adjustAttributes(fullfile(algos_dir, 'GLCM'));
+%     
+%     mkdir(fullfile(algos_dir, 'GLCM'));
+%     unzip(fullfile(temp_dir, 'GLCM_Features4.zip'), fullfile(temp_dir, 'GLCM'));
+%     movefile(fullfile(temp_dir, 'GLCM', 'GLCM_Features4.m'), fullfile(algos_dir, 'GLCM'));
+%     movefile(fullfile(temp_dir, 'GLCM', 'license.txt'), fullfile(algos_dir, 'GLCM'));
+%     adjustAttributes(fullfile(algos_dir, 'GLCM'));
     
     
     % download Thomas Brox LDOF code
