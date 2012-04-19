@@ -11,7 +11,7 @@ function testing_script
     main_dir = '/home/ahumayun/Desktop/AlgoSuitabilityDataset';
     temp_out_dir = fullfile(out_dir, 'FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp');
 
-    training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50];
+    training_seq = [9 10 17 18 19 22 24 27 29 30 39 49 50];
     testing_seq = [9 10 17:25 27 29:50];
 
     [ MAIN_CLASS_XML_PATH ] = trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
