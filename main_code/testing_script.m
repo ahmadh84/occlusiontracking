@@ -6,8 +6,8 @@ function testing_script
     [ override_settings ] = create_override_settings( seq_conflicts, training_dir );
     out_dir = '/home/ahumayun/Desktop/occlusions_result';
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Test middlebury sequences %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Test middlebury + cross-validate training sequences %
     main_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
     temp_out_dir = fullfile(out_dir, 'FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp');
 
