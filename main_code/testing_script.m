@@ -1,19 +1,30 @@
 function testing_script
-    
-    training_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
+% train/test with the full occlusion classifier
 
+    % the path where the download_dataset script downloaded the dataset to
+    training_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
+    
+    % the sequences which are in conflict (for cross-validation) in the
+    % training set
     seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50]};
     [ override_settings ] = create_override_settings( seq_conflicts, training_dir );
+    
+    % path where the output files are written to
     out_dir = '/home/ahumayun/Desktop/occlusions_result';
+    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Test middlebury + cross-validate training sequences %
+    
+    % the directory where the sequences that need to be tested are located
     main_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
     temp_out_dir = fullfile(out_dir, 'FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp');
 
+    % training and testing sequence numbers
     training_seq = [9 10 17 18 19 22 24 27 29 30 39 49 50];
     testing_seq = [1:6 9 10 17:25 27 29:50];
 
+    % train/test the classifier
     [ MAIN_CLASS_XML_PATH ] = trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
     
     % check if the classifier exist before proceedings
