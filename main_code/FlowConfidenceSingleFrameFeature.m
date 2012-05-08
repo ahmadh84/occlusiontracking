@@ -1,24 +1,19 @@
 classdef FlowConfidenceSingleFrameFeature < AbstractFeature
-    %FLOWCONFIDENCESINGLEFRAMEFEATURE computes the variance of the flow 
-    %   vector angles 
-    %   in a small window (defined by nhood) around each pixel. The 
-    %   constructor takes a cell array of Flow objects which will be used 
-    %   for computing this feature. Second argument is of the nhood (a 5x5 
-    %   window [c r] = meshgrid(-2:2, -2:2); nhood = cat(3, r(:), c(:));).
-    %   The constructor also optionally takes a size 2 vector for computing 
-    %   the feature on scalespace (first value: number of scales, second 
-    %   value: resizing factor). If using scalespace, ComputeFeatureVectors 
-    %   object passed to calcFeatures should have 
-    %   extra_info.flow_scalespace (the scalespace structure), apart from 
-    %   image_sz. Note that it is the responsibility of the user to provide 
-    %   enough number of scales in all scalespace structure. If not 
-    %   using scalespace, extra_info.calc_flows.uv_flows is required for 
-    %   computing this feature. If using the scalespace, usually, the 
-    %   output features go up in the scalespace (increasing gaussian 
-    %   std-dev) with increasing depth.
+    %FLOWCONFIDENCESINGLEFRAMEFEATURE this feature runs a a random forest 
+    %   classifier to find the confidence that a certain pixel is under a 
+    %   certain end-point-error and angular-error (using 
+    %   FlowEPEConfidenceLabel and FlowAEConfidenceLabel). Since this is a
+    %   single frame verson of FlowConfidenceFeature, the features used are
+    %   ones which can work on one frame, namely GradientMagFeature(GM),
+    %   and EdgeDistFeature (ED), as specified in prepareSettings. 
+    %   Classifier are created and run for all flow algorithms specified in 
+    %   the constructor. Note that if the testing sequence is not part of 
+    %   the training set, an XML classifier is saved in the training 
+    %   sequences root directory.
     %
-    %   The features are first ordered by algorithms and then with End 
-    %   Point Error (EPE) and Angular Error (AE)
+    %   The features are first ordered by algorithms and the first feature
+    %   is End Point Error (EPE) and the second feature is Angular Error 
+    %   (AE)
     
     
     properties

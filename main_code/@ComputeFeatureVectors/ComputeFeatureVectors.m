@@ -1,6 +1,6 @@
 classdef ComputeFeatureVectors < handle
-    %COMPUTEFEATUREVECTORS Summary of this class goes here
-    %   Detailed explanation goes here
+    %COMPUTEFEATUREVECTORS class can compute all the features (specified by 
+    % cell_features) for a particular sequence.
     
     properties (Constant, Transient)
         SAVE_OBJ_NAME = 'comp_feature_vector';

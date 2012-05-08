@@ -1,6 +1,9 @@
 function [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( testing_seq, training_seq, seq_conflicts, main_dir, out_dir, override_settings, produce_rf_xml_out, xml_name_append, output_results_data )
-%MAINTRAININGTESTING Summary of this function goes here
-%   Detailed explanation goes here
+%MAINTRAININGTESTING function called to do testing and/or training of the 
+% classifier given all the settings including the features to use, the 
+% label to train/test on, and the testing and training sequences 
+% themselves. See function trainTestDeleteMain function in 
+% trainTestDelete.m to see how it is used.
 
     % add the main directory to the path
     addpath(fileparts(which(mfilename)));

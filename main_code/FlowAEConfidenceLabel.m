@@ -1,5 +1,9 @@
 classdef FlowAEConfidenceLabel < AbstractLabel
-    %FLOWCONFIDENCE label which gives occluded regions in flow
+    %FLOWAECONFIDENCELABEL is the label used to train/test for getting
+    % pixels whose angular-error is under a certain threshold (specified 
+    % by epe_threshold). Training with this label essentially gives a
+    % confidence score for a certain pixel's AE being under the set
+    % threshold.
     
     properties
         ae_threshold = [];

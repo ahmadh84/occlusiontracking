@@ -1,6 +1,7 @@
 function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_ids, unique_id )
-%PRODUCETRAININGDATAFILE Summary of this function goes here
-%   Detailed explanation goes here
+%PRODUCETRAININGDATAFILE is the main function that computes the features
+%  for each training sequence, attaches labels to all data samples, and
+%  produces a training file for producing a classifier
 
     if ~isfield(obj.settings, 'USE_ONLY_OF')
         obj.settings.USE_ONLY_OF = '';
@@ -21,8 +22,7 @@ function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_i
         delete(train_filename);
     end
     
-    for training_id = training_ids
-        
+    for training_id = training_ids 
         if ~obj.silent_mode
             fprintf(1, '\t... using data from sequence %d\n', training_id);
         end
@@ -52,4 +52,3 @@ function [ train_filename ] = produceTrainingDataFile( obj, scene_id, training_i
         clearvars data_to_write data_idxs train_calc_flows train_comp_feat_vec extra_label_info;
     end
 end
-
