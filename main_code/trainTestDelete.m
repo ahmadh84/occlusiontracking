@@ -112,12 +112,14 @@ function [ MAIN_CLASS_XML_PATH ] = trainTestDeleteMain(testing_seq, training_seq
                 [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( test_seq_groups{idx}, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings, isempty(xml_filename_append), xml_filename_append, output_results_data );
             end
             
-            % delete the classifier only in the case that it is not of the
-            % full training set
-            if ~full_training_seq(idx) && ~isempty(CLASS_XML_PATH)
-                delete(CLASS_XML_PATH);
-            else
-                MAIN_CLASS_XML_PATH = CLASS_XML_PATH;
+            if ~isempty(CLASS_XML_PATH)
+                % delete the classifier only in the case that it is not of 
+                % the full training set
+                if ~full_training_seq(idx)
+                    delete(CLASS_XML_PATH);
+                else
+                    MAIN_CLASS_XML_PATH = CLASS_XML_PATH;
+                end
             end
 
             deleteTrainTestData(temp_out_dir);
