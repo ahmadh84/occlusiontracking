@@ -32,11 +32,11 @@ function testing_script
     
     seq_conflicts = {};
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%% Test stein sequences %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%% Test stein sequences %%%%
 %     main_dir = '../../Data/evaluation_data/stein';
 %     eval_temp_out_dir = fullfile(temp_out_dir, 'stein');
-%     testing_seq = [17];%[1 2 3 4 7 8 10 12 13 15 16 18 19 21 26 28 29 30];
+%     testing_seq = [1 2 3 4 7 8 10 12 13 15 16 18 19 21 26 28 29 30];
 %     trainTestDelete('trainTestDeleteMain', testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
 end
 
