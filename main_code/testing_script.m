@@ -1,5 +1,6 @@
 function testing_script
 % train/test with the full occlusion classifier
+%   Go to for details -> https://docs.google.com/document/d/1AsvYZKiB-8D9F7cmTvqfD6iGzqO521VmvkqcQLByLVI/edit
 
     % the path where the download_dataset script downloaded the dataset to
     training_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
