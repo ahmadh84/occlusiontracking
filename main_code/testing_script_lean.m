@@ -1,5 +1,6 @@
 function testing_script_lean
 % train/test with the lean occlusion classifier
+%   Go to for details -> https://docs.google.com/document/d/1AsvYZKiB-8D9F7cmTvqfD6iGzqO521VmvkqcQLByLVI/edit
 
     % the path where the download_dataset script downloaded the dataset to
     training_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
@@ -39,7 +40,6 @@ function testing_script_lean
 %     testing_seq = [1 2 3 4 7 8 10 12 13 15 16 18 19 21 26 28 29 30];
 %     trainTestDelete('trainTestDeleteMain', testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
 end
-
 
 
 function [ override_settings ] = create_override_settings()
