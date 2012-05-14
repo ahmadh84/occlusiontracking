@@ -12,6 +12,7 @@ end
 % destination algorithms directory
 curr_dir = fileparts(which(mfilename));
 algos_dir = fullfile(curr_dir, 'main_code', 'algorithms');
+utils_dir = fullfile(curr_dir, 'main_code', 'utils');
 dont_delete = {'CUDA_masked_NSSD', 'FlowLib', 'kolmogCompar', 'Template_Match', 'vlfeat-0.9.9', 'kmeansK.cpp', 'mexutils.h', 'prctile.m', 'randsample.m', 'TV_L1', 'README'};
 if exist(algos_dir,'dir')
     % only delete the dir/files not in dont_delete
@@ -201,12 +202,21 @@ try
 %     replaceInTextFile(fullfile(algos_dir, 'TV_L1', 'tv_l1_motion_primal_dual.m'), '      show_flow\(u,v,gamma\*w,I1,I\_2\_warped \+ \(u-u0\)\.\*I\_x \+ \(v-v0\)\.\*I\_y \+ gamma\*w\);\s      fprintf\(''tv-l1-motion-primal-dual: it = %d\\n'', k\)', '      if silent_mode < 1\n        show_flow(u,v,gamma*w,I1,I_2_warped + (u-u0).*I_x + (v-v0).*I_y + gamma*w);\n        fprintf(''tv-l1-motion-primal-dual: it = %d\\n'', k)\n      end');
 %     adjustAttributes(fullfile(algos_dir, 'TV_L1'));
     
+
     % download KZ occlusions code
     fprintf(1, 'Downloading Kolmogorov and Zabih Occlusions code ...\n');
     urlwrite('http://pub.ist.ac.at/~vnk/software/match-v3.4.src.tar.gz', fullfile(temp_dir, 'match-v3.4.src.tar.gz'));
     fprintf(1, 'Done downloading\n');
     untar(fullfile(temp_dir, 'match-v3.4.src.tar.gz'), temp_dir);
     movefile(fullfile(temp_dir, 'match-v3.4.src', '*'), fullfile(algos_dir, 'kolmogCompar'));
+    
+    
+    % download flow-code MATLAB
+    fprintf(1, 'Downloading Middlebury Flow utility code ...\n');
+    urlwrite('http://vision.middlebury.edu/flow/code/flow-code-matlab.zip', fullfile(temp_dir, 'flow-code-matlab.zip'));
+    fprintf(1, 'Done downloading\n');
+    unzip(fullfile(temp_dir, 'flow-code-matlab.zip'), utils_dir);
+    
     
     % delete temp directory
     rmdir(temp_dir, 's');
