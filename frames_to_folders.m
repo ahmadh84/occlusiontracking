@@ -13,8 +13,7 @@ function frames_to_folders( main_folder, relative_to_first, reverse_ordering, sk
 %     folders will also be placed in this folder
 %   relative_to_first: set to 1 if the first image for all image pairs
 %     should always be taken as the first image in the whole input sequence
-%   reverse_ordering: set to 1 if you want to reverse the number of the 
-%     sequence
+%   reverse_ordering: set to 1 if you want to reverse the sequence
 %   skip_frames: if greater than zero, it will skip n frames from each 
 %     frame. This has the effect of speeding up the sequence
 
@@ -114,6 +113,7 @@ function frames_to_folders( main_folder, relative_to_first, reverse_ordering, sk
             imwrite(i1, fullfile(dir_out, ComputeTrainTestData.IM1_PNG));
             imwrite(i2, fullfile(dir_out, ComputeTrainTestData.IM2_PNG));
             
+            fprintf(1, '%d -> %s, %s\n', folder_no, im_files{i1_idx}, im_files{i2_idx});
             fprintf(fd, '%d -> %s, %s\r\n', folder_no, im_files{i1_idx}, im_files{i2_idx});
             
             folder_no = folder_no + 1;
