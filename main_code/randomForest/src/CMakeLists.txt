@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 2.8)
+
+PROJECT(predictDescriptor)
+# The version number.
+SET( ${PROJECT_NAME}_VERSION_MAJOR 1 )
+SET( ${PROJECT_NAME}_VERSION_MINOR 0 )
+
+# print the version no.
+MESSAGE(${PROJECT_NAME} " Version: " ${${PROJECT_NAME}_VERSION_MAJOR} "." ${${PROJECT_NAME}_VERSION_MINOR})
+
+# find OpenCV
+FIND_PACKAGE(OpenCV REQUIRED)
+
+# set compilation
+FILE(GLOB PROGRAM_SRCS *.cpp)
+ADD_EXECUTABLE(${PROJECT_NAME} ${PROGRAM_SRCS})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${OpenCV_LIBS})

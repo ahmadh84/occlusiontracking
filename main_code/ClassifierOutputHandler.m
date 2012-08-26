@@ -1,6 +1,6 @@
 classdef ClassifierOutputHandler < handle
-    %CLASSIFIEROUTPUTHANDLER Summary of this class goes here
-    %   Detailed explanation goes here
+    %CLASSIFIEROUTPUTHANDLER reads and prints the output produced by the 
+    % classifier and produces graphs for ROC and PR
     
     properties (Constant, Transient)
         SAVE_OBJ_NAME = 'classifier_output';

@@ -5,7 +5,7 @@ function computeExtraAlgosWindows( main_dir, sequences )
 %     addpath(genpath('algorithms/Classic NL'));
 %     addpath(genpath('algorithms/Large Disp OF'));
     
-    cell_flows = { HuberL1OF, OcclusionsConvexOF, ClassicNLOF };
+    cell_flows = { HuberL1OF };
     
     for scene_id = sequences
         scene_dir = fullfile(main_dir, num2str(scene_id));

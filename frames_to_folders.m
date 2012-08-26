@@ -1,6 +1,21 @@
 function frames_to_folders( main_folder, relative_to_first, reverse_ordering, skip_frames )
-%FRAMES_TO_FOLDERS Summary of this function goes here
-%   Detailed explanation goes here
+%FRAMES_TO_FOLDERS This function shifts a sequence of images into folders
+% of frame pairs (in a format that it can be used by the classifier). For
+% instance if you input a folder which has 3 images: image000.png, 
+% image001.png, image002.png, it will create 2 sub-folders, 1 containing
+% image000.png and image001.png and the other one containing image001.png
+% and image002.png. All images in the folders created are renamed to 1.png
+% and 2.png. framestofolders_readme.txt is written in the input folder 
+% (main_folder) telling what files were copied in what folders.
+%
+% @args:
+%   main_folder: is the folder where the sequence of images are. The output
+%     folders will also be placed in this folder
+%   relative_to_first: set to 1 if the first image for all image pairs
+%     should always be taken as the first image in the whole input sequence
+%   reverse_ordering: set to 1 if you want to reverse the sequence
+%   skip_frames: if greater than zero, it will skip n frames from each 
+%     frame. This has the effect of speeding up the sequence
 
     addpath('main_code');
     
@@ -26,6 +41,7 @@ function frames_to_folders( main_folder, relative_to_first, reverse_ordering, sk
     im_groups = cell(0,2);
     
     toks = regexpi(im_files, '(\d+)', 'tokenExtents');
+    % iterate over all files
     for idx = 1:length(toks)
         match_g = -1;
         for idx_g = 1:size(im_groups,1)
@@ -40,8 +56,8 @@ function frames_to_folders( main_folder, relative_to_first, reverse_ordering, sk
             % iterate over the remaining frames and decide on a better re
             found = 0;
             for idx2 = idx+1:length(toks)
-                [ common_re uncommon_regions ] = findCommonRE(im_files{idx}, toks{idx}, im_files{idx2}, toks{idx2});
-                if uncommon_regions == 1
+                [ common_re uncommon_dig_regions uncommon_ndig_regions ] = findCommonRE(im_files{idx}, toks{idx}, im_files{idx2}, toks{idx2});
+                if uncommon_dig_regions == 1 && uncommon_ndig_regions == 0
                     im_groups{end+1,1} = common_re;
                     im_groups{end,2} = idx;
                     found = 1;
@@ -98,6 +114,7 @@ function frames_to_folders( main_folder, relative_to_first, reverse_ordering, sk
             imwrite(i1, fullfile(dir_out, ComputeTrainTestData.IM1_PNG));
             imwrite(i2, fullfile(dir_out, ComputeTrainTestData.IM2_PNG));
             
+            fprintf(1, '%d -> %s, %s\n', folder_no, im_files{i1_idx}, im_files{i2_idx});
             fprintf(fd, '%d -> %s, %s\r\n', folder_no, im_files{i1_idx}, im_files{i2_idx});
             
             folder_no = folder_no + 1;
@@ -108,15 +125,17 @@ function frames_to_folders( main_folder, relative_to_first, reverse_ordering, sk
 end
 
 
-function [ common_re uncommon_regions ] = findCommonRE(filename1, tok1, filename2, tok2)
+function [ common_re uncommon_dig_regions uncommon_nondig_regions ] = findCommonRE(filename1, tok1, filename2, tok2)
     if length(tok1) ~= length(tok2)
         common_re = '.';
-        uncommon_regions = -1;
+        uncommon_dig_regions = -1;
+        uncommon_nondig_regions = -1;
         return;
     end
     
     % check starting text
-    uncommon_regions = 0;
+    uncommon_dig_regions = 0;
+    uncommon_nondig_regions = 0;
     common_re = '';
     curr_idx_1 = 1;
     curr_idx_2 = 1;
@@ -126,7 +145,7 @@ function [ common_re uncommon_regions ] = findCommonRE(filename1, tok1, filename
             common_re = [common_re filename1(curr_idx_1:tok1{idx_t}(1)-1)];
         else
             common_re = [common_re '\D+'];
-            uncommon_regions = uncommon_regions + 1;
+            uncommon_nondig_regions = uncommon_nondig_regions + 1;
         end
         
         % check numbers for matches
@@ -134,7 +153,7 @@ function [ common_re uncommon_regions ] = findCommonRE(filename1, tok1, filename
             common_re = [common_re filename1(tok1{idx_t}(1):tok1{idx_t}(2))];
         else
             common_re = [common_re '(\d+)'];
-            uncommon_regions = uncommon_regions + 1;
+            uncommon_dig_regions = uncommon_dig_regions + 1;
         end
         
         % progress pointers
@@ -147,6 +166,6 @@ function [ common_re uncommon_regions ] = findCommonRE(filename1, tok1, filename
         common_re = [common_re filename1(curr_idx_1:end)];
     else
         common_re = [common_re '\D+'];
-        uncommon_regions = uncommon_regions + 1;
+        uncommon_nondig_regions = uncommon_nondig_regions + 1;
     end
 end

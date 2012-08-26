@@ -2,8 +2,7 @@ function download_dataset
 % Downloads Mac Aodha et al. (CVPR 2010) dataset for training (or testing)
 % the classifier
 
-training_dirname = 'TrainingDataset';
-download_dirname = 'UCLgtOFv1.1';
+training_dirname = 'AlgoSuit+Middlebury_Dataset';
 clc
 
 fprintf(2, '---------------------------------------------------------------------------\n                              Download Notice                              \n---------------------------------------------------------------------------\nBy running this script, you accept all licensing agreements accompanied\nwith the dataset that will now be downloaded and used later for training\nor testing.\n\nPress ''y'' to accept (any other key to stop the script): ');
@@ -31,6 +30,9 @@ while exist(download_dir, 'dir') ~= 7
 end
 
 try
+    %------------------------ Algo Suitability ------------------------%
+    download_dirname = 'UCLgtOFv1.1';
+    
     fprintf(1, 'Downloading Mac Aodha et al. (CVPR''10) GT dataset ...\n');
     if exist(fullfile(download_dir, 'UCLgtOFv1.1.zip'), 'file') == 2
        delete(fullfile(download_dir, 'UCLgtOFv1.1.zip'))
@@ -64,11 +66,47 @@ try
     % iterate over all sequences and move them to separate folders
     for idx = 1:length(training_seq)
         transferFiles(fullfile(download_dir, download_dirname, filepattern{idx}), ...
-            offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx));
+            offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx), true);
     end
 
+    % create the flow color images for all sequences
+    gtflow_images(fullfile(download_dir, training_dirname));
+    
+    % delete the zip file and the extracted folder
     rmdir(fullfile(download_dir, download_dirname), 's');
     delete(fullfile(download_dir, 'UCLgtOFv1.1.zip'));
+
+    
+    %------------------------ Middlebury ------------------------%
+    download_dirname = 'other-data';
+    
+    fprintf(1, 'Downloading Baker et al. (IJCV 2011) GT dataset ...\n');
+    if exist(fullfile(download_dir, 'other-color-twoframes.zip'), 'file') == 2
+        delete(fullfile(download_dir, 'other-color-twoframes.zip'))
+    end
+    urlwrite('http://vision.middlebury.edu/flow/data/comp/zip/other-color-twoframes.zip', ...
+           fullfile(download_dir, 'other-color-twoframes.zip'));
+    fprintf(1, 'Done downloading\n');
+
+    if exist(fullfile(download_dir, download_dirname), 'dir') == 7
+        rmdir(fullfile(download_dir, download_dirname), 's');
+    end
+    unzip(fullfile(download_dir, 'other-color-twoframes.zip'), fullfile(download_dir));
+    
+    training_seq = [1 2 3 4 5 6 7 8];
+    offsets = repmat(-1, size(training_seq));
+    filepattern = {'Venus/frame1%d.png', 'Urban3/frame1%d.png', ...
+                   'Urban2/frame1%d.png', 'RubberWhale/frame1%d.png', ...
+                   'Hydrangea/frame1%d.png', 'Grove3/frame1%d.png', ...
+                   'Grove2/frame1%d.png', 'Dimetrodon/frame1%d.png'};
+    
+    for idx = 1:length(training_seq)
+        transferFiles(fullfile(download_dir, download_dirname, filepattern{idx}), ...
+            offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx), false);
+    end
+    
+    rmdir(fullfile(download_dir, download_dirname), 's');
+    delete(fullfile(download_dir, 'other-color-twoframes.zip'));
 
 catch exception
     rethrow(exception)
@@ -77,7 +115,7 @@ end
 end
 
 
-function transferFiles(filepattern, offset, training_dir, seq)
+function transferFiles(filepattern, offset, training_dir, seq, copy_gt)
     % make sequence directory
     mkdir(fullfile(training_dir, num2str(seq)));
     % copy im1
@@ -86,7 +124,10 @@ function transferFiles(filepattern, offset, training_dir, seq)
     % copy im2
     copyfile(sprintf(strrep(filepattern,'\','/'), offset+2), fullfile(training_dir, ...
              num2str(seq), '2.png'));
+    
     % copy GT
-    copyfile(fullfile(fileparts(filepattern), sprintf('%d_%d.flo', offset+1, offset+2)), ...
-             fullfile(training_dir, num2str(seq), '1_2.flo'));
+    if copy_gt
+        copyfile(fullfile(fileparts(filepattern), sprintf('%d_%d.flo', offset+1, offset+2)), ...
+                 fullfile(training_dir, num2str(seq), '1_2.flo'));
+    end
 end

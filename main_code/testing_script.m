@@ -1,31 +1,43 @@
 function testing_script
-%TESTING_SCRIPT Summary of this function goes here
-%   Detailed explanation goes here
+% train/test with the full occlusion classifier
+%   Go to for details -> https://docs.google.com/document/d/1AsvYZKiB-8D9F7cmTvqfD6iGzqO521VmvkqcQLByLVI/edit
+
+    % the path where the download_dataset script downloaded the dataset to
+    training_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
     
+    % the sequences which are in conflict (for cross-validation) in the
+    % training set
     seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50]};
-    [ override_settings ] = create_override_settings( seq_conflicts );
-    out_dir = 'E:/Results/features_comparison_tests5';
+    [ override_settings ] = create_override_settings( seq_conflicts, training_dir );
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Test middlebury sequences %
-    main_dir = 'E:/Data/oisin+middlebury';
+    % path where the output files are written to
+    out_dir = '/home/ahumayun/Desktop/occlusions_result';
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Test middlebury + cross-validate training sequences %
+    
+    % the directory where the sequences that need to be tested are located
+    main_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
     temp_out_dir = fullfile(out_dir, 'FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp');
 
-    training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50];
-    testing_seq = [1:6 9:14 17:19 22 24 26:29 30 39 40:48 49 50];
+    % training and testing sequence numbers
+    training_seq = [9 10 17 18 19 22 24 27 29 30 39 49 50];
+    testing_seq = [1:6 9 10 17:25 27 29:50];
 
+    % train/test the classifier
     [ MAIN_CLASS_XML_PATH ] = trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
-    MAIN_CLASS_XML_PATH = 'D:\ahumayun\Results\features_comparison_tests5\FINAL-ed_pb_pb_pc_st_stm_tg_av_lv_cs-max_rc_ra_fc_fc_fa_fn_sp\1006490_class.xml';
     
     % check if the classifier exist before proceedings
     assert(exist(MAIN_CLASS_XML_PATH, 'file')==2, 'Main classifier XML doesn''t exist');
     
     seq_conflicts = {};
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%% Test stein sequences %%%
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%% Test stein sequences %%%%
 %     main_dir = '../../Data/evaluation_data/stein';
 %     eval_temp_out_dir = fullfile(temp_out_dir, 'stein');
-%     testing_seq = [17];%[1 2 3 4 7 8 10 12 13 15 16 18 19 21 26 28 29 30];
+%     testing_seq = [1 2 3 4 7 8 10 12 13 15 16 18 19 21 26 28 29 30];
 %     trainTestDelete('trainTestDeleteMain', testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -141,7 +153,7 @@ function testing_script
 end
 
 
-function [ override_settings ] = create_override_settings( seq_conflicts )
+function [ override_settings ] = create_override_settings( seq_conflicts, taining_dir )
     override_settings = struct;
     uv_ftrs1_ss_info =               [ 10             0.8 ];   % this and the var below are there, because Temporal gradient and other features need different UV SS
     uv_ftrs2_ss_info =               [ 4              0.8 ];
@@ -180,8 +192,8 @@ function [ override_settings ] = create_override_settings( seq_conflicts )
                                         OFCollidingSpeedFeature(override_settings.cell_flows, nhood_cs, uv_ftrs2_ss_info, {'MAX'}), ...
                                         ReverseFlowConstancyFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         ReverseFlowAngleDiffFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
-                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, 'E:/Data/oisin+middlebury', 50, 60), ...
-                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 26 29 30 39 49 50], seq_conflicts, 'E:/Data/oisin+middlebury', 1, 1), ...
+                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 27 29 30 39 49 50], seq_conflicts, taining_dir, 50, 60), ...
+                                        FlowConfidenceFeature(override_settings.cell_flows, [9 10 17 18 19 22 24 27 29 30 39 49 50], seq_conflicts, taining_dir, 1, 1), ...
                                         FlowAngleVarianceFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         FlowLengthVarianceFeature(override_settings.cell_flows, uv_ftrs1_ss_info), ...
                                         SPFlowBoundaryFeature(override_settings.cell_flows) };
