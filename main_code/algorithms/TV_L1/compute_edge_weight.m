@@ -31,6 +31,20 @@
 %     You should have received a copy of the GNU General Public License
 %     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function [dx] = dxm(u)
-[M N] = size(u);
-dx = u - [zeros(M,1) u(:,1:end-1) ];
+function [g] = compute_edge_weight(f)
+
+[M N] = size(f);
+
+q = 0.5;
+alpha = 1.0;
+sigma = 1.0;
+
+ks = min(5, 2*(round(3*sigma))+1);
+f_g = imfilter(f,fspecial('gaussian',[ks ks], sigma),'replicate');
+mask = [-1 0 1];
+fx = imfilter(f_g,mask,'replicate');
+fy = imfilter(f_g,mask','replicate');
+
+norm = sqrt(fx.^2 + fy.^2);
+
+g = max(1e-06, exp(-alpha*norm.^q));

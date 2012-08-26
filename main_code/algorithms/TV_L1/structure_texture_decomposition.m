@@ -31,6 +31,8 @@
 %     You should have received a copy of the GNU General Public License
 %     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function [dx] = dxm(u)
-[M N] = size(u);
-dx = u - [zeros(M,1) u(:,1:end-1) ];
+function I = structure_texture_decomposition(I, texture, sigma, factor)
+
+if texture == 1
+  I = I - factor*imfilter(I, fspecial('gaussian', [15 15], sigma), 'replicate');
+end
