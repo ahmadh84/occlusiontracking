@@ -221,3 +221,26 @@ end
 
 % Update handles structure
 guidata(hObject, handles);
+
+
+function menu_print_image_Callback(hObject, eventdata, handles, axes_tag, axes_no)
+not_done = 1;
+msg_prefix = '[unknown action]';
+
+% loop until either user gives up (cancels) or finds the flow algo
+while not_done
+    try
+        % check if it has all the necessary files are there and readable
+        msg_prefix = ['choosing file'];
+        [file_name folder_name] = uiputfile('*.eps;*.bmpl;*.jpg;*.png;*.tiff', 'Indicate where to save the image', handles.user_data.curr_dir);
+
+        if isscalar(file_name) && file_name == 0
+            return;
+        end
+
+
+        not_done = 0;
+    catch exception
+        uiwait(errordlg([exception.identifier ' - Error while ' msg_prefix ': ' exception.message], 'Invalid file', 'modal'));
+    end
+end

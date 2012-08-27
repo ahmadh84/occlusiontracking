@@ -86,6 +86,8 @@ for axes_idx = 1:no_axes
         'Checked','off', 'Callback', @(hObject,eventdata) contextMenuCallbacks('menu_flow_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
     uimenu(hcmenu, 'Label','Load algo. flow', 'Tag',[handles.user_data.axes_algo_flow_menu_prefix num2str(axes_idx)], 'Enable','on', ...
         'Checked','off', 'Callback', @(hObject,eventdata) contextMenuCallbacks('menu_algo_flow_overlay_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
+    uimenu(hcmenu, 'Label','Print image', 'Tag',[handles.user_data.axes_print_image_menu_prefix num2str(axes_idx)], 'Enable','on', 'Separator','on', ...
+        'Checked','off', 'Callback', @(hObject,eventdata) contextMenuCallbacks('menu_print_image_Callback', hObject, eventdata, guidata(hObject), axes_tag, axes_idx));
     
     set(h1, 'uicontextmenu',hcmenu);
     

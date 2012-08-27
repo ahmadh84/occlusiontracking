@@ -1,5 +1,9 @@
 classdef FlowEPEConfidenceLabel < AbstractLabel
-    %FLOWCONFIDENCE label which gives occluded regions in flow
+    %FLOWEPECONFIDENCELABEL is the label used to train/test for getting
+    % pixels whose end-point-error is under a certain threshold (specified 
+    % by epe_threshold). Training with this label essentially gives a
+    % confidence score for a certain pixel's EPE being under the set
+    % threshold.
     
     properties
         epe_threshold = [];

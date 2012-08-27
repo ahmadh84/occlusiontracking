@@ -1,6 +1,9 @@
 classdef ComputeTrainTestData < handle
-    %COMPUTETRAINTESTDATA Summary of this class goes here
-    %   Detailed explanation goes here
+    %COMPUTETRAINTESTDATA class calls all the methods necessary for
+    % creating all the testing or training data (for all training
+    % sequences specified) before calling the classifier. It uses
+    % ComputeFeatureVectors and CalcFlows for creating the training and
+    % testing data.
     
     properties (Constant, Transient)
         UTILS_PATH = fullfile(fileparts(fileparts(which(mfilename))), 'utils');
@@ -26,7 +29,7 @@ classdef ComputeTrainTestData < handle
     
     methods
         function obj = ComputeTrainTestData( main_dir, out_dir, settings, varargin )
-            
+
             % if user wants silent mode
             if nargin > 5 && isscalar(varargin{3})
                 obj.silent_mode = varargin{3};

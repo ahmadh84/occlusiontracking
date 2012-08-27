@@ -1,6 +1,8 @@
 function [ test_filename ] = produceTestingDataFile( obj, scene_id, comp_feat_vec, calc_flows )
-%PRODUCETESTINGDATAFILE Summary of this function goes here
-%   Detailed explanation goes here
+%PRODUCETESTINGDATAFILE is the main function which computes features
+%  for a particular sequence and creates a data file. This data file then
+%  can be fed to a trained classifier for getting predictions for all the 
+%  samples in this sequence
 
     if ~isfield(obj.settings, 'USE_ONLY_OF')
         obj.settings.USE_ONLY_OF = '';

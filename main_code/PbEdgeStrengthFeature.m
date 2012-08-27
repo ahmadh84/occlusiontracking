@@ -1,6 +1,17 @@
 classdef PbEdgeStrengthFeature < AbstractFeature
-    %PBEDGESTRENGTHFEATURE Summary of this class goes here
-    %   Detailed explanation goes here
+    %PBEDGESTRENGTHFEATURE the distance transfrom from the edges in the 
+    %   first image (using Pb edge detector). The first argument to the
+    %   constructor is the threshold which will be applied to Pb edge 
+    %   detector's output to binarize the image. The constructor can also 
+    %   take a size 2 vector for computing the feature on scalespace 
+    %   (first value: number of scales, second value: resizing factor). If 
+    %   using scalespace, ComputeFeatureVectors object passed to
+    %   calcFeatures should have im1_scalespace (the scalespace structure),
+    %   apart from image_sz. image_sz and im1_gray are required for 
+    %   computing this feature without scalespace. If using the 
+    %   scalespace, usually, the output features go up in the scalespace 
+    %   (increasing gaussian std-dev) with increasing depth.
+    
     
     properties
         threshold_pb;

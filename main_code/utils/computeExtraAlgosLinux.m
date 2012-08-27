@@ -1,15 +1,9 @@
-function computeExtraAlgosLinux( sequences )
+function computeExtraAlgosLinux( main_dir, sequences )
 %COMPUTEEXTRAALGOSLINUX script to compute flow from algorithms which only
 %   run on linux
 
-    main_dir = '../../Data/oisin+middlebury';
 %     addpath(genpath('algorithms/Classic NL'));
 %     addpath(genpath('algorithms/Large Disp OF'));
-    
-    flowsave_filenames = { 'largedispof.mat' };
-    flowsave_varnames = { 'uv_ld' };
-    flowsave_r_varnames = { 'uv_ld_r' };
-    flowsave_time_varnames = { 'ld_compute_time' };
     
     cell_flows = { LargeDisplacementOF };
     
@@ -27,17 +21,20 @@ function computeExtraAlgosLinux( sequences )
         end
         
         for algo_idx = 1:length(cell_flows)
-            [ temp time1 ] = cell_flows{algo_idx}.calcFlow(im1, im2);
-            eval([flowsave_varnames{algo_idx} ' = temp;']);
+            uv_extra_info.scene_dir = scene_dir;
+            uv_extra_info.reverse = 0;
+            [ temp time1 ] = cell_flows{algo_idx}.calcFlow(im1, im2, uv_extra_info);
+            eval([cell_flows{algo_idx}.FORWARD_FLOW_VAR ' = temp;']);
             
-            [ temp time2 ] = cell_flows{algo_idx}.calcFlow(im2, im1);
-            eval([flowsave_r_varnames{algo_idx} ' = temp;']);
+            uv_extra_info.reverse = 1;
+            [ temp time2 ] = cell_flows{algo_idx}.calcFlow(im2, im1, uv_extra_info);
+            eval([cell_flows{algo_idx}.BCKWARD_FLOW_VAR ' = temp;']);
             
             time1 = time1 + time2;
-            eval([flowsave_time_varnames{algo_idx} ' = time1;']);
+            eval([cell_flows{algo_idx}.COMPUTATION_TIME_VAR ' = time1;']);
             
-            mat_filepath = fullfile(scene_dir, flowsave_filenames{algo_idx});
-            save(mat_filepath, flowsave_varnames{algo_idx}, flowsave_r_varnames{algo_idx}, flowsave_time_varnames{algo_idx});
+            mat_filepath = fullfile(scene_dir, cell_flows{algo_idx}.SAVE_FILENAME);
+            save(mat_filepath, cell_flows{algo_idx}.FORWARD_FLOW_VAR, cell_flows{algo_idx}.BCKWARD_FLOW_VAR, cell_flows{algo_idx}.COMPUTATION_TIME_VAR);
         end
     end
 
