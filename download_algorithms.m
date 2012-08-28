@@ -38,36 +38,6 @@ temp_dir = fullfile(curr_dir, sprintf('temp%d', randi(1e8)));
 mkdir(temp_dir);
 
 try
-    % download Deqing Sun's BA code
-    fprintf(1, 'Downloading Deqing Sun''s BA flow code ...\n');
-    urlwrite('http://www.cs.brown.edu/~dqsun/code/ba.zip', fullfile(temp_dir, 'ba.zip'));
-    fprintf(1, 'Done downloading\n');
-    
-    mkdir(fullfile(algos_dir, 'Black & Anandan 3'));
-    unzip(fullfile(temp_dir, 'ba.zip'), fullfile(algos_dir, 'Black & Anandan 3'));
-    movefile(fullfile(algos_dir, 'Black & Anandan 3', 'ba', '*'), fullfile(algos_dir, 'Black & Anandan 3'));
-    rmdir(fullfile(algos_dir, 'Black & Anandan 3', 'ba'), 's');
-    rmdir(fullfile(algos_dir, 'Black & Anandan 3', 'data'), 's');
-    replaceInTextFile(fullfile(algos_dir, 'Black & Anandan 3', 'estimate_flow_ba.m'), 'addpath\(genpath\(''utils''\)\);', '% addpath(genpath(''utils''));');
-    replaceInTextFile(fullfile(algos_dir, 'Black & Anandan 3', 'estimate_flow_ba.m'), '% ope.display   = false;', 'ope.display   = false;');
-    adjustAttributes(fullfile(algos_dir, 'Black & Anandan 3'));
-    
-    
-    % download Deqing Sun's HS code
-    fprintf(1, 'Downloading Deqing Sun''s HS flow code ...\n');
-    urlwrite('http://www.cs.brown.edu/~dqsun/code/hs.zip', fullfile(temp_dir, 'hs.zip'));
-    fprintf(1, 'Done downloading\n');
-    
-    mkdir(fullfile(algos_dir, 'Horn & Schunck'));
-    unzip(fullfile(temp_dir, 'hs.zip'), fullfile(algos_dir, 'Horn & Schunck'));
-    movefile(fullfile(algos_dir, 'Horn & Schunck', 'hs', '*'), fullfile(algos_dir, 'Horn & Schunck'));
-    rmdir(fullfile(algos_dir, 'Horn & Schunck', 'hs'), 's');
-    rmdir(fullfile(algos_dir, 'Horn & Schunck', 'data'), 's');
-    replaceInTextFile(fullfile(algos_dir, 'Horn & Schunck', 'estimate_flow_hs.m'), 'addpath\(genpath\(''utils''\)\);', '% addpath(genpath(''utils''));');
-    replaceInTextFile(fullfile(algos_dir, 'Horn & Schunck', 'estimate_flow_hs.m'), '% ope.display   = false;', 'ope.display   = false;');
-    adjustAttributes(fullfile(algos_dir, 'Horn & Schunck'));
-    
-    
     % download Deqing Sun's Classic+NL code
     fprintf(1, 'Downloading Deqing Sun''s ClassicNL flow code ...\n');
     urlwrite('http://www.cs.brown.edu/~dqsun/code/flow_code.zip', fullfile(temp_dir, 'flow_code.zip'));
@@ -108,30 +78,6 @@ try
     adjustAttributes(fullfile(algos_dir, 'Large Disp OF'));
     
     
-    % download Greg Mori SP code
-    fprintf(1, 'Downloading Greg Mori''s Superpixel code ...\n');
-    urlwrite('http://www.cs.sfu.ca/~mori/research/superpixels/superpixels64.tar.gz', fullfile(temp_dir, 'superpixels64.tar.gz'));
-    fprintf(1, 'Done downloading\n');
-    
-    mkdir(fullfile(algos_dir, 'PbNcutSuperpixels'));
-    untar(fullfile(temp_dir, 'superpixels64.tar.gz'), fullfile(algos_dir, 'PbNcutSuperpixels'));
-    movefile(fullfile(algos_dir, 'PbNcutSuperpixels', 'superpixels64', '*'), fullfile(algos_dir, 'PbNcutSuperpixels'));
-    rmdir(fullfile(algos_dir, 'PbNcutSuperpixels', 'superpixels64'), 's');
-    delete(fullfile(algos_dir, 'PbNcutSuperpixels', '*.jpg'));
-    fprintf(1, 'Producing mex files for Greg Mori''s Superpixel code ...\n');
-    cd(fullfile(algos_dir, 'PbNcutSuperpixels', 'yu_imncut'));
-    mex -largeArrayDims csparse.c
-    mex -largeArrayDims spmd1.c
-    mex -largeArrayDims ic.c
-    mex -largeArrayDims imnb.c
-    mex -largeArrayDims parmatV.c
-    fprintf(1, 'Done mex''ing\n');
-    cd(curr_dir);
-    replaceInTextFile(fullfile(algos_dir, 'PbNcutSuperpixels', 'pbWrapper.m'), 'function \[max_pb,phase\] = pbWrapper\(I,varargin\)', 'function [max_pb,phase] = pbWrapper(I, max_pb, theta, varargin)\naddpath(fullfile(fileparts(mfilename(''fullpath'')), ''yu_imncut''));\n');
-    replaceInTextFile(fullfile(algos_dir, 'PbNcutSuperpixels', 'pbWrapper.m'), 'if pb_timing, st=clock; end\s+\[max\_pb,theta\] = pbCGTG\(I\);\s+if pb\_timing, fprintf\(''pb took %.2f minutes\\n'',etime\(clock,st\)/60); end', '% if pb_timing, st=clock; end\n% [max_pb,theta] = pbCGTG(I);\n% if pb_timing, fprintf(''pb took %.2f minutes\\n'',etime(clock,st)/60); end');
-    adjustAttributes(fullfile(algos_dir, 'PbNcutSuperpixels'));
-
-    
     % download Berkeley Segmentation code
     fprintf(1, 'Downloading Berkeley Segmentation code ...\n');
     urlwrite('http://www.eecs.berkeley.edu/Research/Projects/CS/vision/grouping/segbench/code/segbench.tar.gz', fullfile(temp_dir, 'segbench.tar.gz'));
@@ -150,36 +96,6 @@ try
     movefile(fullfile(temp_dir, 'segbench', 'README'), fullfile(algos_dir, 'segbench'));
     adjustAttributes(fullfile(algos_dir, 'segbench'));
 
-    
-    % download sparse occlusion detection code
-    fprintf(1, 'Downloading UCLA Occlusion Detection code ...\n');
-    urlwrite('http://vision.ucla.edu/~ayvaci/sparse-occlusion-detection-matlab.zip', fullfile(temp_dir, 'sparse-occlusion-detection-matlab.zip'));
-    fprintf(1, 'Done downloading\n');
-   
-    mkdir(fullfile(algos_dir, 'sparse-occlusion-detection'));
-    unzip(fullfile(temp_dir, 'sparse-occlusion-detection-matlab.zip'), algos_dir);
-    rmdir(fullfile(algos_dir, '__MACOSX'), 's');
-    adjustAttributes(fullfile(algos_dir, 'sparse-occlusion-detection'));
-    
-    
-    % download Texture Features code
-    fprintf(1, 'Downloading Thomas Brox''s Sparse Texture Features code (written by Omid Aghazadeh) ...\n');
-    urlwrite('http://www.mathworks.com/matlabcentral/fx_files/27618/2/discriminative_texture_feature_v1.1.zip', fullfile(temp_dir, 'discriminative_texture_feature_v1.1.zip'));
-    urlwrite('http://www.mathworks.com/matlabcentral/fx_files/27604/3/Nonlinear_Diffusion_v1.2.zip', fullfile(temp_dir, 'Nonlinear_Diffusion_v1.2.zip'));
-    fprintf(1, 'Done downloading\n');
-    
-    mkdir(fullfile(algos_dir, 'Sparse Set Texture Features'));
-    unzip(fullfile(temp_dir, 'discriminative_texture_feature_v1.1.zip'), fullfile(algos_dir, 'Sparse Set Texture Features'));
-    unzip(fullfile(temp_dir, 'Nonlinear_Diffusion_v1.2.zip'), fullfile(algos_dir, 'Sparse Set Texture Features'));
-    delete(fullfile(algos_dir, 'Sparse Set Texture Features', '*.bmp'));
-    fprintf(1, 'Producing mex files for Sparse Texture Features code ...\n');
-    replaceInTextFile(fullfile(algos_dir, 'Sparse Set Texture Features', 'thomas_mex.cpp'), 'void mexFunction\(int nlhs, mxArray\* plhs \[\],int nrhs, mxArray\* prhs\[\]){', 'void mexFunction(int nlhs, mxArray* plhs [],int nrhs, const mxArray* prhs[]){');
-    cd(fullfile(algos_dir, 'Sparse Set Texture Features'));
-    mex -largeArrayDims thomas_mex.cpp
-    fprintf(1, 'Done mex''ing\n');
-    cd(curr_dir);
-    adjustAttributes(fullfile(algos_dir, 'Sparse Set Texture Features'));
-    
     
     % download TV-L1 code
 %     fprintf(1, 'Downloading TU-Graz TV-L1 code ...\n');
@@ -203,14 +119,6 @@ try
 %     adjustAttributes(fullfile(algos_dir, 'TV_L1'));
     
 
-    % download KZ occlusions code
-    fprintf(1, 'Downloading Kolmogorov and Zabih Occlusions code ...\n');
-    urlwrite('http://pub.ist.ac.at/~vnk/software/match-v3.4.src.tar.gz', fullfile(temp_dir, 'match-v3.4.src.tar.gz'));
-    fprintf(1, 'Done downloading\n');
-    untar(fullfile(temp_dir, 'match-v3.4.src.tar.gz'), temp_dir);
-    movefile(fullfile(temp_dir, 'match-v3.4.src', '*'), fullfile(algos_dir, 'kolmogCompar'));
-    
-    
     % download flow-code MATLAB
     fprintf(1, 'Downloading Middlebury Flow utility code ...\n');
     urlwrite('http://vision.middlebury.edu/flow/code/flow-code-matlab.zip', fullfile(temp_dir, 'flow-code-matlab.zip'));
