@@ -37,7 +37,7 @@ function testing_ofconfidence()
     end
     
     % iterate over multiple EPE confidence threshold values
-    for confidence_epe_th = [20 30 50]
+    for confidence_epe_th = [0.1, 0.25, 0.5, 2, 10]
         override_settings.label_obj = FlowEPEConfidenceLabel(confidence_epe_th);
 
         % get feature for each flow algo.
