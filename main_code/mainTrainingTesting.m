@@ -25,10 +25,10 @@ function [ unique_id featvec_id CLASS_XML_PATH ] = mainTrainingTesting( testing_
     % set the RF executable command
     if ispc
         % windows executable (compiled using Visual Studio 2008 on Win7x64)
-        settings.RANDOM_FOREST_RUN = 'randomForest\src\predictDescriptor\Release\predictDescriptor.exe ';
+        settings.RANDOM_FOREST_RUN = 'randomForest\bin\Release\predictDescriptor.exe ';
     else
         % linux executable (compiled using Ubuntu 11.10 x64)
-        settings.RANDOM_FOREST_RUN = './randomForest/src/predictDescriptor/Release/predictDescriptor ';
+        settings.RANDOM_FOREST_RUN = './randomForest/bin/predictDescriptor ';
     end
     
     
