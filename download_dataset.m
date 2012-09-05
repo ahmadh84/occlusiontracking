@@ -80,7 +80,8 @@ try
     % iterate over all sequences and move them to separate folders
     for idx = 1:length(training_seq)
         transferFiles(fullfile(download_dir, download_dirname, filepattern{idx}), ...
-            offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx), true);
+            offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx), ...
+            true, '%d_%d.flo');
     end
 
     % create the flow color images for all sequences
@@ -92,7 +93,8 @@ try
 
     
     %------------------------ Middlebury ------------------------%
-    download_dirname = 'other-data';
+    download_dirname_data = 'other-data';
+    download_dirname_gt = 'other-gt-flow';
     
     fprintf(1, 'Downloading Baker et al. (IJCV 2011) GT dataset ...\n');
     if exist(fullfile(download_dir, 'other-color-twoframes.zip'), 'file') == 2
@@ -100,12 +102,26 @@ try
     end
     urlwrite('http://vision.middlebury.edu/flow/data/comp/zip/other-color-twoframes.zip', ...
            fullfile(download_dir, 'other-color-twoframes.zip'));
+    
+    if exist(fullfile(download_dir, 'other-gt-flow.zip'), 'file') == 2
+        delete(fullfile(download_dir, 'other-gt-flow.zip'))
+    end
+    urlwrite('http://vision.middlebury.edu/flow/data/comp/zip/other-gt-flow.zip', ...
+           fullfile(download_dir, 'other-gt-flow.zip'));
     fprintf(1, 'Done downloading\n');
 
-    if exist(fullfile(download_dir, download_dirname), 'dir') == 7
-        rmdir(fullfile(download_dir, download_dirname), 's');
+    if exist(fullfile(download_dir, download_dirname_data), 'dir') == 7
+        rmdir(fullfile(download_dir, download_dirname_data), 's');
     end
     unzip(fullfile(download_dir, 'other-color-twoframes.zip'), fullfile(download_dir));
+    
+    if exist(fullfile(download_dir, download_dirname_gt), 'dir') == 7
+        rmdir(fullfile(download_dir, download_dirname_gt), 's');
+    end
+    unzip(fullfile(download_dir, 'other-gt-flow.zip'), fullfile(download_dir));
+    
+    movefile(fullfile(download_dir, download_dirname_gt, '*'), ...
+             fullfile(download_dir, download_dirname_data));
     
     training_seq = [1 2 3 4 5 6 7 8];
     offsets = repmat(-1, size(training_seq));
@@ -115,12 +131,15 @@ try
                    'Grove2/frame1%d.png', 'Dimetrodon/frame1%d.png'};
     
     for idx = 1:length(training_seq)
-        transferFiles(fullfile(download_dir, download_dirname, filepattern{idx}), ...
-            offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx), false);
+        transferFiles(fullfile(download_dir, download_dirname_data, filepattern{idx}), ...
+            offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx), ...
+            true, 'flow10.flo');
     end
     
-    rmdir(fullfile(download_dir, download_dirname), 's');
+    rmdir(fullfile(download_dir, download_dirname_data), 's');
     delete(fullfile(download_dir, 'other-color-twoframes.zip'));
+    rmdir(fullfile(download_dir, download_dirname_gt), 's');
+    delete(fullfile(download_dir, 'other-gt-flow.zip'));
 
 catch exception
     rethrow(exception)
@@ -129,7 +148,7 @@ end
 end
 
 
-function transferFiles(filepattern, offset, training_dir, seq, copy_gt)
+function transferFiles(filepattern, offset, training_dir, seq, copy_gt, gt_pttrn)
     % make sequence directory
     mkdir(fullfile(training_dir, num2str(seq)));
     % copy im1
@@ -141,7 +160,7 @@ function transferFiles(filepattern, offset, training_dir, seq, copy_gt)
     
     % copy GT
     if copy_gt
-        copyfile(fullfile(fileparts(filepattern), sprintf('%d_%d.flo', offset+1, offset+2)), ...
+        copyfile(fullfile(fileparts(filepattern), sprintf(gt_pttrn, offset+1, offset+2)), ...
                  fullfile(training_dir, num2str(seq), '1_2.flo'));
     end
 end

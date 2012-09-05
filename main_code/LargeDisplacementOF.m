@@ -37,6 +37,14 @@ classdef LargeDisplacementOF < AbstractOF
                 % calculates the Brox's Large Displacement Optical flow
                 fprintf('--> Computing Large Displacement Optical flow\n');
 
+                % make color images out of B/W
+                if ndims(im1) == 2;
+                    im1 = repmat(im1, [1 1 3]);
+                end
+                if ndims(im2) == 2;
+                    im2 = repmat(im2, [1 1 3]);
+                end
+                
                 tic;
 
                 % add paths for all the flow algorithms

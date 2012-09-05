@@ -78,8 +78,6 @@ function [ override_settings ] = create_override_settings( seq_conflicts, tainin
     override_settings.RF_NO_ACTIVE_VARS = '5';
     override_settings.RF_MAX_TREE_COUNT = '50';
     
-    override_settings.label_obj = AlgoSuitabilityLabel( override_settings.cell_flows, 0 );
-    
     %%% All features %%%
     override_settings.cell_features = { GradientMagFeature(override_settings.ss_info_im1), ...
                                         EdgeDistFeature(override_settings.ss_info_im1), ...
