@@ -83,9 +83,6 @@ try
             offsets(idx), fullfile(download_dir, training_dirname), training_seq(idx), ...
             true, '%d_%d.flo');
     end
-
-    % create the flow color images for all sequences
-    gtflow_images(fullfile(download_dir, training_dirname));
     
     % delete the zip file and the extracted folder
     rmdir(fullfile(download_dir, download_dirname), 's');
@@ -141,6 +138,10 @@ try
     rmdir(fullfile(download_dir, download_dirname_gt), 's');
     delete(fullfile(download_dir, 'other-gt-flow.zip'));
 
+
+    % create the flow color images for all sequences
+    gtflow_images(fullfile(download_dir, training_dirname));
+    
 catch exception
     rethrow(exception)
 end

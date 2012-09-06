@@ -25,9 +25,9 @@ classdef AlgoSuitabilityLabel < AbstractLabel
         end
         
         
-        function [ label data_idxs labels2 idxs_per_label ] = calcLabelTraining( obj, comp_feat_vec, MAX_MARKINGS_PER_LABEL, extra_label_info )
+        function [ label data_idxs idxs_per_label ] = calcLabelTraining( obj, comp_feat_vec, MAX_MARKINGS_PER_LABEL, extra_label_info )
             
-            [ labels labels2 ignore_labels ] = obj.calcLabelWhole( comp_feat_vec, extra_label_info );
+            [ labels ignore_labels ] = obj.calcLabelWhole( comp_feat_vec, extra_label_info );
             
 %             max_label = length(extra_label_info.calc_flows.cell_flow_algos)+ 1;
             max_label = length(extra_label_info.calc_flows.cell_flow_algos);
@@ -41,9 +41,7 @@ classdef AlgoSuitabilityLabel < AbstractLabel
             
             % remove the ignored labels
             labels = double(labels);
-            labels2 = double(labels2);
             labels(ignore_labels,:) = inf;
-            labels2(ignore_labels,:) = inf;
             
             % want equal contribution from each class
             class_regions = arrayfun(@(x) find(labels==x), 1:max_label, 'UniformOutput',false);
@@ -61,7 +59,7 @@ classdef AlgoSuitabilityLabel < AbstractLabel
         end
         
         
-        function [ labels labels2 ignore_labels ] = calcLabelWhole( obj, comp_feat_vec, extra_label_info )
+        function [ labels ignore_labels ] = calcLabelWhole( obj, comp_feat_vec, extra_label_info )
         % outputs all the labels given the data features (usually not used) 
         % and customizable extra information (here the GT flow)
         
@@ -120,13 +118,6 @@ classdef AlgoSuitabilityLabel < AbstractLabel
             labels = labels';
             labels = labels(:);
             
-            % prepare label having all class EPE values
-            labels2 = extra_label_info.calc_flows.uv_epe;
-            labels2(repmat(mask == 0, [1 1 length(extra_label_info.calc_flows.cell_flow_algos)])) = length(extra_label_info.calc_flows.cell_flow_algos) + 1;
-            labels2 = permute(labels2, [2 1 3:ndims(labels2)]);        % labels = labels' for 2 dimensional case
-            sz = [size(labels2) 1];
-            labels2 = reshape(labels2, [sz(1)*sz(2) sz(3:end)]);       % labels = labels(:) for 2 dimensional case
-            
             % inform user about the labels they should ignore
             if ~isempty(extra_label_info.calc_flows.gt_ignore_mask)
                 fprintf(1, 'IGNORING labelling of %d/%d pixels for %s\n', nnz(extra_label_info.calc_flows.gt_ignore_mask), numel(extra_label_info.calc_flows.gt_ignore_mask), comp_feat_vec.scene_dir);
@@ -140,4 +131,3 @@ classdef AlgoSuitabilityLabel < AbstractLabel
     end
     
 end
-

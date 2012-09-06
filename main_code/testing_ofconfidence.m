@@ -19,16 +19,12 @@ function testing_ofconfidence()
     
     % the directory where the sequences that need to be tested are located
     main_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
-    temp_out_dir = fullfile(out_dir, 'FINAL-gm_ed_pb_pb_tg_pc');
 
     % training and testing sequence numbers
     training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50 51 88 89 106 107 124 125];
     %             |  middlebury   |                    Oisin et al. (PAMI 2012)                        | Sun |
     testing_seq = [1 2 3 4 5 6 7 8 9 10 13 14 17 18 19 22 24 26 29 30 39 49 50 51 88 89 106 107 124 125 15 16];
     
-    % if you want to build Photoconstancy feature for all algo.s 
-    %   but only use the relevant one in training/testing
-    override_settings.USE_ONLY_OF = '';      % HuberL1OF.OF_SHORT_TYPE;
 
     % store the flow algorithms to be used and their ids
     flow_short_types = {};
@@ -42,8 +38,8 @@ function testing_ofconfidence()
 
         % get feature for each flow algo.
         for algo_idx = 1:length(flow_short_types)
-            % we want to build Photoconstancy feature for all algo.s but only 
-            %   use one at a time in training/testing
+            % we want to build Photoconstancy feature for all algo.s but 
+            %  only use one the relevant one in training/testing
             override_settings.USE_ONLY_OF = flow_short_types{algo_idx};
 
             temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th, override_settings.USE_ONLY_OF));

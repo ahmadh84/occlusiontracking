@@ -36,21 +36,21 @@ classdef FlowEPEConfidenceLabel < AbstractLabel
             labels(ignore_labels) = inf;
             
             % want equal contribution from each class
-            non_occl_regions = find(labels==0);
-            occl_regions = find(labels==1);
+            high_epe_regions = find(labels==0);
+            low_epe_regions = find(labels==1);
             
             % shuffle
-            idxs_per_label  = min([length(non_occl_regions) length(occl_regions) MAX_MARKINGS_PER_LABEL]);
+            idxs_per_label  = min([length(high_epe_regions) length(low_epe_regions) MAX_MARKINGS_PER_LABEL]);
 
             data_idxs = {};
             
-            shuff = randperm(length(non_occl_regions));
+            shuff = randperm(length(high_epe_regions));
             label(1) = 0;
-            data_idxs{1} = non_occl_regions(shuff(1:idxs_per_label));
+            data_idxs{1} = high_epe_regions(shuff(1:idxs_per_label));
 
-            shuff = randperm(length(occl_regions));
+            shuff = randperm(length(low_epe_regions));
             label(2) = 1;
-            data_idxs{2} = occl_regions(shuff(1:idxs_per_label));
+            data_idxs{2} = low_epe_regions(shuff(1:idxs_per_label));
         end
         
         
