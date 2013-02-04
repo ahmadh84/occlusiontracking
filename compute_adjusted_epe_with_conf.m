@@ -1,6 +1,19 @@
-function latex_tbl = compute_adjusted_epe_with_epe( results_dir )
-%COMPUTE_ADJUSTED_EPE Summary of this function goes here
-%   Detailed explanation goes here
+function latex_tbl = compute_adjusted_epe_with_conf(results_dir, main_out_dir, conf_dir, data_dir)
+%COMPUTE_ADJUSTED_EPE for reproducing TABLE 2 in Mac Aodha et al. PAMI 2012
+% without the OursCombo column. 
+%
+% @args
+%   results_dir: where testing_algosuitability writes its results - i.e.
+%                this variable should be equal to [temp_out_dir] in 
+%                testing_algosuitability.m
+%
+%   main_out_dir: output directory where the output bar chart and latex
+%                table is written (in [main_out_dir]/images/ and
+%                [main_out_dir]/latex/ respectively)
+%
+%   data_dir: the directory where all the sequences are stored - i.e. it
+%                should be equivalent to [training_dir] in
+%                testing_algosuitability.m
 
     seq_names = {'Venus', 'Urban3', 'Urban2', 'RubberWhale', 'Hydrangea', 'Grove3', 'Grove2', 'Dimetrodon', ...
         'Crates1*', 'Crates2*', 'Brickbox1*', 'Brickbox2*', 'Mayan1*', 'Mayan2*', 'YosemiteSun', 'GroveSun', ...
@@ -17,21 +30,26 @@ function latex_tbl = compute_adjusted_epe_with_epe( results_dir )
     seq_names = horzcat(seq_names, arrayfun(@(x) sprintf('roll%dTxtr1*',x), 1:9, 'UniformOutput',false));
     seq_names = horzcat(seq_names, arrayfun(@(x) sprintf('roll%dTxtr2*',x), 1:9, 'UniformOutput',false));
     seq_names = horzcat(seq_names, arrayfun(@(x) sprintf('street%dTxtr1*',x), 1:4, 'UniformOutput',false));
-
+    
     close all;
     
     addpath('main_code');
     
     border = 10;
     
-    calcflows_id = '1529'; %'2606'; %'1532';
-    confidence_epe_th = [0.1 0.25 0.5 1 2 10];
+    calcflows_id = '1529';
+    confidence_epe_th = [0.1 0.25 0.5 2 10];
     l2norm_div = 1.0;
     
-    out_im_dir = 'C:\Users\Ahmad\Documents\UCL\MS Thesis - Learning Occlusion Regions\Writeup\oisin_PAMI\images';
-    conf_dir = 'D:/AlgoSuitability/Results/oisin+results_flowconfidence2';
-    data_dir = 'E:\Data\oisin+middlebury';
-    results_dir = 'E:\Results\oisin+results\gm_ed_pb_tg_pc-tv_fl_cn_ld_DISCR_new-motion-data';
+    % output directories
+    out_im_dir = fullfile(main_out_dir, 'images');
+    out_ltx_dir = fullfile(main_out_dir, 'latex');
+    if ~exist(out_im_dir,'dir')
+        mkdir(out_im_dir);
+    end
+    if ~exist(out_ltx_dir,'dir')
+        mkdir(out_ltx_dir);
+    end
 
     f = dir(fullfile(results_dir, 'result', '*_rffeatureimp.mat'));
     
@@ -80,7 +98,7 @@ function latex_tbl = compute_adjusted_epe_with_epe( results_dir )
 %         nnz(grad>10)
         epe_table(idx, length(flow_info.algo_ids)+2) = NaN;
         
-        % compute the resulting EPE from the classifier
+        % compute the resulting EPE from the classifier (OursKWay)
         valid_clsfr_out = classifier_output.classifier_out(valid_mask);
         valid_epe_ind = sub2ind(size(flow_info.uv_epe), rx, cx, valid_clsfr_out);
         classifier_epe = mean(flow_info.uv_epe(valid_epe_ind));
@@ -162,7 +180,7 @@ function [ conf_epe ] = epe_max_overall_confidence(sz, confidence_epe_th, flow_i
         conf_mat = zeros(sz);
 
         for flow_idx = 1:length(flow_info.algo_ids)
-            temp_out_dir = fullfile(conf_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th(conf_idx), flow_info.algo_ids{flow_idx}));
+            temp_out_dir = fullfile(conf_dir, sprintf('FC_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th(conf_idx), flow_info.algo_ids{flow_idx}));
 
             temp = dir(fullfile(temp_out_dir, sprintf('%d_*_%s_prediction.data', classifier_output.scene_id, flow_info.algo_ids{flow_idx})));
             classifier_out = textread(fullfile(temp_out_dir, temp.name), '%f');
@@ -198,7 +216,7 @@ function [ conf_epe ] = epe_max_confidence_len(sz, confidence_epe_th, flow_info,
         conf_mat = zeros(sz);
 
         for flow_idx = 1:length(flow_info.algo_ids)
-            temp_out_dir = fullfile(conf_dir, sprintf('FC_%0.2f-gm_ed_tg_pc-%s', confidence_epe_th(conf_idx), flow_info.algo_ids{flow_idx}));
+            temp_out_dir = fullfile(conf_dir, sprintf('FC_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th(conf_idx), flow_info.algo_ids{flow_idx}));
 
             temp = dir(fullfile(temp_out_dir, sprintf('%d_*_%s_prediction.data', classifier_output.scene_id, flow_info.algo_ids{flow_idx})));
             classifier_out = textread(fullfile(temp_out_dir, temp.name), '%f');

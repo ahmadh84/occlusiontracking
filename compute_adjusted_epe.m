@@ -31,6 +31,8 @@ function latex_tbl = compute_adjusted_epe(results_dir, main_out_dir, data_dir)
     seq_names = horzcat(seq_names, arrayfun(@(x) sprintf('roll%dTxtr2*',x), 1:9, 'UniformOutput',false));
     seq_names = horzcat(seq_names, arrayfun(@(x) sprintf('street%dTxtr1*',x), 1:4, 'UniformOutput',false));
     
+    close all;
+    
     addpath('main_code');
     
     border = 10;
@@ -110,7 +112,7 @@ function latex_tbl = compute_adjusted_epe(results_dir, main_out_dir, data_dir)
         epe_table(idx, length(flow_info.algo_ids)+3) = classifier_epe;
         
         % choose the algorithm having most votes in the scene (OursScene)
-        h = hist(valid_clsfr_out, 1:length(flow_info.algo_ids));
+        h = hist(classifier_output.classifier_out(:), 1:length(flow_info.algo_ids));
         [no_votes max_votes_algo] = max(h);
         max_votes_epe = flow_info.uv_epe(:,:,max_votes_algo);
         max_votes_epe = mean(max_votes_epe(valid_mask));
