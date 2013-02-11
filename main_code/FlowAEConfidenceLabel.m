@@ -66,6 +66,17 @@ classdef FlowAEConfidenceLabel < AbstractLabel
             
             ignore_labels = false(size(labels));
         end
+        
+        
+        function label_no_id = returnNoID(obj)
+        % creates unique label number, good for storing with the file
+        % name
+        
+            % create unique ID
+            nos = returnNoID@AbstractLabel(obj);
+        
+            label_no_id = nos + round(obj.ae_threshold*100);
+        end
     end
     
 end

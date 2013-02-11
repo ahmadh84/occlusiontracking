@@ -128,6 +128,22 @@ classdef AlgoSuitabilityLabel < AbstractLabel
                 ignore_labels = false([size(labels,1) 1]);
             end
         end
+        
+        
+        function label_no_id = returnNoID(obj)
+        % creates unique label number, good for storing with the file
+        % name
+        
+            % create unique ID
+            nos = returnNoID@AbstractLabel(obj);
+        
+            nos = nos + round(obj.DISC_EPE_TH*100);
+            
+            % method taken from AbstractOF.returnNoID()
+            flow_ids = cellfun(@(x) uint8(x), obj.label_names, 'UniformOutput',false);
+            flow_ids = cellfun(@(x) sum(double(x) .* ([1:length(x)].^2)), flow_ids);
+            label_no_id = nos + sum(flow_ids);
+        end
     end
     
 end

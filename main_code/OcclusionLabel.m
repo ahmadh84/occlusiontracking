@@ -235,7 +235,7 @@ classdef OcclusionLabel < AbstractLabel
                 ignore_labels = ignore_labels | gt_ignore_labels(:);
             end
         end
-       
+        
         
         function label_no_id = returnNoID(obj)
         % creates unique label number, good for storing with the file
