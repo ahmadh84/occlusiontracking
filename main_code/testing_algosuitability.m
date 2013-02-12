@@ -23,7 +23,7 @@ function testing_algosuitability
 
     % training and testing sequence numbers
     training_seq = [9 10 17 18 19 22 24 26 29 30 39 49 50 51 88 89 106 107 124 125];
-    %             |  middlebury   |                    Oisin et al. (PAMI 2012)                        | Sun |
+    %             |  middlebury   |                    Oisin et al. (PAMI 2013)                        | Sun |
     testing_seq = [1 2 3 4 5 6 7 8 9 10 13 14 17 18 19 22 24 26 29 30 39 49 50 51 88 89 106 107 124 125 15 16];
     
     % train/test the classifier

@@ -1,5 +1,5 @@
 function download_dataset
-% Downloads Mac Aodha et al. (PAMI 2012 + CVPR 2012) dataset for training 
+% Downloads Mac Aodha et al. (PAMI 2013 + CVPR 2010) dataset for training 
 % (or testing) the classifier
 
 training_dirname = 'AlgoSuit+Middlebury_Dataset';
@@ -34,7 +34,7 @@ try
     download_dirname = 'uclOpticalFlow_v1.2';
     download_filename = 'uclOpticalFlow_v1.2.zip';
     
-    fprintf(1, 'Downloading Mac Aodha et al. (PAMI''12 + CVPR''10) GT dataset ...\n');
+    fprintf(1, 'Downloading Mac Aodha et al. (PAMI''13 + CVPR''10) GT dataset ...\n');
     if exist(fullfile(download_dir, download_filename), 'file') == 2
        delete(fullfile(download_dir, download_filename))
     end

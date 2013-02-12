@@ -1,5 +1,5 @@
 function latex_tbl = compute_adjusted_epe(results_dir, main_out_dir, data_dir, conf_dir, confidence_epe_th)
-%COMPUTE_ADJUSTED_EPE for reproducing TABLE 2 in Mac Aodha et al. PAMI 2012
+%COMPUTE_ADJUSTED_EPE for reproducing TABLE 2 in Mac Aodha et al. PAMI 2013
 % without the OursCombo column. 
 %
 % @args
