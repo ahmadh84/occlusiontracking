@@ -32,6 +32,14 @@ function testing_algosuitability
     % check if the classifier exist before proceedings
     assert(exist(MAIN_CLASS_XML_PATH, 'file')==2, 'Main classifier XML doesn''t exist');
     
+    seq_conflicts = {};
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%% Test sequences %%%%%%%
+%     main_dir = '/home/ahumayun/Desktop/Testing_Dataset/';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'testing_dataset');
+%     testing_seq = [11 30];
+%     trainTestDelete('trainTestDeleteMain', testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
 end
 
 
