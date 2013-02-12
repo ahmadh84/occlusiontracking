@@ -19,7 +19,8 @@ function latex_tbl = compute_adjusted_epe(results_dir, main_out_dir, data_dir, c
 %                thresholds are stored in sub-directories - i.e. this
 %                variable should be equal to [out_dir] in
 %                testing_ofconfidence.m. If this variable is not defined
-%                then the OursCombo values are not produced
+%                then the OursCombo and OursComboConfTh values are not 
+%                produced
 %
 %   confidence_epe_th: a vector of confidence values used for producing 
 %                results in [conf_dir]. This is the set of values used in
@@ -160,10 +161,12 @@ function latex_tbl = compute_adjusted_epe(results_dir, main_out_dir, data_dir, c
             col_title{curr_col} = 'OursCombo';
             curr_col = curr_col + 1;
 
-            % EPE using the closest matched confidence classifier according to median flow length
+            % EPE using the most confident flow with the confidence 
+            % threshold commensurate to the length of the median flow
+            % vector (OursComboConfTh)
             [ conf_epe ] = epe_max_confidence_len(sz, confidence_epe_th, flow_info, valid_mask, conf_dir, classifier_output, l2norm_div);
             epe_table(idx, curr_col) = conf_epe;
-            col_title{curr_col} = 'OursComboFlowLen';
+            col_title{curr_col} = 'OursComboConfTh';
             curr_col = curr_col + 1;
         end
         
@@ -230,8 +233,8 @@ function latex_tbl = compute_adjusted_epe(results_dir, main_out_dir, data_dir, c
     set(gcf, 'Position', [10 10 300 (55*length(mean_epe))+70]);
     set(gca, 'YTickLabel',col_title(2:end), 'FontSize',14);
     line(get(gca,'XLim'), ...
-        repmat(length(classifier_output.settings.label_obj.label_names)+2.5, ...
-        [1 2]), 'LineStyle','--', 'Color','k');
+        repmat(find(strcmp(col_title, 'RandCombo'))-1.5, [1 2]), ...
+        'LineStyle','--', 'Color','k');
     xlabel('Avg. EPE');
     
     for idx = 1:length(mean_epe)
@@ -273,6 +276,10 @@ end
 
 
 function [ conf_epe ] = epe_max_confidence_len(sz, confidence_epe_th, flow_info, valid_mask, conf_dir, classifier_output, l2norm_div)
+% For each pixel use the most confident flow algorithm trained with 
+% threshold X, where X is greater than the length of the median flow vector 
+% multiplied by some factor (l2norm_div) at that pixel.
+
     l2norm = hypot(flow_info.uv_flows(:,:,1,:),flow_info.uv_flows(:,:,2,:));
     l2norm = squeeze(l2norm);
     l2norm = median(l2norm, 3) .* l2norm_div;

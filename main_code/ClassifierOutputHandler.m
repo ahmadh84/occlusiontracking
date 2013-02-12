@@ -372,7 +372,7 @@ classdef ClassifierOutputHandler < handle
             end
             
             if ~isempty(obj.settings.USE_ONLY_OF)
-                    filename = fullfile(obj.out_dir, 'result', [scene_id_tag '_' comp_feat_vec_id '_' obj.settings.USE_ONLY_OF '_%s']);
+                filename = fullfile(obj.out_dir, 'result', [scene_id_tag '_' comp_feat_vec_id '_' obj.settings.USE_ONLY_OF '_%s']);
             else
                 filename = fullfile(obj.out_dir, 'result', [scene_id_tag '_' comp_feat_vec_id '_%s']);
             end
