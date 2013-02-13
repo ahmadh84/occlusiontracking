@@ -47,6 +47,32 @@ function testing_ofconfidence()
         end
     end
     
+    % flow algorithm to regress on
+    flow_short_type = 'LD';     % 'TV' = TVL1OF
+                                % 'FL' = HuberL1OF
+                                % 'CN' = ClassicNLOF
+                                % 'LD' = LargeDisplacementOF
+    
+    % EPE threshold to regress on
+    confidence_epe_th = 2;
+    
+    % the xml regressor path
+    temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th, flow_short_type));
+    f = dir(fullfile(temp_out_dir, '*.xml'));
+    
+    % check if the classifier exist before proceeding
+%     assert(length(f) == 1, 'Main classifier XML doesn''t exist');
+    
+    MAIN_CLASS_XML_PATH = fullfile(temp_out_dir, f(1).name);
+    
+    seq_conflicts = {};
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%% Test sequences %%%%%%%
+%     main_dir = '/home/ahumayun/Desktop/Testing_Dataset/';
+%     eval_temp_out_dir = fullfile(temp_out_dir, 'testing_dataset');
+%     testing_seq = [11 30];
+%     trainTestDelete('trainTestDeleteMain', testing_seq, MAIN_CLASS_XML_PATH, seq_conflicts, main_dir, eval_temp_out_dir, override_settings);
 end
 
 

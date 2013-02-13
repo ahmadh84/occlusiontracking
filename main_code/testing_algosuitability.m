@@ -29,7 +29,7 @@ function testing_algosuitability
     % train/test the classifier
     [ MAIN_CLASS_XML_PATH ] = trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
     
-    % check if the classifier exist before proceedings
+    % check if the classifier exist before proceeding
     assert(exist(MAIN_CLASS_XML_PATH, 'file')==2, 'Main classifier XML doesn''t exist');
     
     seq_conflicts = {};
