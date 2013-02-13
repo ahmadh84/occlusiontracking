@@ -115,7 +115,7 @@ try
     end
     unzip(fullfile(download_dir, 'other-gt-flow.zip'), fullfile(download_dir));
     movefile(fullfile(download_dir, download_dirname_gt), ...
-             fullfile(download_dir, download_dirname_data));
+             fullfile(download_dir, download_dirname_data), 'f');
     
     unzip(fullfile(download_dir, 'other-color-twoframes.zip'), fullfile(download_dir));
     
