@@ -110,15 +110,14 @@ try
     if exist(fullfile(download_dir, download_dirname_data), 'dir') == 7
         rmdir(fullfile(download_dir, download_dirname_data), 's');
     end
-    unzip(fullfile(download_dir, 'other-color-twoframes.zip'), fullfile(download_dir));
-    
     if exist(fullfile(download_dir, download_dirname_gt), 'dir') == 7
         rmdir(fullfile(download_dir, download_dirname_gt), 's');
     end
     unzip(fullfile(download_dir, 'other-gt-flow.zip'), fullfile(download_dir));
-    
-    movefile(fullfile(download_dir, download_dirname_gt, '*'), ...
+    movefile(fullfile(download_dir, download_dirname_gt), ...
              fullfile(download_dir, download_dirname_data));
+    
+    unzip(fullfile(download_dir, 'other-color-twoframes.zip'), fullfile(download_dir));
     
     training_seq = [1 2 3 4 5 6 7 8];
     offsets = repmat(-1, size(training_seq));
@@ -135,7 +134,6 @@ try
     
     rmdir(fullfile(download_dir, download_dirname_data), 's');
     delete(fullfile(download_dir, 'other-color-twoframes.zip'));
-    rmdir(fullfile(download_dir, download_dirname_gt), 's');
     delete(fullfile(download_dir, 'other-gt-flow.zip'));
 
 
