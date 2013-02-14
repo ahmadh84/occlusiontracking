@@ -1,14 +1,20 @@
-function testing_ofconfidence()
-% train/test with the optical flow confidence regressor
+function testing_ofconfidence_singleof()
+% train/test with the optical flow confidence classifier - NOTE this script
+% is identical to testing_ofconfidence() except that the features computed
+% here use only one particular flow algorithm (given on line 9).
+%
 %   Go to for details -> https://docs.google.com/document/d/106nk_4YLzEFLnXcdTwlPm1Z1QuMwdtp4PX-7iQT0msE/edit
 
+    % this is the flow algo whose flow confidence will be computed
+    flow_algo = LargeDisplacementOF;       % TVL1OF, HuberL1OF, ClassicNLOF
+    
     % the path where the download_dataset script downloaded the dataset to
     training_dir = '/home/ahumayun/Desktop/AlgoSuit+Middlebury_Dataset';
     
     % the sequences which are in conflict (for cross-validation) in the
     % training set
     seq_conflicts = {[2 3], [6 7 16], [11 12], [13 14], [18 19], [9 20 21 22 40:48 10 23 24 25], [26 27 28 29], [30:39], [49:50], [51:88], [89:106], [107:124], [125:128]};
-    [ override_settings ] = create_override_settings( seq_conflicts, training_dir );
+    [ override_settings ] = create_override_settings( seq_conflicts, training_dir, flow_algo );
     
     % path where the output files are written to
     out_dir = '/home/ahumayun/Desktop/ofconfidence_result';
@@ -26,43 +32,27 @@ function testing_ofconfidence()
     testing_seq = [1 2 3 4 5 6 7 8 9 10 13 14 17 18 19 22 24 26 29 30 39 49 50 51 88 89 106 107 124 125 15 16];
     
 
-    % store the flow algorithms to be used and their ids
-    flow_short_types = {};
-    for algo_idx = 1:length(override_settings.cell_flows)
-        flow_short_types{end+1} = override_settings.cell_flows{algo_idx}.OF_SHORT_TYPE;
-    end
+    % store the flow algorithm to be used and their id
+    flow_short_type = override_settings.cell_flows{1}.OF_SHORT_TYPE;
+
+    % we want to build Photoconstancy feature for all algo.s but 
+    %  only use one the relevant one in training/testing
+    override_settings.USE_ONLY_OF = flow_short_type;
     
     % iterate over multiple EPE confidence threshold values
     for confidence_epe_th = [0.1, 0.25, 0.5, 2, 10]
         override_settings.label_obj = FlowEPEConfidenceLabel(confidence_epe_th);
 
-        % get feature for each flow algo.
-        for algo_idx = 1:length(flow_short_types)
-            % we want to build Photoconstancy feature for all algo.s but 
-            %  only use one the relevant one in training/testing
-            override_settings.USE_ONLY_OF = flow_short_types{algo_idx};
-
-            temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th, override_settings.USE_ONLY_OF));
-            [ MAIN_CLASS_XML_PATH ] = trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
-        end
+        temp_out_dir = fullfile(out_dir, sprintf('FC_SingleOF_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th, override_settings.USE_ONLY_OF));
+        [ MAIN_CLASS_XML_PATH ] = trainTestDelete('trainTestDeleteMain', testing_seq, training_seq, seq_conflicts, main_dir, temp_out_dir, override_settings);
     end
     
-    % flow algorithm to regress on
-    flow_short_type = 'LD';     % 'TV' = TVL1OF
-                                % 'FL' = HuberL1OF
-                                % 'CN' = ClassicNLOF
-                                % 'LD' = LargeDisplacementOF
-    
     % EPE threshold to regress on
-    confidence_epe_th = 2;
+    confidence_epe_th = 0.5;
     
     % the xml regressor path
-    temp_out_dir = fullfile(out_dir, sprintf('FC_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th, flow_short_type));
+    temp_out_dir = fullfile(out_dir, sprintf('FC_SingleOF_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th, flow_short_type));
     f = dir(fullfile(temp_out_dir, '*.xml'));
-    
-    % we want to build Photoconstancy feature for all algo.s but 
-    %  only use one the relevant one in testing
-    override_settings.USE_ONLY_OF = flow_short_type;
     
     % check if the classifier exist before proceeding
 %     assert(length(f) == 1, 'Main classifier XML doesn''t exist');
@@ -80,7 +70,7 @@ function testing_ofconfidence()
 end
 
 
-function [ override_settings ] = create_override_settings( seq_conflicts, taining_dir )
+function [ override_settings ] = create_override_settings(seq_conflicts, taining_dir, flow_algo)
     override_settings = struct;
     uv_ftrs1_ss_info =               [ 10             0.8 ];   % this and the var below are there, because Temporal gradient and other features need different UV SS
     uv_ftrs2_ss_info =               [ 4              0.8 ];
@@ -91,10 +81,7 @@ function [ override_settings ] = create_override_settings( seq_conflicts, tainin
                                      uv_ftrs2_ss_info(2) ];
     
     % create the structure of OF algos to use and Features to compute
-    override_settings.cell_flows = { TVL1OF, ...
-                                     HuberL1OF, ...
-                                     ClassicNLOF, ...
-                                     LargeDisplacementOF };
+    override_settings.cell_flows = { flow_algo };
 
     override_settings.MAX_MARKINGS_PER_LABEL = 14000;
     
