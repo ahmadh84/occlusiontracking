@@ -67,7 +67,7 @@ function testing_ofconfidence()
     % check if the classifier exist before proceeding
 %     assert(length(f) == 1, 'Main classifier XML doesn''t exist');
     
-    MAIN_CLASS_XML_PATH = fullfile(temp_out_dir, f(1).name);
+%     MAIN_CLASS_XML_PATH = fullfile(temp_out_dir, f(1).name);
     
     seq_conflicts = {};
     

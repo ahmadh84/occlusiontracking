@@ -18,6 +18,7 @@ function testing_ofconfidence_singleof()
     
     % path where the output files are written to
     out_dir = '/home/ahumayun/Desktop/ofconfidence_result';
+    out_dir = [out_dir '_' flow_algo.OF_SHORT_TYPE];
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -48,7 +49,7 @@ function testing_ofconfidence_singleof()
     end
     
     % EPE threshold to regress on
-    confidence_epe_th = 0.5;
+    confidence_epe_th = 2;
     
     % the xml regressor path
     temp_out_dir = fullfile(out_dir, sprintf('FC_SingleOF_%0.2f-gm_ed_pb_pb_tg_pc-%s', confidence_epe_th, flow_short_type));
@@ -57,7 +58,7 @@ function testing_ofconfidence_singleof()
     % check if the classifier exist before proceeding
 %     assert(length(f) == 1, 'Main classifier XML doesn''t exist');
     
-    MAIN_CLASS_XML_PATH = fullfile(temp_out_dir, f(1).name);
+%     MAIN_CLASS_XML_PATH = fullfile(temp_out_dir, f(1).name);
     
     seq_conflicts = {};
     
