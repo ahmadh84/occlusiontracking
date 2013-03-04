@@ -222,10 +222,10 @@ function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_s
     image_sz = size(epe_mat);
     epe_vals = epe_mat(gt_mask);
     
-    line_styles = {':', '-.', '--', '-', ':', '-.', '-', '-'};
+    line_styles = {':', '-.', '--', ':', '-.', '-', '-'};  %{':', '-.', '--', '-', ':', '-.', '-', '-'};
     
     hs = zeros(length(confidence_epe_ths)+2,1);
-    clr = [1 0 0; 0 1 0; 0 0 1; 0 0 0; 0 1 1; 0 0 0; 1 1 0; 1 0 1];
+    clr = [1 0 0; 0 1 0; 0 0 1; 0 0 0; 0 1 1; 0 0 0; 1 1 0; 1 0 0; 1 0 1];
     thresholds = 0:0.001:1;
     
     no_pixels = zeros(1,length(thresholds));
@@ -277,6 +277,11 @@ function makeAvgEPECurve(avgepe_ah, epe_mat, gt_mask, confidence_epe_ths, flow_s
 
     hs(end-1) = plot(avgepe_ah, no_pixels, avg_epe, 'LineStyle',line_styles{end-1}, 'Color',clr(end-1,:));
 
+    % select the flow algorithm for each pixel according to algo
+    % suitability tests and then use the classifier output at confidence
+    % threshold output_epe
+%     f = dir(fullfile(results_dir, 'result', sprintf('%d_*_rffeatureimp.mat',seq_id)));
+%     load(fullfile(results_dir, 'result', f.name));
     
     % optimal confidence graph
     epe_vals = sort(epe_vals);
